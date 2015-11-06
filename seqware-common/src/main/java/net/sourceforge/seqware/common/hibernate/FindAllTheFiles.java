@@ -56,7 +56,7 @@ public class FindAllTheFiles {
                 "File Meta-Type"), FILE_TAG_PREFIX("file."), FILE_ATTRIBUTES("File Attributes"), PROCESSING_DATE("Last Modified"), PROCESSING_SWID(
                 "Processing SWID"), PROCESSING_ALGO("Processing Algorithm"), PROCESSING_TAG_PREFIX("processing."), PROCESSING_ATTRIBUTES(
                 "Processing Attributes"), INPUT_FILE_META_TYPES("Input File Meta-Types"), INPUT_FILE_SWIDS("Input File SWIDs"), INPUT_FILE_PATHS(
-                "Input File Paths"), SKIP("Skip");
+                "Input File Paths"), SKIP("Skip"), ROOT_SAMPLE_NAME("Root Sample Name");
         private final String title;
 
         Header(String title) {
