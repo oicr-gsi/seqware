@@ -73,13 +73,40 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <includes>
-                        <!-- Removing classes with deprecated InSessionExecutions class
-                        <include>**/HibernateTestSuite.java</include>-->
                         <include>**/util/*.java</include>
                         <include>**/util/**/*.java</include>
                         <include>**/dao/**/*.java</include>
                     </includes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/HibernateTestSuite.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <seqware_meta_db_host>${seqware_meta_db_user}</seqware_meta_db_host>
+                        <seqware_meta_db_port>${seqware_meta_db_port}</seqware_meta_db_port>
+                        <seqware_meta_db_user>${seqware_meta_db_user}}</seqware_meta_db_user>
+                        <seqware_meta_db_password>${seqware_meta_db_password}}</seqware_meta_db_password>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -440,6 +467,15 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
         </dependency>
     </dependencies>
 </project>
