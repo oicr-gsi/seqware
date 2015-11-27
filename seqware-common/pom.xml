@@ -89,8 +89,8 @@
                     <systemPropertyVariables>
                         <seqware_meta_db_host>${seqware_meta_db_user}</seqware_meta_db_host>
                         <seqware_meta_db_port>${seqware_meta_db_port}</seqware_meta_db_port>
-                        <seqware_meta_db_user>${seqware_meta_db_user}}</seqware_meta_db_user>
-                        <seqware_meta_db_password>${seqware_meta_db_password}}</seqware_meta_db_password>
+                        <seqware_meta_db_user>${seqware_meta_db_user}</seqware_meta_db_user>
+                        <seqware_meta_db_password>${seqware_meta_db_password}</seqware_meta_db_password>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
