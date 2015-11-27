@@ -21,7 +21,7 @@
                 <value>net/sourceforge/seqware/common/model/Mappings.hbm.xml</value>
             </list>
         </property>
-        <property name="packagesToScan" value="net.sourceforge.seqware.common" />
+        <property name="packagesToScan" value="net.sourceforge.seqware.common.model" />
         <property name="hibernateProperties">
             <props>
                 <prop key="dialect">org.hibernate.dialect.HSQLDialect</prop>

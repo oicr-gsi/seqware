@@ -24,7 +24,12 @@
                 <value>net/sourceforge/seqware/common/model/Mappings.hbm.xml</value>
             </list>
         </property>
-        <property name="packagesToScan" value="net.sourceforge.seqware.common.model" /> 
+        <property name="packagesToScan">
+            <list>
+                <value>net.sourceforge.seqware.common.model</value>
+                <value>net.sourceforge.seqware.common.dto</value>
+            </list>
+        </property>
         <property name="hibernateProperties">
             <props>
                 <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
@@ -1314,7 +1319,36 @@
         </property>
     </bean>
 	
-
+    <!-- AnalysisProvenance Service -->
+    <bean id="analysisProvenanceServiceTarget"
+          class="net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImpl">
+        <property name="analysisProvenanceDAO">
+            <ref local="analysisProvenanceDAO"/>
+        </property>
+    </bean>
+	
+    <!-- AnalysisProvenance DAO -->
+    <bean id="analysisProvenanceDAO" class="net.sourceforge.seqware.common.dao.hibernate.AnalysisProvenanceDAOHibernate">
+        <property name="sessionFactory">
+            <ref local="sessionFactory"/>
+        </property>
+    </bean>
+    
+    <!-- Transaction declarations AnalysisProvenance Service -->
+    <bean id="analysisProvenanceService"
+              class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref local="transactionManager"/>
+        </property>
+        <property name="target">
+            <ref local="analysisProvenanceServiceTarget"/>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
 
 <tx:annotation-driven />
 
@@ -1411,6 +1445,9 @@
         </property>
         <property name="organismService">
             <ref local="organismService"/>
+        </property>
+        <property name="analysisProvenanceService">
+            <ref local="analysisProvenanceService"/>
         </property>
     </bean>
       

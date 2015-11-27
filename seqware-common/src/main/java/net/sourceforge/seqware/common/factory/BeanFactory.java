@@ -35,6 +35,7 @@ import net.sourceforge.seqware.common.business.WorkflowParamValueService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import org.hibernate.SessionFactory;
+import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 
 /**
  * <p>
@@ -403,6 +404,10 @@ public abstract class BeanFactory {
 
     public static ExperimentSpotDesignReadSpecService getExperimentSpotDesignReadSpecServiceBean() {
         return ContextImpl.getInstance().getExperimentSpotDesignReadSpecService();
+    }
+
+    public static AnalysisProvenanceService getAnalysisProvenanceServiceBean() {
+        return ContextImpl.getInstance().getAnalysisProvenanceService();
     }
 
 }

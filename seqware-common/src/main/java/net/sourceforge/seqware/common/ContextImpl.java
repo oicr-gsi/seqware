@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.ContextLoader;
+import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 
 /**
  * <p>
@@ -95,6 +96,8 @@ public class ContextImpl {
 
     @Autowired
     private FileAttributeService fileAttributeService;
+    
+    private AnalysisProvenanceService analysisProvenanceService;
 
     private ContextImpl() {
         // appCtx = new ClassPathXmlApplicationContext("applicationContext.xml");
@@ -792,6 +795,14 @@ public class ContextImpl {
      */
     public void setExperimentSpotDesignReadSpecService(ExperimentSpotDesignReadSpecService experimentSpotDesignReadSpecService) {
         this.experimentSpotDesignReadSpecService = experimentSpotDesignReadSpecService;
+    }
+
+    public AnalysisProvenanceService getAnalysisProvenanceService() {
+        return analysisProvenanceService;
+    }
+
+    public void setAnalysisProvenanceService(AnalysisProvenanceService analysisProvenanceService) {
+        this.analysisProvenanceService = analysisProvenanceService;
     }
 
 }
