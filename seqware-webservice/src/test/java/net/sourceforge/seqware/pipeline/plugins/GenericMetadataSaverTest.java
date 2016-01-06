@@ -34,7 +34,6 @@ import static net.sourceforge.seqware.pipeline.plugins.PluginTest.metadata;
 import org.apache.commons.dbutils.handlers.ArrayHandler;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
@@ -55,20 +54,20 @@ public class GenericMetadataSaverTest extends PluginTest {
     private Pattern errorPattern = Pattern.compile("ERROR|error|Error|FATAL|fatal|Fatal|WARN|warn|Warn");
     private PrintStream systemErr = System.err;
 
+    private BasicTestDatabaseCreator dbCreator;
+    
     /**
      * This allows us to intercept and ignore the various System.exit calls within runner so they don't take down the tests as well
      */
     @Rule
     public final ExpectedSystemExit exit = ExpectedSystemExit.none();
 
-    @BeforeClass
-    public static void beforeClass() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-    }
-
     @Before
     @Override
     public void setUp() {
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
+        
         super.setUp();
         instance = new ModuleRunner();
         instance.setMetadata(metadata);
@@ -186,7 +185,6 @@ public class GenericMetadataSaverTest extends PluginTest {
         String swid = getAndCheckSwid(s);
         int accession = Integer.valueOf(swid);
         // check that file records and processing were created properly
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator
                 .runQuery(
                         new ArrayHandler(),
@@ -210,7 +208,6 @@ public class GenericMetadataSaverTest extends PluginTest {
         String swid = getAndCheckSwid(s);
         int accession = Integer.valueOf(swid);
         // check that file records and processing were created properly
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator
                 .runQuery(
                         new ArrayHandler(),

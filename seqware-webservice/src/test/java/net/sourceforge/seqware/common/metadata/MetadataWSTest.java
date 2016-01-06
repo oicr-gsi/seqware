@@ -64,6 +64,7 @@ import org.junit.Test;
 public class MetadataWSTest {
 
     protected static Metadata instance;
+    private BasicTestDatabaseCreator dbCreator;
 
     public static Metadata newTestMetadataInstance() {
         // if an alternative database is set, then we need to redirect to look at the defined REST URL
@@ -89,7 +90,6 @@ public class MetadataWSTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         instance = newTestMetadataInstance();
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
     }
 
     @AfterClass
@@ -99,6 +99,8 @@ public class MetadataWSTest {
 
     @Before
     public void setUp() {
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
     }
 
     @After
@@ -717,7 +719,7 @@ public class MetadataWSTest {
 
     @Test
     public void testUpdateWorkflowRunWithInputFiles() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
+        dbCreator.resetDatabaseWithUsers();
         final int wr_sw_accession = 6603;
         WorkflowRun wr = instance.getWorkflowRun(wr_sw_accession);
         // should already be blank
@@ -757,7 +759,7 @@ public class MetadataWSTest {
 
     @Test
     public void getDirectFilesAssociatedWithWorkflowRuns() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
+        dbCreator.resetDatabaseWithUsers();
 
         List<Integer> files = new ArrayList<>();
         // try getting nothing
