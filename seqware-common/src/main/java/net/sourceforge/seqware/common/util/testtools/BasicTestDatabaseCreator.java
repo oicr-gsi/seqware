@@ -115,7 +115,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
             return settings.get("POSTGRE_USER");
         }
         Log.debug("Could not retrieve postgres user name, using default from unit tests");
-        return super.getDEFAULT_DB_PORT();
+        return super.getPOSTGRE_USER();
     }
 
     /**
