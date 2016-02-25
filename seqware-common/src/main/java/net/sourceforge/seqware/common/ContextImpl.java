@@ -41,6 +41,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.ContextLoader;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.LimsKeyService;
+import net.sourceforge.seqware.common.business.SampleProvenanceService;
 
 /**
  * <p>
@@ -100,6 +101,8 @@ public class ContextImpl {
     private FileAttributeService fileAttributeService;
     
     private AnalysisProvenanceService analysisProvenanceService;
+    
+    private SampleProvenanceService sampleProvenanceService;
 
     private ContextImpl() {
         // appCtx = new ClassPathXmlApplicationContext("applicationContext.xml");
@@ -828,6 +831,14 @@ public class ContextImpl {
 
     public void setAnalysisProvenanceService(AnalysisProvenanceService analysisProvenanceService) {
         this.analysisProvenanceService = analysisProvenanceService;
+    }
+
+    public SampleProvenanceService getSampleProvenanceService() {
+        return sampleProvenanceService;
+    }
+
+    public void setSampleProvenanceService(SampleProvenanceService sampleProvenanceService) {
+        this.sampleProvenanceService = sampleProvenanceService;
     }
 
 }

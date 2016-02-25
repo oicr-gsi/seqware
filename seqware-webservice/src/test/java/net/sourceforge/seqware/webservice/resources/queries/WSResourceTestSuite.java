@@ -31,6 +31,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     net.sourceforge.seqware.webservice.resources.queries.AnalysisProvenanceResourceTest.class,
+    net.sourceforge.seqware.webservice.resources.queries.SampleProvenanceResourceTest.class
 })
 public class WSResourceTestSuite {
 

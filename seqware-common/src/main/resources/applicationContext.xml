@@ -1385,6 +1385,28 @@
     </bean>
 
 <tx:annotation-driven />
+    <!-- SampleProvenance Service -->
+    <bean id="sampleProvenanceServiceTarget" class="net.sourceforge.seqware.common.business.impl.SampleProvenanceServiceImpl">
+        <property name="IUSDAO">
+            <ref local="IUSDAO"/>
+        </property>
+    </bean>
+	
+    
+    <!-- Transaction declarations AnalysisProvenance Service -->
+    <bean id="sampleProvenanceService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref local="transactionManager"/>
+        </property>
+        <property name="target">
+            <ref local="sampleProvenanceServiceTarget"/>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
 
 <bean class=
   "org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
@@ -1485,6 +1507,9 @@
         </property>
         <property name="analysisProvenanceService">
             <ref local="analysisProvenanceService"/>
+        </property>
+        <property name="sampleProvenanceService">
+            <ref local="sampleProvenanceService"/>
         </property>
     </bean>
       

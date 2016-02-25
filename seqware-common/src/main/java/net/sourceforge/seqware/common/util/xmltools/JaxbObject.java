@@ -34,6 +34,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
@@ -85,6 +86,7 @@ import net.sourceforge.seqware.common.model.lists.PlatformList;
 import net.sourceforge.seqware.common.model.lists.ProcessingList;
 import net.sourceforge.seqware.common.model.lists.ReturnValueList;
 import net.sourceforge.seqware.common.model.lists.SampleList;
+import net.sourceforge.seqware.common.model.lists.SampleProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.SequencerRunList;
 import net.sourceforge.seqware.common.model.lists.StudyList;
 import net.sourceforge.seqware.common.model.lists.StudyTypeList;
@@ -148,6 +150,8 @@ public class JaxbObject<T> {
                         Registration.class,
                         Sample.class,
                         SampleAttribute.class,
+                        SampleProvenanceDto.class,
+                        SampleProvenanceDtoList.class,
                         SequencerRun.class,
                         SequencerRunWizardDTO.class,
                         // ShareExperiment.class, ShareFile.class, ShareLane.class,

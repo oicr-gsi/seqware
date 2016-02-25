@@ -29,6 +29,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.xml.bind.JAXBException;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.dto.builders.AnalysisProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
@@ -42,6 +43,7 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SampleAttribute;
+import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
@@ -51,11 +53,13 @@ import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.ReturnValueList;
+import net.sourceforge.seqware.common.model.lists.SampleProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.WorkflowList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -668,5 +672,62 @@ public class JaxbObjectTest {
             assertEquals("pfo", dto.getProcessingAlgorithm());
             assertEquals("/tmp/out", dto.getFilePath());
         }
+    }
+
+    @Test
+    public void testSampleProvenance() throws JAXBException, SAXException {
+        Study st = new Study();
+        st.setCreateTimestamp(new Date());
+        st.setTitle("test_study");
+
+        Experiment e = new Experiment();
+        e.setCreateTimestamp(new Date());
+        e.setCenterName("test");
+
+        SequencerRun sr = new SequencerRun();
+        sr.setCreateTimestamp(new Date());
+        sr.setName("test_sequencer_run");
+
+        Lane l = new Lane();
+        l.setCreateTimestamp(new Date());
+        l.setLaneIndex(0);
+
+        SampleAttribute sa = new SampleAttribute(0, null, "tissue_type", "R");
+        SampleAttribute sa2 = new SampleAttribute(0, null, "tissue_type", "P");
+        SampleAttribute sa3 = new SampleAttribute(0, null, "tissue_origin", "Ly");
+
+        Sample s = new Sample();
+        s.setCreateTimestamp(new Date());
+        s.setSampleAttributes(Sets.newHashSet(sa, sa2, sa3));
+        s.setName("test_sample");
+
+        IUS i = new IUS();
+        i.setCreateTimestamp(new Date());
+        i.setSwAccession(1111111);
+
+        SampleProvenanceDtoBuilder sp = new SampleProvenanceDtoBuilder();
+        sp.setStudy(st);
+        sp.setExperiment(e);
+        sp.setSequencerRun(sr);
+        sp.setLane(l);
+        sp.setSample(s);
+        sp.setIus(i);
+
+        List<SampleProvenanceDto> sps = new ArrayList<>();
+        sps.add(sp.build());
+
+        SampleProvenanceDtoList sampleProvenanceList = new SampleProvenanceDtoList();
+        sampleProvenanceList.setSampleProvenanceDtos(sps);
+
+        JaxbObject<SampleProvenanceDtoList> jaxb = new JaxbObject<>();
+        String text = jaxb.marshal(sampleProvenanceList);
+
+        SampleProvenanceDtoList sampleProvenanceSet1 = (SampleProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new SampleProvenanceDtoList(), text);
+
+        assertEquals("test_study", Iterables.getFirst(sampleProvenanceSet1.getSampleProvenanceDtos(), new SampleProvenanceDto()).getStudyTitle());
+        assertEquals(Sets.newHashSet("R", "P"), sps.get(0).getSampleAttributes().get("tissue_type"));
+        assertEquals(Sets.newHashSet("R", "P"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_type"));
+        assertEquals(Sets.newHashSet("Ly"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_origin"));
+        assertTrue(EqualsBuilder.reflectionEquals(sps.get(0), sampleProvenanceSet1.getSampleProvenanceDtos().get(0), true));
     }
 }
