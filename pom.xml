@@ -59,6 +59,7 @@
 
         <skipITs>true</skipITs>
         <findbugs.version>3.0.0</findbugs.version>
+        <findbugs.skip>false</findbugs.skip>
         <maven-pmd-plugin.version>3.2</maven-pmd-plugin.version>
 
         <!-- Needs to be set for memory issues, but must be overrideable from the command line for Bionimbus for unknown reasons -->
@@ -1260,7 +1261,7 @@
                     <excludeFilterFile>
                         findbugs-exclude.xml
                     </excludeFilterFile>
-                    <skip>${skipTests}</skip>
+                    <skip>${findbugs.skip}</skip>
                 </configuration>
             </plugin>
         </plugins>
