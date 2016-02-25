@@ -38,6 +38,7 @@ import net.sourceforge.seqware.webservice.resources.tables.LaneResource;
 import net.sourceforge.seqware.webservice.resources.tables.LibrarySelectionResource;
 import net.sourceforge.seqware.webservice.resources.tables.LibrarySourceResource;
 import net.sourceforge.seqware.webservice.resources.tables.LibraryStrategyResource;
+import net.sourceforge.seqware.webservice.resources.tables.LimsKeyResource;
 import net.sourceforge.seqware.webservice.resources.tables.OrganismResource;
 import net.sourceforge.seqware.webservice.resources.tables.PlatformResource;
 import net.sourceforge.seqware.webservice.resources.tables.ProcessIDResource;
@@ -159,11 +160,16 @@ public class SeqWareWebServiceApplication extends WadlApplication {
         router.attach("/files/", slashRedirect);
         router.attach("/files/{fileId}", FileIDResource.class);
 
+        router.attach("/limskey", LimsKeyResource.class);
+        router.attach("/limskey/", slashRedirect);
+        router.attach("/limskey/{limsKeyId}", LimsKeyResource.class);
         router.attach("/ius", IusResource.class);
         router.attach("/ius/", slashRedirect);
         router.attach("/ius/{iusId}", IusIDResource.class);
         router.attach("/ius/{iusId}/lane", LaneIDFilter.class);
 
+        router.attach("/ius/{iusId}/{object}", IusIDResource.class);
+        
         router.attach("/lanes", LaneResource.class);
         router.attach("/lanes/", slashRedirect);
         router.attach("/lanes/{laneId}", LaneIDResource.class);

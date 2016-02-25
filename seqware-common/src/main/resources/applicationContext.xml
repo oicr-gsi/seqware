@@ -69,6 +69,11 @@
             <ref local="sessionFactory"/>
         </property>
     </bean>
+    <bean id="limsKeyDAO" class="net.sourceforge.seqware.common.dao.hibernate.LimsKeyDAOHibernate">
+        <property name="sessionFactory">
+            <ref local="sessionFactory"/>
+        </property>
+    </bean>
     <bean id="IUSDAO" class="net.sourceforge.seqware.common.dao.hibernate.IUSDAOHibernate">
         <property name="sessionFactory">
             <ref local="sessionFactory"/>
@@ -229,6 +234,33 @@
                 <prop key="insert*">PROPAGATION_REQUIRED</prop>
                 <prop key="update*">PROPAGATION_REQUIRED</prop>
                 <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <!-- LimsKey Service -->
+    <bean id="limsKeyServiceTarget"
+          class="net.sourceforge.seqware.common.business.impl.LimsKeyServiceImpl">
+        <property name="limsKeyDAO">
+            <ref local="limsKeyDAO"/>
+        </property>
+    </bean>
+    
+    <!-- Transaction declarations for LimsKey Service -->
+    <bean id="limsKeyService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref local="transactionManager"/>
+        </property>
+        <property name="target">
+            <ref local="limsKeyServiceTarget"/>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="insert">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete">PROPAGATION_REQUIRED</prop>
                 <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
             </props>
         </property>
@@ -1370,6 +1402,9 @@
         </property>
         <property name="fileService">
             <ref local="fileService"/>
+        </property>
+        <property name="limsKeyService">
+            <ref local="limsKeyService"/>
         </property>
         <property name="iusService">
             <ref local="IUSService"/>

@@ -46,6 +46,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Processing;
@@ -74,6 +75,7 @@ import net.sourceforge.seqware.common.model.lists.LaneList;
 import net.sourceforge.seqware.common.model.lists.LibrarySelectionList;
 import net.sourceforge.seqware.common.model.lists.LibrarySourceList;
 import net.sourceforge.seqware.common.model.lists.LibraryStrategyList;
+import net.sourceforge.seqware.common.model.lists.LimsKeyList;
 import net.sourceforge.seqware.common.model.lists.OrganismList;
 import net.sourceforge.seqware.common.model.lists.PlatformList;
 import net.sourceforge.seqware.common.model.lists.ProcessingList;
@@ -124,6 +126,8 @@ public class JaxbObject<T> {
                         LibrarySelection.class,
                         LibrarySource.class,
                         LibraryStrategy.class,
+                        LimsKey.class,
+                        LimsKeyList.class,
                         Organism.class,
                         Platform.class,
                         Processing.class,

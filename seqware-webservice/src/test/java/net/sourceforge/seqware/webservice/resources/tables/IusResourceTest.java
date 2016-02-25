@@ -19,15 +19,20 @@ package net.sourceforge.seqware.webservice.resources.tables;
 import java.util.Date;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import org.junit.Assert;
+import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
+import org.joda.time.DateTime;
+import static org.junit.Assert.*;
+import org.junit.Test;
 import org.restlet.representation.Representation;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 
 /**
- * 
+ *
  * @author mtaschuk
  */
 public class IusResourceTest extends DatabaseResourceTest {
@@ -58,7 +63,72 @@ public class IusResourceTest extends DatabaseResourceTest {
             rep.release();
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPostWithLimsKey() {
+        LimsKey lk = new LimsKey();
+        lk.setId("1");
+        lk.setLastModified(new DateTime());
+        lk.setProvider("provider");
+        lk.setVersion("1");
+
+        try {
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<LimsKey>(), lk); //marshal to xml
+            Representation rep = ClientResourceInstance.getChild("/limskey").post(XmlTools.getRepresentation(doc)); //post
+            lk = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), rep.getText());
+            rep.exhaust();
+            rep.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+
+        IUS ius = new IUS();
+        ius.setLimsKey(lk);
+        try {
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<IUS>(), ius); //object to xml
+            Representation rep = resource.post(XmlTools.getRepresentation(doc)); //post
+            ius = (IUS) XmlTools.unMarshal(new JaxbObject<IUS>(), new IUS(), rep.getText());
+            rep.exhaust();
+            rep.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+        assertNotNull(ius.getCreateTimestamp());
+        assertNotNull(ius.getUpdateTimestamp());
+
+        LimsKey returnedLimsKey = null;
+        try {
+            Representation rep = ClientResourceInstance.getChild("/ius/" + ius.getSwAccession() + "/limskey").get();
+            returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), rep.getText());
+            rep.exhaust();
+            rep.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+        assertEquals(lk, returnedLimsKey);
+    }
+
+    @Test()
+    public void testPostWithMissingLimsKey() {
+        LimsKey lk = new LimsKey();
+
+        IUS ius = new IUS();
+        ius.setLimsKey(lk); //set LimsKey that does not exist
+        try {
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<IUS>(), ius); //object to xml
+            Representation rep = resource.post(XmlTools.getRepresentation(doc)); //post
+            ius = (IUS) XmlTools.unMarshal(new JaxbObject<IUS>(), new IUS(), rep.getText());
+            rep.exhaust();
+            rep.release();
+            fail("Post should have failed - missing LimsKey");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

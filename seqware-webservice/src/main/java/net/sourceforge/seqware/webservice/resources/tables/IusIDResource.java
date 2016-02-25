@@ -26,6 +26,7 @@ import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.util.Log;
@@ -68,14 +69,26 @@ public class IusIDResource extends DatabaseIDResource {
         IUSService ss = BeanFactory.getIUSServiceBean();
         IUS ius = testIfNull(ss.findBySWAccession(getId()));
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-        JaxbObject<IUS> jaxbTool = new JaxbObject<>();
+        if (getRequestAttributes().containsKey("object")) {
+            if (getRequestAttributes().get("object").equals("limskey")) {
+                LimsKey limsKey = copier.hibernate2dto(LimsKey.class, ius.getLimsKey());
+                limsKey.setLastModified(ius.getLimsKey().getLastModified()); //hibernate dto copier does not set DateTime
+                JaxbObject<LimsKey> jaxbTool = new JaxbObject<>();
+                Document line = XmlTools.marshalToDocument(jaxbTool, limsKey);
+                getResponse().setEntity(XmlTools.getRepresentation(line));
+            } else {
+                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Object type not supported");
+            }
+        } else {
+            JaxbObject<IUS> jaxbTool = new JaxbObject<>();
 
-        CollectionPropertyName<IUS>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(IUS.class,
-                new String[] { "iusAttributes" });
-        IUS dto = copier.hibernate2dto(IUS.class, ius, new Class<?>[] {}, createCollectionPropertyNames);
+            CollectionPropertyName<IUS>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(IUS.class,
+                    new String[]{"iusAttributes"});
+            IUS dto = copier.hibernate2dto(IUS.class, ius, new Class<?>[]{}, createCollectionPropertyNames);
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
-        getResponse().setEntity(XmlTools.getRepresentation(line));
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            getResponse().setEntity(XmlTools.getRepresentation(line));
+        }
     }
 
     /**

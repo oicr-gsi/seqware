@@ -16,6 +16,7 @@
  */
 package net.sourceforge.seqware.common.util.xmltools;
 
+import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LaneAttribute;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.model.Sample;
@@ -44,6 +46,7 @@ import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -574,5 +577,15 @@ public class JaxbObjectTest {
             Assert.assertNotNull("Attribute key is null.", rv.getAttribute("key"));
         }
 
+    }
+
+    @Test
+    public void testLimsKey() throws Exception {
+        LimsKey lk = new LimsKey();
+        lk.setLastModified(DateTime.now());
+        JaxbObject<LimsKey> jaxb = new JaxbObject<>();
+        String text = jaxb.marshal(lk);
+        LimsKey returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<>(), new LimsKey(), text);
+        Assert.assertNotNull(returnedLimsKey.getLastModified());
     }
 }

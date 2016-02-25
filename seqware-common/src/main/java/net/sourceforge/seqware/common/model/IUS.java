@@ -30,6 +30,7 @@ public class IUS extends PermissionsAware implements Serializable, Comparable<IU
     private Lane lane;
     private Registration owner;
     private Sample sample;
+    private LimsKey limsKey;
     private String name;
     private String alias;
     private String description;
@@ -203,6 +204,24 @@ public class IUS extends PermissionsAware implements Serializable, Comparable<IU
      */
     public void setSample(Sample sample) {
         this.sample = sample;
+    }
+
+    /**
+     * Getter for the field <code>limsKey</code>.
+     *
+     * @return a {@link net.sourceforge.seqware.common.model.LimsKey} object.
+     */
+    public LimsKey getLimsKey() {
+        return limsKey;
+    }
+
+    /**
+     * Setter for the field <code>limsKey</code>.
+     *
+     * @param limsKey a {@link net.sourceforge.seqware.common.model.LimsKey} object.
+     */
+    public void setLimsKey(LimsKey limsKey) {
+        this.limsKey = limsKey;
     }
 
     /**

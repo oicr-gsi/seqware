@@ -7,6 +7,7 @@ import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.Log;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +60,13 @@ public class IusServiceImplTest extends AbstractTestCase {
         // Test SW accession
         List<IUS> found = iusService.findByCriteria("4765", false);
         assertEquals(1, found.size());
+    }
+
+    @Test
+    public void testInsert() {
+        IUS ius = new IUS();
+        Integer swid = iusService.insert(ius);
+        IUS newIus = iusService.findBySWAccession(swid);
+        assertNotNull(newIus);
     }
 }

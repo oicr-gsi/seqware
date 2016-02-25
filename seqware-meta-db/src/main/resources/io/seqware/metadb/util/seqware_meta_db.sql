@@ -1205,14 +1205,39 @@ CREATE TABLE invoice_attribute (
 
 ALTER TABLE public.invoice_attribute OWNER TO seqware;
 
+
+CREATE TABLE lims_key (
+    lims_key_id integer NOT NULL,
+    provider text NOT NULL,
+    id text NOT NULL,
+    version text NOT NULL,
+    last_modified timestamp with time zone NOT NULL,
+    sw_accession integer DEFAULT nextval('sw_accession_seq'::regclass),
+    create_tstmp timestamp without time zone NOT NULL,
+    update_tstmp timestamp without time zone NOT NULL
+);
+ALTER TABLE lims_key
+    ADD CONSTRAINT lims_key_pkey PRIMARY KEY (lims_key_id);
+CREATE SEQUENCE lims_key_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+ALTER TABLE public.lims_key_id_seq OWNER TO seqware;
+ALTER SEQUENCE lims_key_id_seq OWNED BY lims_key.lims_key_id;
+ALTER TABLE lims_key ALTER COLUMN lims_key_id SET DEFAULT nextval('lims_key_id_seq '::regclass);
+ALTER TABLE public.lims_key OWNER TO seqware;
+
 --
 -- Name: ius; Type: TABLE; Schema: public; Owner: seqware; Tablespace: 
 --
 
 CREATE TABLE ius (
     ius_id integer NOT NULL,
-    sample_id integer NOT NULL,
-    lane_id integer NOT NULL,
+    sample_id integer,
+    lane_id integer,
+    lims_key_id integer,
     owner_id integer,
     name text,
     alias text,
@@ -4232,6 +4257,12 @@ ALTER TABLE ONLY ius
 ALTER TABLE ONLY ius
     ADD CONSTRAINT ius__sample_fk FOREIGN KEY (sample_id) REFERENCES sample(sample_id);
 
+--
+-- Name: ius__lims_key_fk; Type: FK CONSTRAINT; Schema: public; Owner: seqware
+--
+
+ALTER TABLE ONLY ius
+    ADD CONSTRAINT ius__lims_key_fk FOREIGN KEY (lims_key_id) REFERENCES lims_key(lims_key_id);
 
 --
 -- Name: ius_attribute_ius_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: seqware
