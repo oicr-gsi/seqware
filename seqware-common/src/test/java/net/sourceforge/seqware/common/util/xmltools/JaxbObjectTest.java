@@ -17,11 +17,19 @@
 package net.sourceforge.seqware.common.util.xmltools;
 
 import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import io.seqware.common.model.WorkflowRunStatus;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.xml.bind.JAXBException;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.builders.AnalysisProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.FileType;
@@ -34,12 +42,14 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SampleAttribute;
+import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
+import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.ReturnValueList;
 import net.sourceforge.seqware.common.model.lists.WorkflowList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
@@ -51,9 +61,12 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.xml.sax.SAXException;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 
 /**
  * <p>
@@ -587,5 +600,73 @@ public class JaxbObjectTest {
         String text = jaxb.marshal(lk);
         LimsKey returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<>(), new LimsKey(), text);
         Assert.assertNotNull(returnedLimsKey.getLastModified());
+    }
+
+    @Test
+    public void testAnalysisProvenance() throws JAXBException, SAXException {
+        AnalysisProvenanceDtoList analysisProvenanceList0 = new AnalysisProvenanceDtoList();
+        analysisProvenanceList0.setAnalysisProvenanceDtos(new ArrayList<AnalysisProvenanceDto>());
+        JaxbObject<AnalysisProvenanceDtoList> jaxb0 = new JaxbObject<>();
+        String text0 = jaxb0.marshal(analysisProvenanceList0);
+        AnalysisProvenanceDtoList analysisProvenanceList0a = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text0);
+        
+        Workflow w = new Workflow();
+        w.setName("test_workflow");
+
+        WorkflowRun wr = new WorkflowRun();
+        wr.setStatus(WorkflowRunStatus.completed);
+
+        Processing p = new Processing();
+        p.setAlgorithm("pfo");
+        p.setCreateTimestamp(new Date());
+
+        File f = new File();
+        f.setFilePath("/tmp/out");
+
+        LimsKey lk1 = new LimsKey();
+        lk1.setProvider("seqware");
+        lk1.setId("1");
+        lk1.setVersion("1");
+        lk1.setLastModified(DateTime.now());
+
+        IusLimsKeyDto ik1 = new IusLimsKeyDto();
+        ik1.setIusSWID(1234);
+        ik1.setLimsKey(lk1);
+
+        LimsKey lk2 = new LimsKey();
+        lk2.setProvider("seqware");
+        lk2.setId("2");
+        lk2.setVersion("1");
+        lk2.setLastModified(DateTime.now());
+
+        IusLimsKeyDto ik2 = new IusLimsKeyDto();
+        ik2.setIusSWID(4567);
+        ik2.setLimsKey(lk2);
+
+        AnalysisProvenanceDtoBuilder ap = new AnalysisProvenanceDtoBuilder();
+        ap.setFile(f);
+        ap.setProcessing(p);
+        ap.setWorkflow(w);
+        ap.setWorkflowRun(wr);
+        ap.setIusLimsKeys(Sets.newHashSet((IusLimsKeyDto) ik1, ik2));
+
+        List<AnalysisProvenanceDto> apDtos = new ArrayList<>();
+        apDtos.add(ap.build());
+
+        AnalysisProvenanceDtoList analysisProvenanceList = new AnalysisProvenanceDtoList();
+        analysisProvenanceList.setAnalysisProvenanceDtos(apDtos);
+
+        JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
+        String text = jaxb.marshal(analysisProvenanceList);
+
+        AnalysisProvenanceDtoList analysisProvenanceList1 = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text);
+        for(AnalysisProvenanceDto dto : analysisProvenanceList1.getAnalysisProvenanceDtos()){
+            for(IusLimsKey ik : dto.getIusLimsKeys()){
+                assertEquals("seqware", ik.getLimsKey().getProvider());
+            }
+            assertEquals("test_workflow", dto.getWorkflowName());
+            assertEquals("pfo", dto.getProcessingAlgorithm());
+            assertEquals("/tmp/out", dto.getFilePath());
+        }
     }
 }

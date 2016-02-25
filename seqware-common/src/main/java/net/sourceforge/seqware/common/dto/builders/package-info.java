@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 SeqWare
+ * Copyright (C) 2016 SeqWare
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,23 +14,4 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.sourceforge.seqware.common.business;
-
-import java.util.List;
-import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
-import net.sourceforge.seqware.common.dao.IUSDAO;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
-
-/**
- *
- * @author mlaszloffy
- */
-public interface AnalysisProvenanceService {
-
-    public void setAnalysisProvenanceDAO(AnalysisProvenanceDAO analysisProvenanceDAO);
-
-    public void setIUSDAO(IUSDAO iusDAO);
-
-    public List<AnalysisProvenanceDto> list();
-
-}
+package net.sourceforge.seqware.common.dto.builders;

@@ -17,7 +17,7 @@
 package net.sourceforge.seqware.common.dao;
 
 import java.util.List;
-import net.sourceforge.seqware.common.dto.AnalysisProvenance;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 
 /**
  *
@@ -25,6 +25,6 @@ import net.sourceforge.seqware.common.dto.AnalysisProvenance;
  */
 public interface AnalysisProvenanceDAO {
 
-    public List<AnalysisProvenance> list();
+    public List<AnalysisProvenanceDto> list();
     
 }

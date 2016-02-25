@@ -46,6 +46,7 @@ import org.springframework.mock.jndi.SimpleNamingContextBuilder;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+    net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImplTest.class,
     net.sourceforge.seqware.common.business.impl.IusServiceImplTest.class,
     net.sourceforge.seqware.common.business.impl.LimsKeyServiceImplTest.class,
     net.sourceforge.seqware.common.business.impl.LaneServiceImplTest.class,

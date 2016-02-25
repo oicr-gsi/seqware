@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 SeqWare
+ * Copyright (C) 2016 SeqWare
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,23 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.sourceforge.seqware.common.business;
+package net.sourceforge.seqware.common.dto;
 
-import java.util.List;
-import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
-import net.sourceforge.seqware.common.dao.IUSDAO;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import net.sourceforge.seqware.common.model.LimsKey;
 
 /**
  *
  * @author mlaszloffy
  */
-public interface AnalysisProvenanceService {
+public class IusLimsKeyDto implements IusLimsKey {
 
-    public void setAnalysisProvenanceDAO(AnalysisProvenanceDAO analysisProvenanceDAO);
+    private Integer iusSWID;
+    private LimsKey limsKey;
 
-    public void setIUSDAO(IUSDAO iusDAO);
+    @Override
+    public Integer getIusSWID() {
+        return iusSWID;
+    }
 
-    public List<AnalysisProvenanceDto> list();
+    public void setIusSWID(Integer iusSWID) {
+        this.iusSWID = iusSWID;
+    }
+
+    @Override
+    public LimsKey getLimsKey() {
+        return limsKey;
+    }
+
+    public void setLimsKey(LimsKey limsKey) {
+        this.limsKey = limsKey;
+    }
 
 }

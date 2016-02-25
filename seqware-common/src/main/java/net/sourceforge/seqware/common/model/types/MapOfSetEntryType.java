@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 SeqWare
+ * Copyright (C) 2016 SeqWare
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,23 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.sourceforge.seqware.common.business;
+package net.sourceforge.seqware.common.model.types;
 
 import java.util.List;
-import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
-import net.sourceforge.seqware.common.dao.IUSDAO;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
- *
+ * 
  * @author mlaszloffy
  */
-public interface AnalysisProvenanceService {
+public class MapOfSetEntryType {
 
-    public void setAnalysisProvenanceDAO(AnalysisProvenanceDAO analysisProvenanceDAO);
+    private String key;
+    private List<String> values;
 
-    public void setIUSDAO(IUSDAO iusDAO);
+    @XmlAttribute
+    public String getKey() {
+        return key;
+    }
 
-    public List<AnalysisProvenanceDto> list();
+    public void setKey(String key) {
+        this.key = key;
+    }
 
+    @XmlElement(name = "value")
+    public List<String> getValues() {
+        return values;
+    }
+
+    public void setValues(List<String> values) {
+        this.values = values;
+    }
 }

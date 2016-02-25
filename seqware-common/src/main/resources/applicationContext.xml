@@ -27,7 +27,6 @@
         <property name="packagesToScan">
             <list>
                 <value>net.sourceforge.seqware.common.model</value>
-                <value>net.sourceforge.seqware.common.dto</value>
             </list>
         </property>
         <property name="hibernateProperties">
@@ -1356,6 +1355,9 @@
           class="net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImpl">
         <property name="analysisProvenanceDAO">
             <ref local="analysisProvenanceDAO"/>
+        </property>
+        <property name="IUSDAO">
+            <ref local="IUSDAO"/>
         </property>
     </bean>
 	
