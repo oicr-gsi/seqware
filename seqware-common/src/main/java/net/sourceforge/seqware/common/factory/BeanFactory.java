@@ -37,6 +37,7 @@ import net.sourceforge.seqware.common.business.WorkflowService;
 import org.hibernate.SessionFactory;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.LimsKeyService;
+import net.sourceforge.seqware.common.business.SampleProvenanceService;
 
 /**
  * <p>
@@ -422,4 +423,7 @@ public abstract class BeanFactory {
         return ContextImpl.getInstance().getAnalysisProvenanceService();
     }
 
+    public static SampleProvenanceService getSampleProvenanceServiceBean() {
+        return ContextImpl.getInstance().getSampleProvenanceService();
+    }
 }

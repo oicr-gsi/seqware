@@ -14,6 +14,7 @@ import net.sourceforge.seqware.webservice.resources.queries.FileProvenanceResour
 import net.sourceforge.seqware.webservice.resources.queries.ProcessIdProcessResource;
 import net.sourceforge.seqware.webservice.resources.queries.RunWorkflowResource;
 import net.sourceforge.seqware.webservice.resources.queries.SampleHierarchyResource;
+import net.sourceforge.seqware.webservice.resources.queries.SampleProvenanceResource;
 import net.sourceforge.seqware.webservice.resources.queries.TriggerFileProvenanceResource;
 import net.sourceforge.seqware.webservice.resources.queries.WorkflowReportResource;
 import net.sourceforge.seqware.webservice.resources.queries.WorkflowRunIDProcessingsResource;
@@ -238,6 +239,7 @@ public class SeqWareWebServiceApplication extends WadlApplication {
         router.attach("/reports/file-provenance/generate", new TriggerFileProvenanceResource(getContext()));
 
         router.attach("/reports/analysis-provenance", AnalysisProvenanceResource.class);
+        router.attach("/reports/sample-provenance", SampleProvenanceResource.class);
         // the following collides with the non-variable paths.
         // router.attach("/reports/studies/{studyId}", new CycleCheckResource(getContext()));
         router.attach("/reports/workflows/{workflowId}", new WorkflowReportResource(getContext()));
