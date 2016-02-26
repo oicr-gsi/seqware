@@ -35,6 +35,8 @@ import net.sourceforge.seqware.common.business.WorkflowParamValueService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import org.hibernate.SessionFactory;
+import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 
 /**
  * <p>
@@ -79,6 +81,17 @@ public abstract class BeanFactory {
      */
     public static FileService getFileServiceBean() {
         return ContextImpl.getInstance().getFileService();
+    }
+    
+    /**
+     * <p>
+     * getLimsKeyServiceBean.
+     * </p>
+     *
+     * @return a {@link net.sourceforge.seqware.common.business.LimsKeyService} object.
+     */
+    public static LimsKeyService getLimsKeyServiceBean() {
+        return ContextImpl.getInstance().getLimsKeyService();
     }
 
     /**
@@ -403,6 +416,10 @@ public abstract class BeanFactory {
 
     public static ExperimentSpotDesignReadSpecService getExperimentSpotDesignReadSpecServiceBean() {
         return ContextImpl.getInstance().getExperimentSpotDesignReadSpecService();
+    }
+
+    public static AnalysisProvenanceService getAnalysisProvenanceServiceBean() {
+        return ContextImpl.getInstance().getAnalysisProvenanceService();
     }
 
 }

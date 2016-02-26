@@ -82,12 +82,13 @@ public class BatchMetadataInjectionTest extends ExtendedPluginTest {
 
     private final String wfaccession = "2861";
 
+    private BasicTestDatabaseCreator dbCreator;
+    
     public BatchMetadataInjectionTest() {
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
         schema = BatchMetadataInjectionTest.class.getResourceAsStream("bmischema.json");
         miseqPath = BatchMetadataInjectionTest.class.getResource("SampleSheet.csv").getPath();
         inputJsonCorrect = BatchMetadataInjectionTest.class.getResource("input.json").getPath();
@@ -101,6 +102,9 @@ public class BatchMetadataInjectionTest extends ExtendedPluginTest {
     @Before
     @Override
     public void setUp() {
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
+        
         instance = new BatchMetadataInjection();
         super.setUp();
     }

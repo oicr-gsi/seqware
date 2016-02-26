@@ -1687,7 +1687,46 @@
         </property>
     </class>
 
-  <!-- ************* **************** IUS **************** ************* -->
+    <!-- ************* **************** LimsKey **************** ************* -->
+    <class name="LimsKey" table="lims_key" dynamic-insert="true" dynamic-update="true" optimistic-lock="version">
+        <meta attribute="class-description">
+            LimsKey entity
+        </meta>
+        <meta attribute="implement-equals">true</meta>
+        <meta attribute="implement-tostring">true</meta>
+        
+        <cache usage="read-write"/>
+        
+        <id name="limsKeyId" type="integer" unsaved-value="none">
+            <column name="lims_key_id" />
+            <generator class="sequence">
+                <param name="sequence">lims_key_id_seq</param>
+            </generator>
+        </id>
+        <property name="swAccession" type="integer" generated="insert">
+            <column name="sw_accession" />
+        </property>
+        <property name="provider" type="string">
+            <column name="provider" />
+        </property>
+        <property name="id" type="string">
+            <column name="id" />
+        </property>
+        <property name="version" type="string">
+            <column name="version" />
+        </property>
+        <property name="lastModified" type="org.joda.time.contrib.hibernate.PersistentDateTime">
+            <column name="last_modified" />
+        </property>
+        <property name="createTimestamp" type="timestamp" >
+            <column name="create_tstmp" />
+        </property>
+        <property name="updateTimestamp" type="timestamp" >
+            <column name="update_tstmp" />
+        </property>
+    </class>
+
+    <!-- ************* **************** IUS **************** ************* -->
     <class name="IUS" table="ius" dynamic-insert="true" dynamic-update="true" optimistic-lock="version">
         <meta attribute="class-description">
             An IUS.
@@ -1733,6 +1772,15 @@
             insert="true"
             column="sample_id"
     />
+        <many-to-one
+            name="limsKey"
+            class="LimsKey"
+            cascade="all"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="lims_key_id"
+        />
 
         <many-to-one
             name="owner"

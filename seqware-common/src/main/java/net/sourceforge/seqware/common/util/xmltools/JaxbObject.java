@@ -32,6 +32,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
@@ -46,6 +48,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Processing;
@@ -63,6 +66,8 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowParamValue;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
+import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
+import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.ExperimentLibraryDesignList;
 import net.sourceforge.seqware.common.model.lists.ExperimentList;
 import net.sourceforge.seqware.common.model.lists.ExperimentSpotDesignList;
@@ -74,6 +79,7 @@ import net.sourceforge.seqware.common.model.lists.LaneList;
 import net.sourceforge.seqware.common.model.lists.LibrarySelectionList;
 import net.sourceforge.seqware.common.model.lists.LibrarySourceList;
 import net.sourceforge.seqware.common.model.lists.LibraryStrategyList;
+import net.sourceforge.seqware.common.model.lists.LimsKeyList;
 import net.sourceforge.seqware.common.model.lists.OrganismList;
 import net.sourceforge.seqware.common.model.lists.PlatformList;
 import net.sourceforge.seqware.common.model.lists.ProcessingList;
@@ -87,6 +93,7 @@ import net.sourceforge.seqware.common.model.lists.WorkflowParamList;
 import net.sourceforge.seqware.common.model.lists.WorkflowParamValueList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
+import net.sourceforge.seqware.common.model.types.MapOfSetEntryType;
 import org.w3c.dom.Document;
 
 /**
@@ -110,6 +117,8 @@ public class JaxbObject<T> {
         try {
             if (context == null) {
                 context = JAXBContext.newInstance(
+                        AnalysisProvenanceDto.class,
+                        AnalysisProvenanceDtoList.class,
                         Experiment.class,
                         ExperimentAttribute.class,
                         ExperimentLibraryDesign.class, // ExperimentLink.class,
@@ -124,6 +133,11 @@ public class JaxbObject<T> {
                         LibrarySelection.class,
                         LibrarySource.class,
                         LibraryStrategy.class,
+                        IusLimsKeyDto.class,
+                        LimsKey.class,
+                        LimsKeyList.class,
+                        MapOfSetAdapter.class,
+                        MapOfSetEntryType.class,
                         Organism.class,
                         Platform.class,
                         Processing.class,

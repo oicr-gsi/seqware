@@ -21,10 +21,12 @@ import java.util.List;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.business.LaneService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.lists.IUSList;
@@ -144,6 +146,12 @@ public class IusResource extends DatabaseResource {
                 SampleService ps = BeanFactory.getSampleServiceBean();
                 Sample sample = (Sample) testIfNull(ps.findByID(o.getSample().getSampleId()));
                 o.setSample(sample);
+            }
+            
+            if (o.getLimsKey()!= null) {
+                LimsKeyService limsKeyService = BeanFactory.getLimsKeyServiceBean();
+                LimsKey limsKey = (LimsKey) testIfNull(limsKeyService.findBySWAccession(o.getLimsKey().getSwAccession()));
+                o.setLimsKey(limsKey);
             }
 
             // persist object

@@ -39,6 +39,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.ContextLoader;
+import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 
 /**
  * <p>
@@ -55,6 +57,7 @@ public class ContextImpl {
     private StudyService studyService;
     private ExperimentService experimentService;
     private FileService fileService;
+    private LimsKeyService limsKeyService;
     private IUSService iusService;
     private LaneService laneService;
     private ProcessingService processingService;
@@ -95,6 +98,8 @@ public class ContextImpl {
 
     @Autowired
     private FileAttributeService fileAttributeService;
+    
+    private AnalysisProvenanceService analysisProvenanceService;
 
     private ContextImpl() {
         // appCtx = new ClassPathXmlApplicationContext("applicationContext.xml");
@@ -190,6 +195,29 @@ public class ContextImpl {
      */
     public void setFileService(FileService fileService) {
         this.fileService = fileService;
+    }
+
+    /**
+     * <p>
+     * Getter for the field <code>limsKeyService</code>.
+     * </p>
+     *
+     * @return a {@link net.sourceforge.seqware.common.business.LimsKeyService} object.
+     */
+    public LimsKeyService getLimsKeyService() {
+        return limsKeyService;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>limsKeyService</code>.
+     * </p>
+     *
+     * @param limsKeyService
+     *                    a {@link net.sourceforge.seqware.common.business.LimsKeyService} object.
+     */
+    public void setLimsKeyService(LimsKeyService limsKeyService) {
+        this.limsKeyService = limsKeyService;
     }
 
     /**
@@ -792,6 +820,14 @@ public class ContextImpl {
      */
     public void setExperimentSpotDesignReadSpecService(ExperimentSpotDesignReadSpecService experimentSpotDesignReadSpecService) {
         this.experimentSpotDesignReadSpecService = experimentSpotDesignReadSpecService;
+    }
+
+    public AnalysisProvenanceService getAnalysisProvenanceService() {
+        return analysisProvenanceService;
+    }
+
+    public void setAnalysisProvenanceService(AnalysisProvenanceService analysisProvenanceService) {
+        this.analysisProvenanceService = analysisProvenanceService;
     }
 
 }

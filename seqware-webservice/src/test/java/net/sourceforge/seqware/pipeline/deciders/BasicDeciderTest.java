@@ -55,10 +55,8 @@ import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.pipeline.plugins.PluginTest;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.lf5.PassingLogRecordFilter;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -80,18 +78,17 @@ public class BasicDeciderTest extends PluginTest {
 
     private final List<String> fastq_gz = new ArrayList<>();
 
-    private final BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
-
-    @BeforeClass
-    public static void beforeClass() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-        Reports.triggerProvenanceReport();
-    }
+    private BasicTestDatabaseCreator dbCreator;
 
     @Before
     @Override
     public void setUp() {
         super.setUp();
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
+        
+        Reports.triggerProvenanceReport();
+        
         instance = new TestingDecider();
         // instance = new BasicDecider();
         instance.setMetadata(metadata);
