@@ -137,7 +137,16 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getParentSampleAttributes() {
+    public String getSampleName() {
+        if (sample != null) {
+            return sample.getName();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Map<String, Set<String>> getSampleAttributes() {
         Map<String, Set<String>> attrs = new HashMap<>();
         if (parentSamples != null) {
             for (Sample s : parentSamples) {
@@ -151,30 +160,6 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
                 }
             }
         }
-        return attrs;
-    }
-
-    @Override
-    public String getSampleName() {
-        if (sample != null) {
-            return sample.getName();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String getSampleOrganismCode() {
-        if (sample != null && sample.getOrganism() != null) {
-            return sample.getOrganism().getName();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public Map<String, Set<String>> getSampleAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
         if (sample != null) {
             for (SampleAttribute attr : sample.getSampleAttributes()) {
                 Set<String> values = attrs.get(attr.getTag());
@@ -224,7 +209,7 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public String getSequencerRunPlatformName() {
+    public String getSequencerRunPlatformModel() {
         if (sequencerRun.getPlatform() != null) {
             return sequencerRun.getPlatform().getName();
         } else {
@@ -291,11 +276,10 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public String getSampleId() {
+    public String getSampleProvenanceId() {
         return ius.getSwAccession().toString();
-//        return sample.getSampleId().toString();
     }
-    
+
     @Override
     public String getVersion() {
         return Versioning.getSha256(this);
