@@ -67,6 +67,7 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowParamValue;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
+import net.sourceforge.seqware.common.model.adapters.IntegerSet;
 import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
 import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.ExperimentLibraryDesignList;
@@ -163,7 +164,7 @@ public class JaxbObject<T> {
                         LibraryStrategyList.class, OrganismList.class, PlatformList.class, ProcessingList.class, ReturnValueList.class,
                         SampleList.class, SequencerRunList.class, StudyList.class, StudyTypeList.class, WorkflowList.class,
                         WorkflowRunList.class, WorkflowRunList2.class, WorkflowParamList.class, WorkflowParamValueList.class,
-                        ArrayList.class, IntegerList.class);
+                        ArrayList.class, IntegerList.class, IntegerSet.class);
             }
         } catch (JAXBException e) {
             e.printStackTrace();

@@ -558,8 +558,10 @@ public class MetadataInMemory implements Metadata {
             if (!workflowAccessions.contains(wr.getWorkflowAccession())) {
                 continue;
             }
-            Set<Integer> fileAccessionsSet = Sets.newHashSet(fileAccessions);
-            if (Sets.intersection(fileAccessionsSet, wr.getInputFileAccessions()).isEmpty()) {
+            if (wr.getInputFileAccessions() == null) {
+                continue;
+            }
+            if (Sets.intersection(Sets.newHashSet(fileAccessions), wr.getInputFileAccessions()).isEmpty()) {
                 continue;
             }
             wrs.add(wr);
