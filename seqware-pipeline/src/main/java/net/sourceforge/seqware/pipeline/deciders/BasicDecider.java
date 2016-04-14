@@ -337,7 +337,12 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         mappedFiles = separateFiles(vals, groupBy);
         return launchWorkflows(mappedFiles);
     }
+    
+    public List<String> getWorkflowRuns() {
+        return workflowRuns;
+    }
 
+    List<String> workflowRuns = new ArrayList<>();
     private ReturnValue launchWorkflows(Map<String, List<ReturnValue>> mappedFiles) {
         ReturnValue ret = new ReturnValue();
         if (mappedFiles != null) {
@@ -413,6 +418,10 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                             }
                             Log.debug("NOT RUNNING (but would have ran). dryRunMode=" + isDryRunMode + " or !rerun=" + !rerun);
                             reportLaunch();
+                            
+                            //keep track of workflow runs to be scheduled
+                            workflowRuns.addAll(iniFiles);
+                            
                             // SEQWARE-1642 - output to stdout only whether a decider would launch
                             ret = do_summary();
                             launched++;
@@ -429,6 +438,10 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                         for (String line : studyReporterOutput) {
                             Log.stdout(line);
                         }
+                        
+                        //keep track of workflow runs to be scheduled
+                        workflowRuns.addAll(iniFiles);
+                        
                         Log.debug("Scheduling");
                         // construct the INI and run it
                         ArrayList<String> runArgs = constructCommand();
