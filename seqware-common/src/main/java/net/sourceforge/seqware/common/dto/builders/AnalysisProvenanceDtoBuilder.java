@@ -16,8 +16,8 @@
  */
 package net.sourceforge.seqware.common.dto.builders;
 
-import ca.on.oicr.gsi.provenance.api.model.AnalysisProvenance;
-import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Workflow;

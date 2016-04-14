@@ -32,7 +32,7 @@ import org.joda.time.DateTime;
  * @author mlaszloffy
  */
 @XmlRootElement
-public class LimsKey implements Serializable, ca.on.oicr.gsi.provenance.api.model.LimsKey {
+public class LimsKey implements Serializable, ca.on.oicr.gsi.provenance.model.LimsKey {
 
     private Integer limsKeyId;
     private Integer swAccession;

@@ -16,7 +16,7 @@
  */
 package net.sourceforge.seqware.common.dto;
 
-import ca.on.oicr.gsi.provenance.api.model.SampleProvenance;
+import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;

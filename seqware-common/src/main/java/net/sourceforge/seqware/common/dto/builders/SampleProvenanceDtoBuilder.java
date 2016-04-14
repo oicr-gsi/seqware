@@ -16,7 +16,7 @@
  */
 package net.sourceforge.seqware.common.dto.builders;
 
-import ca.on.oicr.gsi.provenance.api.model.SampleProvenance;
+import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import ca.on.oicr.gsi.provenance.util.Versioning;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;

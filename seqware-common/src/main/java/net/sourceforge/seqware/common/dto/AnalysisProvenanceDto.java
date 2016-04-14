@@ -16,8 +16,8 @@
  */
 package net.sourceforge.seqware.common.dto;
 
-import ca.on.oicr.gsi.provenance.api.model.AnalysisProvenance;
-import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
