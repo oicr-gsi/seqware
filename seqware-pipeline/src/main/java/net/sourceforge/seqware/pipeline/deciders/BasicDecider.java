@@ -438,7 +438,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                             for (String line : studyReporterOutput) {
                                 Log.debug(line);
                             }
-                            Log.debug("NOT RUNNING (and would not have ran). test=" + test + " or !rerun=" + !rerun);
+                            Log.debug("NOT RUNNING (and would not have ran). dryRunMode=" + isDryRunMode + " or !rerun=" + !rerun);
                         }
                     } else if (launched < launchMax) {
                         try {
@@ -773,10 +773,11 @@ public class BasicDecider extends Plugin implements DeciderInterface {
 
             String currVal = r.getAttributes().get(groupBy);
 
-            if (currVal != null) {
-                currVal = handleGroupByAttribute(currVal);
+            if (currVal == null) {
+                continue;
             }
-
+            currVal = handleGroupByAttribute(currVal);
+            
             List<ReturnValue> vs = map.get(currVal);
             if (vs == null) {
                 vs = new ArrayList<>();
@@ -1031,12 +1032,20 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         command.append("\n");
         return command.toString();
     }
+    
+    protected List<Map<String,String>> getFileProvenanceReport(Map<FileProvenanceParam, List<String>> params){
+        return metadata.fileProvenanceReport(params);
+    }
+    
+    protected Map<FileProvenanceParam, List<String>> parseOptions(){
+        return ProvenanceUtility.convertOptionsToMap(options, metadata);
+    }
 
     private List<ReturnValue> createListOfRelevantFilePaths() {
 
         List<ReturnValue> vals;
         List<Map<String, String>> fileProvenanceReport;
-        Map<FileProvenanceParam, List<String>> map = ProvenanceUtility.convertOptionsToMap(options, metadata);
+        Map<FileProvenanceParam, List<String>> map = parseOptions();
         if (skipStuff) {
             map.put(FileProvenanceParam.skip, new ImmutableList.Builder<String>().add("false").build());
         }
@@ -1047,7 +1056,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
             map.put(FileProvenanceParam.workflow, new ImmutableList.Builder<String>().addAll(this.parentWorkflowAccessions).build());
         }
 
-        fileProvenanceReport = metadata.fileProvenanceReport(map);
+        fileProvenanceReport = getFileProvenanceReport(map);
         // convert to list of ReturnValues for backwards compatibility
         vals = convertFileProvenanceReport(fileProvenanceReport);
         // consider memory use and GC here
@@ -1060,19 +1069,22 @@ public class BasicDecider extends Plugin implements DeciderInterface {
             ReturnValue row = new ReturnValue();
             row.setAttributes(map);
             list.add(row);
-            // mutate additional rows into a nested FileMetadata object
-            FileMetadata fm = new FileMetadata();
-            fm.setFilePath(map.get(Header.FILE_PATH.getTitle()));
-            fm.setMetaType(map.get(Header.FILE_META_TYPE.getTitle()));
-            fm.setDescription(map.get(Header.FILE_DESCRIPTION.getTitle()));
-            fm.setMd5sum(map.get(Header.FILE_MD5SUM.getTitle()));
-            if (map.containsKey(Header.FILE_SIZE.getTitle())) {
-                if (!map.get(Header.FILE_SIZE.getTitle()).isEmpty()) {
-                    fm.setSize(Long.valueOf(map.get(Header.FILE_SIZE.getTitle())));
+            
+            if (map.get(Header.FILE_PATH.getTitle()) != null) {
+                // mutate additional rows into a nested FileMetadata object
+                FileMetadata fm = new FileMetadata();
+                fm.setFilePath(map.get(Header.FILE_PATH.getTitle()));
+                fm.setMetaType(map.get(Header.FILE_META_TYPE.getTitle()));
+                fm.setDescription(map.get(Header.FILE_DESCRIPTION.getTitle()));
+                fm.setMd5sum(map.get(Header.FILE_MD5SUM.getTitle()));
+                if (map.containsKey(Header.FILE_SIZE.getTitle())) {
+                    if (!map.get(Header.FILE_SIZE.getTitle()).isEmpty()) {
+                        fm.setSize(Long.valueOf(map.get(Header.FILE_SIZE.getTitle())));
+                    }
                 }
+                row.setFiles(new ArrayList(new ImmutableList.Builder<FileMetadata>().add(fm).build()));
             }
-
-            row.setFiles(new ArrayList(new ImmutableList.Builder<FileMetadata>().add(fm).build()));
+            
             handleAttributes(map, row, Header.STUDY_ATTRIBUTES, Header.STUDY_TAG_PREFIX);
             handleAttributes(map, row, Header.EXPERIMENT_ATTRIBUTES, Header.EXPERIMENT_TAG_PREFIX);
             handleAttributes(map, row, Header.PARENT_SAMPLE_ATTRIBUTES, Header.PARENT_SAMPLE_TAG_PREFIX);
@@ -1088,9 +1100,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
 
     private void handleAttributes(Map<String, String> map, ReturnValue row, Header headerType, Header headerPrefix) {
         // mutate attributes into expected format from FindAllTheFiles
-        String studyAttributes = map.remove(headerType.getTitle());
-        if (!studyAttributes.isEmpty()) {
-            String[] studyAttrArr = studyAttributes.split(";");
+        String attributes = map.remove(headerType.getTitle());
+        if (attributes != null && !attributes.isEmpty()) {
+            String[] studyAttrArr = attributes.split(";");
             for (String studyAttr : studyAttrArr) {
                 String[] parts = studyAttr.split("=");
                 String key = parts[0];
