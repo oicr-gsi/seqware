@@ -44,6 +44,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -326,7 +327,11 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
                         s.getUpdateTimestamp() == null ? null : new DateTime(s.getUpdateTimestamp()));
             }
         }
-        return lastModified;
+        if (lastModified == null) {
+            return null;
+        } else {
+            return lastModified.toDateTime(DateTimeZone.UTC);
+        }
     }
 
     public SampleProvenanceDto build() {

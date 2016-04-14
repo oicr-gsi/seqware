@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
 import net.sourceforge.seqware.common.model.adapters.IntegerSet;
 import net.sourceforge.seqware.common.model.adapters.IusLimsKeyAdapter;
 import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -60,7 +62,7 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
     private String fileDescription;
     private Map<String, Set<String>> fileAttributes;
     private String skip;
-    private String lastModified;
+    private DateTime lastModified;
     private Set<IusLimsKey> iusLimsKeys;
 
     @Override
@@ -257,12 +259,13 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.skip = skip;
     }
 
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
     @Override
-    public String getLastModified() {
+    public DateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(String lastModified) {
+    public void setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
     }
 

@@ -18,6 +18,7 @@ package net.sourceforge.seqware.common.model.adapters;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 /**
  *
@@ -27,7 +28,7 @@ public class DateTimeAdapter extends XmlAdapter<String, DateTime> {
 
     @Override
     public DateTime unmarshal(String date) throws Exception {
-        return new DateTime(date);
+        return DateTime.parse(date).toDateTime(DateTimeZone.UTC);
     }
 
     @Override

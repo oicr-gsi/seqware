@@ -72,6 +72,8 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.model.IUS;
+import org.joda.time.DateTimeZone;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * <p>
@@ -636,11 +638,13 @@ public class JaxbObjectTest {
         File f = new File();
         f.setFilePath("/tmp/out");
 
+        DateTime limsLastModified = DateTime.now().toDateTime(DateTimeZone.UTC);
+        
         LimsKey lk1 = new LimsKey();
         lk1.setProvider("seqware");
         lk1.setId("1");
         lk1.setVersion("1");
-        lk1.setLastModified(DateTime.now());
+        lk1.setLastModified(limsLastModified);
 
         IusLimsKeyDto ik1 = new IusLimsKeyDto();
         ik1.setIusSWID(1234);
@@ -650,7 +654,7 @@ public class JaxbObjectTest {
         lk2.setProvider("seqware");
         lk2.setId("2");
         lk2.setVersion("1");
-        lk2.setLastModified(DateTime.now());
+        lk2.setLastModified(limsLastModified);
 
         IusLimsKeyDto ik2 = new IusLimsKeyDto();
         ik2.setIusSWID(4567);
@@ -671,7 +675,7 @@ public class JaxbObjectTest {
 
         JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
         String text = jaxb.marshal(expectedAnalysisProvenanceList);
-
+        
         AnalysisProvenanceDtoList actualAnalysisProvenanceList = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text);
         for (AnalysisProvenanceDto dto : actualAnalysisProvenanceList.getAnalysisProvenanceDtos()) {
             for (IusLimsKey ik : dto.getIusLimsKeys()) {
@@ -737,6 +741,8 @@ public class JaxbObjectTest {
 
         SampleProvenanceDtoList sampleProvenanceSet1 = (SampleProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new SampleProvenanceDtoList(), text);
 
+        assertNotNull(sp.getLastModified());
+        assertEquals(sp.getLastModified(), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getLastModified());
         assertEquals("test_study", Iterables.getFirst(sampleProvenanceSet1.getSampleProvenanceDtos(), new SampleProvenanceDto()).getStudyTitle());
         assertEquals(Sets.newHashSet("R", "P"), sps.get(0).getSampleAttributes().get("tissue_type"));
         assertEquals(Sets.newHashSet("R", "P"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_type"));

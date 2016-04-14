@@ -41,7 +41,7 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         testLimsKey.setProvider("provider1");
         testLimsKey.setId("remoteId1");
         testLimsKey.setVersion("3053981115502a01b1115696117cf53d8824a848");
-        testLimsKey.setLastModified(DateTime.parse("2016-01-01T00:00:00"));
+        testLimsKey.setLastModified(DateTime.parse("2016-01-01T00:00:00Z"));
     }
 
     @Override
