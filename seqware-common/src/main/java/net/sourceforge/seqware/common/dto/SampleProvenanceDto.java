@@ -16,7 +16,7 @@
  */
 package net.sourceforge.seqware.common.dto;
 
-import ca.on.oicr.gsi.provenance.api.model.SampleProvenance;
+import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -43,11 +43,11 @@ public class SampleProvenanceDto implements SampleProvenance {
     private Map<String, Set<String>> sampleAttributes;
     private String sequencerRunName;
     private Map<String, Set<String>> sequencerRunAttributes;
-    private String sequencerRunPlatformName;
+    private String sequencerRunPlatformModel;
     private String laneNumber;
     private Map<String, Set<String>> laneAttributes;
     private String iusTag;
-    private String sampleId;
+    private String sampleProvenanceId;
     private String version;
     private DateTime lastModified;
 
@@ -91,16 +91,6 @@ public class SampleProvenanceDto implements SampleProvenance {
         this.parentSampleName = parentSampleName;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
-    @Override
-    public Map<String, Set<String>> getParentSampleAttributes() {
-        return parentSampleAttributes;
-    }
-
-    public void setParentSampleAttributes(Map<String, Set<String>> parentSampleAttributes) {
-        this.parentSampleAttributes = parentSampleAttributes;
-    }
-
     @XmlElement
     @Override
     public String getSampleName() {
@@ -109,16 +99,6 @@ public class SampleProvenanceDto implements SampleProvenance {
 
     public void setSampleName(String sampleName) {
         this.sampleName = sampleName;
-    }
-
-    @XmlElement
-    @Override
-    public String getSampleOrganismCode() {
-        return sampleOrganismCode;
-    }
-
-    public void setSampleOrganismCode(String sampleOrganismCode) {
-        this.sampleOrganismCode = sampleOrganismCode;
     }
 
     @XmlJavaTypeAdapter(MapOfSetAdapter.class)
@@ -153,12 +133,12 @@ public class SampleProvenanceDto implements SampleProvenance {
 
     @XmlElement
     @Override
-    public String getSequencerRunPlatformName() {
-        return sequencerRunPlatformName;
+    public String getSequencerRunPlatformModel() {
+        return sequencerRunPlatformModel;
     }
 
-    public void setSequencerRunPlatformName(String sequencerRunPlatformName) {
-        this.sequencerRunPlatformName = sequencerRunPlatformName;
+    public void setSequencerRunPlatformModel(String sequencerRunPlatformModel) {
+        this.sequencerRunPlatformModel = sequencerRunPlatformModel;
     }
 
     @XmlElement
@@ -193,12 +173,12 @@ public class SampleProvenanceDto implements SampleProvenance {
 
     @XmlElement
     @Override
-    public String getSampleId() {
-        return sampleId;
+    public String getSampleProvenanceId() {
+        return sampleProvenanceId;
     }
 
-    public void setSampleId(String sampleId) {
-        this.sampleId = sampleId;
+    public void setSampleProvenanceId(String sampleProvenanceId) {
+        this.sampleProvenanceId = sampleProvenanceId;
     }
 
     @XmlElement

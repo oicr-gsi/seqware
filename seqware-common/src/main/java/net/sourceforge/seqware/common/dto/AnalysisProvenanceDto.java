@@ -16,16 +16,23 @@
  */
 package net.sourceforge.seqware.common.dto;
 
-import ca.on.oicr.gsi.provenance.api.model.AnalysisProvenance;
-import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
+import net.sourceforge.seqware.common.model.adapters.IntegerSet;
 import net.sourceforge.seqware.common.model.adapters.IusLimsKeyAdapter;
 import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -55,7 +62,7 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
     private String fileDescription;
     private Map<String, Set<String>> fileAttributes;
     private String skip;
-    private String lastModified;
+    private DateTime lastModified;
     private Set<IusLimsKey> iusLimsKeys;
 
     @Override
@@ -132,12 +139,13 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.workflowRunAttributes = workflowRunAttributes;
     }
 
+    @XmlJavaTypeAdapter(IntegerSet.class)
     @Override
     public Set<Integer> getWorkflowRunInputFileIds() {
         return workflowRunInputFileIds;
     }
 
-    public void setWorkflowRunInputFilesIds(Set<Integer> workflowRunInputFileIds) {
+    public void setWorkflowRunInputFileIds(Set<Integer> workflowRunInputFileIds) {
         this.workflowRunInputFileIds = workflowRunInputFileIds;
     }
 
@@ -251,12 +259,13 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.skip = skip;
     }
 
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
     @Override
-    public String getLastModified() {
+    public DateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(String lastModified) {
+    public void setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
     }
 
@@ -270,6 +279,31 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
 
     public void setIusLimsKeys(Set<IusLimsKey> keys) {
         this.iusLimsKeys = keys;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AnalysisProvenanceDto other = (AnalysisProvenanceDto) obj;
+        return EqualsBuilder.reflectionEquals(other, this);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
 }

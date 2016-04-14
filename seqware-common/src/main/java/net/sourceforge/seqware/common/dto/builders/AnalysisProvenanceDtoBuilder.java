@@ -16,8 +16,8 @@
  */
 package net.sourceforge.seqware.common.dto.builders;
 
-import ca.on.oicr.gsi.provenance.api.model.AnalysisProvenance;
-import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Workflow;
@@ -33,6 +33,8 @@ import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -300,15 +302,15 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     }
 
     @Override
-    public String getLastModified() {
+    public DateTime getLastModified() {
         if (processing == null) {
             return null;
+        } else if (processing.getUpdateTimestamp() != null) {
+            return new DateTime(processing.getUpdateTimestamp()).toDateTime(DateTimeZone.UTC);
+        } else if (processing.getCreateTimestamp() != null){
+            return new DateTime(processing.getCreateTimestamp()).toDateTime(DateTimeZone.UTC);
         } else {
-            if(processing.getUpdateTimestamp() != null){
-                return processing.getUpdateTimestamp().toString();
-            } else {
-                return processing.getCreateTimestamp().toString();
-            }
+            return null;
         }
     }
 
@@ -325,7 +327,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     public void setIusLimsKeys(Set<IusLimsKeyDto> keys) {
         this.iusLimsKeys = keys;
     }
-    
+
     public void addIusLimsKey(IusLimsKeyDto key) {
         this.iusLimsKeys.add(key);
     }

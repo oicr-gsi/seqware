@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
@@ -24,6 +26,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.ParentAccessionModel;
 import net.sourceforge.seqware.common.model.Platform;
@@ -42,6 +45,7 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
+import org.joda.time.DateTime;
 
 public interface Metadata {
 
@@ -168,7 +172,7 @@ public interface Metadata {
 
     /**
      * <p>
-     * addSample.
+     * addIUS.
      * </p>
      *
      * @param laneAccession
@@ -181,6 +185,35 @@ public interface Metadata {
      */
 
     public ReturnValue addIUS(Integer laneAccession, Integer sampleAccession, String name, String description, String barcode, boolean skip);
+
+    /**
+     * Creates an IUS object that is linked to the specified LimsKey.
+     *
+     * @param limsKeyAccession
+     * @param skip
+     *
+     * @return the IUS SWID/accession.
+     */
+    public Integer addIUS(Integer limsKeyAccession, boolean skip);
+    
+    /**
+     * Creates a LimsKey with the specified Lims provider, ID, version, and lastModified date.
+     * 
+     * @param provider
+     * @param id
+     * @param version
+     * @param lastModified
+     * @return the LimsKey SWID/accession.
+     */
+    public Integer addLimsKey(String provider, String id, String version, DateTime lastModified);
+    
+    /**
+     * Get the LimsKey from SWID/accession.
+     * 
+     * @param limsKeyAccession
+     * @return {@link net.sourceforge.seqware.common.model.LimsKey}
+     */
+    public LimsKey getLimsKey(int limsKeyAccession);
 
     /**
      * <p>
@@ -1167,6 +1200,15 @@ public interface Metadata {
     public List<IUS> getIUSFrom(int laneOrSampleAccession);
 
     /**
+     * Get LimsKey that is associated with an IUS.
+     *
+     * @param iusAccession the sw_accession/swid of the IUS
+     *
+     * @return the LimsKey or null if there is no LimsKey associated with the IUS
+     */
+    public LimsKey getLimsKeyFrom(Integer iusAccession);
+
+    /**
      * Get experiments from a study.
      *
      * @param studyAccession
@@ -1233,7 +1275,7 @@ public interface Metadata {
      * @return
      */
     public IUS getIUS(int swAccession);
-
+       
     /**
      * Get sample by swa
      * 
@@ -1249,4 +1291,18 @@ public interface Metadata {
      * @return
      */
     public Study getStudy(int swAccession);
+    
+    /**
+     * Get all AnalysisProvenance objects from the SeqWare MetaDB.
+     * 
+     * @return List of {@link net.sourceforge.seqware.common.dto.AnalysisProvenanceDto} objects
+     */
+    public List<AnalysisProvenanceDto> getAnalysisProvenance();
+
+    /**
+     * Get all SampleProvenance objects from the SeqWare MetaDB.
+     *
+     * @return List of {@link net.sourceforge.seqware.common.dto.SampleProvenanceDto} objects
+     */
+    public List<SampleProvenanceDto> getSampleProvenance();
 }

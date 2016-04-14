@@ -43,6 +43,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBException;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.err.NotFoundException;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
@@ -59,6 +61,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.ParentAccessionModel;
 import net.sourceforge.seqware.common.model.Platform;
@@ -78,6 +81,7 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowParamValue;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
+import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.ExperimentLibraryDesignList;
 import net.sourceforge.seqware.common.model.lists.ExperimentList;
 import net.sourceforge.seqware.common.model.lists.ExperimentSpotDesignList;
@@ -91,6 +95,7 @@ import net.sourceforge.seqware.common.model.lists.LibraryStrategyList;
 import net.sourceforge.seqware.common.model.lists.OrganismList;
 import net.sourceforge.seqware.common.model.lists.PlatformList;
 import net.sourceforge.seqware.common.model.lists.SampleList;
+import net.sourceforge.seqware.common.model.lists.SampleProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.SequencerRunList;
 import net.sourceforge.seqware.common.model.lists.StudyList;
 import net.sourceforge.seqware.common.model.lists.StudyTypeList;
@@ -105,6 +110,7 @@ import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.data.ChallengeScheme;
@@ -576,6 +582,69 @@ public class MetadataWS implements Metadata {
         }
 
         return ret;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer addIUS(Integer limsKeyAccession, boolean skip) {
+        try {
+            LimsKey limsKey = ll.findLimsKey("/" + limsKeyAccession);
+
+            IUS i = new IUS();
+            i.setSkip(skip);
+            i.setLimsKey(limsKey);
+
+            Log.info("Posting new IUS");
+            i = ll.addIUS(i);
+
+            return i.getSwAccession();
+        } catch (NotFoundException e) {
+            Log.fatal("NotFoundException, e");
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer addLimsKey(String provider, String id, String version, DateTime lastModified) {
+        try {
+            LimsKey limsKey = new LimsKey();
+            limsKey.setProvider(provider);
+            limsKey.setId(id);
+            limsKey.setVersion(version);
+            limsKey.setLastModified(lastModified);
+
+            Log.info("Posting new LimsKey");
+            limsKey = ll.addLimsKey(limsKey);
+
+            return limsKey.getSwAccession();
+        } catch (NotFoundException e) {
+            Log.fatal("NotFoundException, e");
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LimsKey getLimsKey(int limsKeyAccession) {
+        try {
+            return ll.findLimsKey("/" + limsKeyAccession);
+        } catch (IOException | JAXBException ex) {
+            Log.error(ex);
+        }
+        return null;
     }
 
     @Override
@@ -2417,6 +2486,19 @@ public class MetadataWS implements Metadata {
         }
         return null;
     }
+    
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            sb.append("/ius/").append(iusAccession).append("/limskey");
+            JaxbObject<LimsKey> jaxb = new JaxbObject<>();
+            return (LimsKey) ll.existsObject(sb.toString(), "", jaxb, new LimsKey());
+        } catch (JAXBException ex) {
+            Log.error("JAXBException while retrieving IUSes (barcodes) from lane or sample", ex);
+        }
+        return null;
+    }
 
     @Override
     public List<Experiment> getExperimentsFrom(int studyAccession) {
@@ -2643,6 +2725,36 @@ public class MetadataWS implements Metadata {
         try {
             return ll.findStudy("/" + swAccession);
         } catch (IOException | JAXBException ex) {
+            Log.error(ex);
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+        try {
+            JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
+            AnalysisProvenanceDtoList list = (AnalysisProvenanceDtoList) ll.findObject("/reports/analysis-provenance", "", jaxb, new AnalysisProvenanceDtoList());
+            return list.getAnalysisProvenanceDtos();
+        } catch (IOException | NotFoundException ex) {
+            Log.error(ex);
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<SampleProvenanceDto> getSampleProvenance() {
+        try {
+            JaxbObject<SampleProvenanceDtoList> jaxb = new JaxbObject<>();
+            SampleProvenanceDtoList list = (SampleProvenanceDtoList) ll.findObject("/reports/sample-provenance", "", jaxb, new SampleProvenanceDtoList());
+            return list.getSampleProvenanceDtos();
+        } catch (IOException | NotFoundException ex) {
             Log.error(ex);
         }
         return null;
@@ -3024,6 +3136,12 @@ public class MetadataWS implements Metadata {
             IUS ius = new IUS();
             JaxbObject<IUS> jaxb = new JaxbObject<>();
             return (IUS) findObject("/ius", searchString, jaxb, ius);
+        }
+
+        private LimsKey findLimsKey(String searchString) throws IOException, JAXBException {
+            LimsKey limsKey = new LimsKey();
+            JaxbObject<LimsKey> jaxb = new JaxbObject<>();
+            return (LimsKey) findObject("/limskey", searchString, jaxb, limsKey);
         }
 
         private WorkflowRun findWorkflowRun(String searchString) throws IOException, JAXBException {
@@ -3422,6 +3540,11 @@ public class MetadataWS implements Metadata {
         private IUS addIUS(IUS ius) throws IOException, JAXBException, ResourceException {
             JaxbObject<IUS> jaxb = new JaxbObject<>();
             return (IUS) addObject("/ius", "", jaxb, ius);
+        }
+
+        private LimsKey addLimsKey(LimsKey limsKey) throws IOException, JAXBException, ResourceException {
+            JaxbObject<LimsKey> jaxb = new JaxbObject<>();
+            return (LimsKey) addObject("/limskey", "", jaxb, limsKey);
         }
 
         private Object addObject(String uri, String searchString, JaxbObject jaxb, Object parent) throws IOException, JAXBException {

@@ -16,24 +16,39 @@
  */
 package net.sourceforge.seqware.common.model.adapters;
 
+import com.google.common.base.Joiner;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 /**
  *
  * @author mlaszloffy
  */
-public class DateTimeAdapter extends XmlAdapter<String, DateTime> {
+public class IntegerSet extends XmlAdapter<String,Set<Integer>>{
 
     @Override
-    public DateTime unmarshal(String date) throws Exception {
-        return DateTime.parse(date).toDateTime(DateTimeZone.UTC);
+    public Set<Integer> unmarshal(String v) throws Exception {
+        if("".equals(v)){
+            return Collections.EMPTY_SET;
+        } else {
+            String[] vals = v.split(",");
+            Set<Integer> result = new HashSet<>();
+            for(String s : vals){
+                result.add(Integer.parseInt(s));
+            }
+            return result;
+        }
     }
 
     @Override
-    public String marshal(DateTime date) throws Exception {
-        return date.toString();
+    public String marshal(Set<Integer> v) throws Exception {
+        if (v == null) {
+            return null;
+        } else {
+            return Joiner.on(",").skipNulls().join(v);
+        }
     }
 
 }

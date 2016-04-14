@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
@@ -29,6 +31,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.ParentAccessionModel;
 import net.sourceforge.seqware.common.model.Platform;
@@ -47,6 +50,7 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -803,4 +807,35 @@ public class MetadataNoConnection implements Metadata {
         logger.info("No metadata connection");
         return null;
     }
+
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<SampleProvenanceDto> getSampleProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Integer addLimsKey(String provider, String id, String version, DateTime lastModified) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Integer addIUS(Integer limsKeyAccession, boolean skip) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public LimsKey getLimsKey(int limsKeyAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

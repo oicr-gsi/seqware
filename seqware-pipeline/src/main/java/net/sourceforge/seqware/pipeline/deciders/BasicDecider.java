@@ -81,7 +81,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     private Set<String> workflowAccessionsToCheck = new TreeSet<>();
     private List<String> metaTypes = null;
     private Boolean ignorePreviousRuns = null;
-    private Boolean test = null;
+    private Boolean isDryRunMode = null;
     private String workflowAccession = null;
     protected Random random = new Random(System.currentTimeMillis());
     private Boolean metadataWriteback = null;
@@ -124,7 +124,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                 .withRequiredArg();
         this.forceRunAllSpec = parser.acceptsAll(Arrays.asList("force-run-all"),
                 "Forces the decider to run all matches regardless of whether they've been run before or not");
-        parser.acceptsAll(Arrays.asList("test"), "Testing mode. Prints the INI files to standard out and does not submit the workflow.");
+        parser.acceptsAll(Arrays.asList("dry-run"), "Dry run mode. Prints the INI files to standard out and does not submit the workflow.");
         parser.acceptsAll(Arrays.asList("no-meta-db", "no-metadata"), "Optional: a flag that prevents metadata writeback (which is done "
                 + "by default) by the Decider and that is subsequently "
                 + "passed to the called workflow which can use it to determine if "
@@ -255,11 +255,11 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         }
         ignorePreviousRuns = options.has(this.ignorePreviousRunsSpec) || options.has(this.forceRunAllSpec);
 
-        // test turns off all of the submission functions and just prints to stdout
-        if (test == null) {
-            test = options.has("test");
+        // dry run mode turns off all of the submission functions and just prints to stdout
+        if (isDryRunMode == null) {
+            isDryRunMode = options.has("dry-run");
         }
-        if (test) {
+        if (isDryRunMode) {
             StringWriter writer = new StringWriter();
             try {
                 FindAllTheFiles.printHeader(writer, true);
@@ -337,7 +337,12 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         mappedFiles = separateFiles(vals, groupBy);
         return launchWorkflows(mappedFiles);
     }
+    
+    public List<String> getWorkflowRuns() {
+        return workflowRuns;
+    }
 
+    List<String> workflowRuns = new ArrayList<>();
     private ReturnValue launchWorkflows(Map<String, List<ReturnValue>> mappedFiles) {
         ReturnValue ret = new ReturnValue();
         if (mappedFiles != null) {
@@ -394,7 +399,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                     }
                     boolean rerun = ignorePreviousRuns || rerunWorkflowRun(filesToRun, fileSWIDsToRun);
 
-                    // SEQWARE-1728 - move creation of ini to launches (and test launches) to conserve disk space
+                    // SEQWARE-1728 - move creation of ini to launches (and dry run launches) to conserve disk space
                     iniFiles = new ArrayList<>();
 
                     ReturnValue newRet = this.doFinalCheck(fileString, parentAccessionString);
@@ -403,16 +408,29 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                         rerun = false;
                     }
 
-                    // if we're in testing mode or we don't want to rerun and we don't want to force the re-processing
-                    if (test || !rerun) {
-                        // we need to simplify the logic and make it more readable here for testing
+                    // if we're in dry run mode or we don't want to rerun and we don't want to force the re-processing
+                    if (isDryRunMode || !rerun) {
+                        //TODO: we need to simplify the logic and make it more readable
                         if (rerun) {
+                            try {
+                                workflowParentAccessionsToRun = getSwidsToLinkWorkflowRunTo(new HashSet<>(workflowParentAccessionsToRun));
+                            } catch (Exception e) {
+                                Log.error(e.getMessage());
+                                Log.error("Error while scheduling workflow run in dry run mode - getSwidsToLinkWorkflowRunTo() failed. "
+                                        + "workflowParentAccessionsToRun = " + workflowParentAccessionsToRun.toString());
+                                continue;
+                            }
+
                             iniFiles.add(createIniFile(fileString, parentAccessionString));
                             for (String line : studyReporterOutput) {
                                 Log.stdout(line);
                             }
-                            Log.debug("NOT RUNNING (but would have ran). test=" + test + " or !rerun=" + !rerun);
+                            Log.debug("NOT RUNNING (but would have ran). dryRunMode=" + isDryRunMode + " or !rerun=" + !rerun);
                             reportLaunch();
+                            
+                            //keep track of workflow runs to be scheduled
+                            workflowRuns.addAll(iniFiles);
+                            
                             // SEQWARE-1642 - output to stdout only whether a decider would launch
                             ret = do_summary();
                             launched++;
@@ -420,24 +438,40 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                             for (String line : studyReporterOutput) {
                                 Log.debug(line);
                             }
-                            Log.debug("NOT RUNNING (and would not have ran). test=" + test + " or !rerun=" + !rerun);
+                            Log.debug("NOT RUNNING (and would not have ran). dryRunMode=" + isDryRunMode + " or !rerun=" + !rerun);
                         }
                     } else if (launched < launchMax) {
+                        try {
+                            workflowParentAccessionsToRun = getSwidsToLinkWorkflowRunTo(new HashSet<>(workflowParentAccessionsToRun));
+                        } catch (Exception e) {
+                            Log.error(e.getMessage());
+                            Log.error("Error while scheduling workflow run - getSwidsToLinkWorkflowRunTo() failed. "
+                                    + "workflowParentAccessionsToRun = " + workflowParentAccessionsToRun.toString());
+                            continue;
+                        }
+                        
                         iniFiles.add(createIniFile(fileString, parentAccessionString));
                         launched++;
                         // construct the INI and run it
                         for (String line : studyReporterOutput) {
                             Log.stdout(line);
                         }
+                        
+                        //keep track of workflow runs to be scheduled
+                        workflowRuns.addAll(iniFiles);
+                        
                         Log.debug("Scheduling");
                         // construct the INI and run it
                         ArrayList<String> runArgs = constructCommand();
-                        PluginRunner.main(runArgs.toArray(new String[runArgs.size()]));
+                        PluginRunner pluginRunner = new PluginRunner();
+                        pluginRunner.setConfig(config);
+                        pluginRunner.run(runArgs.toArray(new String[runArgs.size()]));
+                        
                         Log.stdout("Scheduling.");
                         do_summary();
 
                     }
-                    // separate this out so that it is reachable when in --test
+                    // separate this out so that it is reachable when in dry run mode
                     if (launched >= launchMax) {
                         Log.info("The maximum number of jobs has been scheduled"
                                 + ". The next jobs will be launched when the decider runs again.");
@@ -456,6 +490,10 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         }
         return ret;
     }
+    
+    protected Set<String> getSwidsToLinkWorkflowRunTo(Set<String> swids) throws Exception {
+        return swids;
+    }
 
     protected ArrayList<String> constructCommand() {
         ArrayList<String> runArgs = new ArrayList<>();
@@ -466,22 +504,24 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         runArgs.add(workflowAccession);
         runArgs.add("--ini-files");
         runArgs.add(commaSeparateMy(iniFiles));
-        Collection<String> fileSWIDs = new ArrayList<>();
-        runArgs.add("--" + WorkflowScheduler.INPUT_FILES);
-        for (Integer fileSWID : fileSWIDsToRun) {
-            fileSWIDs.add(String.valueOf(fileSWID));
-        }
-        runArgs.add(commaSeparateMy(fileSWIDs));
-        if (!metadataWriteback) {
+        if (getMetadataWriteback()) {
+            Collection<String> fileSWIDs = new ArrayList<>();
+            runArgs.add("--" + WorkflowScheduler.INPUT_FILES);
+            for (Integer fileSWID : fileSWIDsToRun) {
+                fileSWIDs.add(String.valueOf(fileSWID));
+            }
+            runArgs.add(commaSeparateMy(fileSWIDs));
+            runArgs.add("--parent-accessions");
+            runArgs.add(commaSeparateMy(parentAccessionsToRun));
+            if (!workflowParentAccessionsToRun.isEmpty()) {
+                runArgs.add("--link-workflow-run-to-parents");
+                runArgs.add(commaSeparateMy(workflowParentAccessionsToRun));
+            }
+        } else {
             runArgs.add("--no-metadata");
         }
-        runArgs.add("--parent-accessions");
-        runArgs.add(commaSeparateMy(parentAccessionsToRun));
-        runArgs.add("--link-workflow-run-to-parents");
-        runArgs.add(commaSeparateMy(workflowParentAccessionsToRun));
         runArgs.add("--host");
         runArgs.add(host);
-
         runArgs.add("--");
         for (String s : options.valuesOf(nonOptionSpec)) {
             runArgs.add(s);
@@ -599,7 +639,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                     }
                 }
             }
-            if (test) {
+            if (isDryRunMode) {
                 printFileMetadata(file, fm);
             }
 
@@ -733,10 +773,11 @@ public class BasicDecider extends Plugin implements DeciderInterface {
 
             String currVal = r.getAttributes().get(groupBy);
 
-            if (currVal != null) {
-                currVal = handleGroupByAttribute(currVal);
+            if (currVal == null) {
+                continue;
             }
-
+            currVal = handleGroupByAttribute(currVal);
+            
             List<ReturnValue> vs = map.get(currVal);
             if (vs == null) {
                 vs = new ArrayList<>();
@@ -820,12 +861,12 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         this.parentWorkflowAccessions = parentWorkflowAccessions;
     }
 
-    public Boolean getTest() {
-        return test;
+    public Boolean isDryRunMode() {
+        return isDryRunMode;
     }
 
-    public void setTest(Boolean test) {
-        this.test = test;
+    public void setDryRunMode(Boolean isDryRunMode) {
+        this.isDryRunMode = isDryRunMode;
     }
 
     public String getWorkflowAccession() {
@@ -991,12 +1032,20 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         command.append("\n");
         return command.toString();
     }
+    
+    protected List<Map<String,String>> getFileProvenanceReport(Map<FileProvenanceParam, List<String>> params){
+        return metadata.fileProvenanceReport(params);
+    }
+    
+    protected Map<FileProvenanceParam, List<String>> parseOptions(){
+        return ProvenanceUtility.convertOptionsToMap(options, metadata);
+    }
 
     private List<ReturnValue> createListOfRelevantFilePaths() {
 
         List<ReturnValue> vals;
         List<Map<String, String>> fileProvenanceReport;
-        Map<FileProvenanceParam, List<String>> map = ProvenanceUtility.convertOptionsToMap(options, metadata);
+        Map<FileProvenanceParam, List<String>> map = parseOptions();
         if (skipStuff) {
             map.put(FileProvenanceParam.skip, new ImmutableList.Builder<String>().add("false").build());
         }
@@ -1007,7 +1056,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
             map.put(FileProvenanceParam.workflow, new ImmutableList.Builder<String>().addAll(this.parentWorkflowAccessions).build());
         }
 
-        fileProvenanceReport = metadata.fileProvenanceReport(map);
+        fileProvenanceReport = getFileProvenanceReport(map);
         // convert to list of ReturnValues for backwards compatibility
         vals = convertFileProvenanceReport(fileProvenanceReport);
         // consider memory use and GC here
@@ -1020,19 +1069,22 @@ public class BasicDecider extends Plugin implements DeciderInterface {
             ReturnValue row = new ReturnValue();
             row.setAttributes(map);
             list.add(row);
-            // mutate additional rows into a nested FileMetadata object
-            FileMetadata fm = new FileMetadata();
-            fm.setFilePath(map.get(Header.FILE_PATH.getTitle()));
-            fm.setMetaType(map.get(Header.FILE_META_TYPE.getTitle()));
-            fm.setDescription(map.get(Header.FILE_DESCRIPTION.getTitle()));
-            fm.setMd5sum(map.get(Header.FILE_MD5SUM.getTitle()));
-            if (map.containsKey(Header.FILE_SIZE.getTitle())) {
-                if (!map.get(Header.FILE_SIZE.getTitle()).isEmpty()) {
-                    fm.setSize(Long.valueOf(map.get(Header.FILE_SIZE.getTitle())));
+            
+            if (map.get(Header.FILE_PATH.getTitle()) != null) {
+                // mutate additional rows into a nested FileMetadata object
+                FileMetadata fm = new FileMetadata();
+                fm.setFilePath(map.get(Header.FILE_PATH.getTitle()));
+                fm.setMetaType(map.get(Header.FILE_META_TYPE.getTitle()));
+                fm.setDescription(map.get(Header.FILE_DESCRIPTION.getTitle()));
+                fm.setMd5sum(map.get(Header.FILE_MD5SUM.getTitle()));
+                if (map.containsKey(Header.FILE_SIZE.getTitle())) {
+                    if (!map.get(Header.FILE_SIZE.getTitle()).isEmpty()) {
+                        fm.setSize(Long.valueOf(map.get(Header.FILE_SIZE.getTitle())));
+                    }
                 }
+                row.setFiles(new ArrayList(new ImmutableList.Builder<FileMetadata>().add(fm).build()));
             }
-
-            row.setFiles(new ArrayList(new ImmutableList.Builder<FileMetadata>().add(fm).build()));
+            
             handleAttributes(map, row, Header.STUDY_ATTRIBUTES, Header.STUDY_TAG_PREFIX);
             handleAttributes(map, row, Header.EXPERIMENT_ATTRIBUTES, Header.EXPERIMENT_TAG_PREFIX);
             handleAttributes(map, row, Header.PARENT_SAMPLE_ATTRIBUTES, Header.PARENT_SAMPLE_TAG_PREFIX);
@@ -1048,9 +1100,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
 
     private void handleAttributes(Map<String, String> map, ReturnValue row, Header headerType, Header headerPrefix) {
         // mutate attributes into expected format from FindAllTheFiles
-        String studyAttributes = map.remove(headerType.getTitle());
-        if (!studyAttributes.isEmpty()) {
-            String[] studyAttrArr = studyAttributes.split(";");
+        String attributes = map.remove(headerType.getTitle());
+        if (attributes != null && !attributes.isEmpty()) {
+            String[] studyAttrArr = attributes.split(";");
             for (String studyAttr : studyAttrArr) {
                 String[] parts = studyAttr.split("=");
                 String key = parts[0];

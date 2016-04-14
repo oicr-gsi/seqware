@@ -16,8 +16,12 @@
  */
 package net.sourceforge.seqware.common.dto;
 
-import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import net.sourceforge.seqware.common.model.LimsKey;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  *
@@ -44,6 +48,31 @@ public class IusLimsKeyDto implements IusLimsKey {
 
     public void setLimsKey(LimsKey limsKey) {
         this.limsKey = limsKey;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IusLimsKeyDto other = (IusLimsKeyDto) obj;
+        return EqualsBuilder.reflectionEquals(other, this);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
 }

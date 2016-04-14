@@ -16,13 +16,14 @@
  */
 package net.sourceforge.seqware.common.util.xmltools;
 
-import ca.on.oicr.gsi.provenance.api.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import io.seqware.common.model.WorkflowRunStatus;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -34,7 +35,6 @@ import net.sourceforge.seqware.common.dto.builders.AnalysisProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.FileType;
-import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LaneAttribute;
@@ -71,6 +71,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import net.sourceforge.seqware.common.model.IUS;
+import org.joda.time.DateTimeZone;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * <p>
@@ -607,18 +610,26 @@ public class JaxbObjectTest {
     }
 
     @Test
-    public void testAnalysisProvenance() throws JAXBException, SAXException {
-        AnalysisProvenanceDtoList analysisProvenanceList0 = new AnalysisProvenanceDtoList();
-        analysisProvenanceList0.setAnalysisProvenanceDtos(new ArrayList<AnalysisProvenanceDto>());
+    public void testAnalysisProvenance_empty() throws JAXBException, SAXException {
+        AnalysisProvenanceDtoList expectedAnalysisProvenanceList = new AnalysisProvenanceDtoList();
+        expectedAnalysisProvenanceList.setAnalysisProvenanceDtos(new ArrayList<AnalysisProvenanceDto>());
         JaxbObject<AnalysisProvenanceDtoList> jaxb0 = new JaxbObject<>();
-        String text0 = jaxb0.marshal(analysisProvenanceList0);
-        AnalysisProvenanceDtoList analysisProvenanceList0a = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text0);
-        
+        String text0 = jaxb0.marshal(expectedAnalysisProvenanceList);
+        AnalysisProvenanceDtoList actualAnalysisProvenanceList = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text0);
+
+        assertEquals(0, actualAnalysisProvenanceList.getAnalysisProvenanceDtos().size());
+        assertEquals(expectedAnalysisProvenanceList.getAnalysisProvenanceDtos().toString(), actualAnalysisProvenanceList.getAnalysisProvenanceDtos().toString());
+        assertEquals(expectedAnalysisProvenanceList.getAnalysisProvenanceDtos(), actualAnalysisProvenanceList.getAnalysisProvenanceDtos());
+    }
+
+    @Test
+    public void testAnalysisProvenance_normal() throws JAXBException, SAXException {
         Workflow w = new Workflow();
         w.setName("test_workflow");
 
         WorkflowRun wr = new WorkflowRun();
         wr.setStatus(WorkflowRunStatus.completed);
+        wr.setInputFileAccessions(Collections.EMPTY_SET);
 
         Processing p = new Processing();
         p.setAlgorithm("pfo");
@@ -627,11 +638,13 @@ public class JaxbObjectTest {
         File f = new File();
         f.setFilePath("/tmp/out");
 
+        DateTime limsLastModified = DateTime.now().toDateTime(DateTimeZone.UTC);
+        
         LimsKey lk1 = new LimsKey();
         lk1.setProvider("seqware");
         lk1.setId("1");
         lk1.setVersion("1");
-        lk1.setLastModified(DateTime.now());
+        lk1.setLastModified(limsLastModified);
 
         IusLimsKeyDto ik1 = new IusLimsKeyDto();
         ik1.setIusSWID(1234);
@@ -641,7 +654,7 @@ public class JaxbObjectTest {
         lk2.setProvider("seqware");
         lk2.setId("2");
         lk2.setVersion("1");
-        lk2.setLastModified(DateTime.now());
+        lk2.setLastModified(limsLastModified);
 
         IusLimsKeyDto ik2 = new IusLimsKeyDto();
         ik2.setIusSWID(4567);
@@ -657,21 +670,25 @@ public class JaxbObjectTest {
         List<AnalysisProvenanceDto> apDtos = new ArrayList<>();
         apDtos.add(ap.build());
 
-        AnalysisProvenanceDtoList analysisProvenanceList = new AnalysisProvenanceDtoList();
-        analysisProvenanceList.setAnalysisProvenanceDtos(apDtos);
+        AnalysisProvenanceDtoList expectedAnalysisProvenanceList = new AnalysisProvenanceDtoList();
+        expectedAnalysisProvenanceList.setAnalysisProvenanceDtos(apDtos);
 
         JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
-        String text = jaxb.marshal(analysisProvenanceList);
-
-        AnalysisProvenanceDtoList analysisProvenanceList1 = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text);
-        for(AnalysisProvenanceDto dto : analysisProvenanceList1.getAnalysisProvenanceDtos()){
-            for(IusLimsKey ik : dto.getIusLimsKeys()){
+        String text = jaxb.marshal(expectedAnalysisProvenanceList);
+        
+        AnalysisProvenanceDtoList actualAnalysisProvenanceList = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text);
+        for (AnalysisProvenanceDto dto : actualAnalysisProvenanceList.getAnalysisProvenanceDtos()) {
+            for (IusLimsKey ik : dto.getIusLimsKeys()) {
                 assertEquals("seqware", ik.getLimsKey().getProvider());
             }
             assertEquals("test_workflow", dto.getWorkflowName());
             assertEquals("pfo", dto.getProcessingAlgorithm());
             assertEquals("/tmp/out", dto.getFilePath());
+            assertEquals(Collections.EMPTY_SET, dto.getWorkflowRunInputFileIds());
         }
+
+        assertEquals(1, actualAnalysisProvenanceList.getAnalysisProvenanceDtos().size());
+        assertEquals(expectedAnalysisProvenanceList.getAnalysisProvenanceDtos(), actualAnalysisProvenanceList.getAnalysisProvenanceDtos());
     }
 
     @Test
@@ -724,10 +741,13 @@ public class JaxbObjectTest {
 
         SampleProvenanceDtoList sampleProvenanceSet1 = (SampleProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new SampleProvenanceDtoList(), text);
 
+        assertNotNull(sp.getLastModified());
+        assertEquals(sp.getLastModified(), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getLastModified());
         assertEquals("test_study", Iterables.getFirst(sampleProvenanceSet1.getSampleProvenanceDtos(), new SampleProvenanceDto()).getStudyTitle());
         assertEquals(Sets.newHashSet("R", "P"), sps.get(0).getSampleAttributes().get("tissue_type"));
         assertEquals(Sets.newHashSet("R", "P"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_type"));
         assertEquals(Sets.newHashSet("Ly"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_origin"));
-        assertTrue(EqualsBuilder.reflectionEquals(sps.get(0), sampleProvenanceSet1.getSampleProvenanceDtos().get(0), true));
+        assertEquals(sp.getLastModified(), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getLastModified());
+        assertTrue("Sample provenance objects do not equal", EqualsBuilder.reflectionEquals(sps.get(0), sampleProvenanceSet1.getSampleProvenanceDtos().get(0)));
     }
 }
