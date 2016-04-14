@@ -412,6 +412,15 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                     if (isDryRunMode || !rerun) {
                         //TODO: we need to simplify the logic and make it more readable
                         if (rerun) {
+                            try {
+                                workflowParentAccessionsToRun = getSwidsToLinkWorkflowRunTo(new HashSet<>(workflowParentAccessionsToRun));
+                            } catch (Exception e) {
+                                Log.error(e.getMessage());
+                                Log.error("Error while scheduling workflow run in dry run mode - getSwidsToLinkWorkflowRunTo() failed. "
+                                        + "workflowParentAccessionsToRun = " + workflowParentAccessionsToRun.toString());
+                                continue;
+                            }
+
                             iniFiles.add(createIniFile(fileString, parentAccessionString));
                             for (String line : studyReporterOutput) {
                                 Log.stdout(line);
@@ -432,6 +441,15 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                             Log.debug("NOT RUNNING (and would not have ran). test=" + test + " or !rerun=" + !rerun);
                         }
                     } else if (launched < launchMax) {
+                        try {
+                            workflowParentAccessionsToRun = getSwidsToLinkWorkflowRunTo(new HashSet<>(workflowParentAccessionsToRun));
+                        } catch (Exception e) {
+                            Log.error(e.getMessage());
+                            Log.error("Error while scheduling workflow run - getSwidsToLinkWorkflowRunTo() failed. "
+                                    + "workflowParentAccessionsToRun = " + workflowParentAccessionsToRun.toString());
+                            continue;
+                        }
+                        
                         iniFiles.add(createIniFile(fileString, parentAccessionString));
                         launched++;
                         // construct the INI and run it
@@ -472,6 +490,10 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         }
         return ret;
     }
+    
+    protected Set<String> getSwidsToLinkWorkflowRunTo(Set<String> swids) throws Exception {
+        return swids;
+    }
 
     protected ArrayList<String> constructCommand() {
         ArrayList<String> runArgs = new ArrayList<>();
@@ -500,7 +522,6 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         }
         runArgs.add("--host");
         runArgs.add(host);
-
         runArgs.add("--");
         for (String s : options.valuesOf(nonOptionSpec)) {
             runArgs.add(s);
