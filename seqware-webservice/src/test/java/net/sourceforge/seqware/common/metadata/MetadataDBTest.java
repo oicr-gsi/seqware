@@ -156,4 +156,17 @@ public class MetadataDBTest extends MetadataWSTest {
     public void getDirectFilesAssociatedWithWorkflowRuns() {
         /** test not supported in direct DB mode */
     }
+    
+    @Test
+    @Override
+    public void getLimsKeyFromIUS() {
+        //test not supported in direct DB mode
+    }
+
+    @Test
+    @Override
+    public void getLimsKeyFromIUSWithNoLimsKey() {
+        //test not supported in direct DB mode
+    }
+    
 }

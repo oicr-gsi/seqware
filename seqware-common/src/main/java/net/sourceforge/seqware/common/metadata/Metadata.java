@@ -1200,6 +1200,15 @@ public interface Metadata {
     public List<IUS> getIUSFrom(int laneOrSampleAccession);
 
     /**
+     * Get LimsKey that is associated with an IUS.
+     *
+     * @param iusAccession the sw_accession/swid of the IUS
+     *
+     * @return the LimsKey or null if there is no LimsKey associated with the IUS
+     */
+    public LimsKey getLimsKeyFrom(Integer iusAccession);
+
+    /**
      * Get experiments from a study.
      *
      * @param studyAccession

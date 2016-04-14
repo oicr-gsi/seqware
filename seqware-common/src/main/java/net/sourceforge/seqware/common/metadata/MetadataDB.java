@@ -1404,6 +1404,11 @@ public class MetadataDB implements Metadata {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public static class IntByIndex implements ResultSetHandler<Integer> {
         private final int col;
         private final int defaultVal;

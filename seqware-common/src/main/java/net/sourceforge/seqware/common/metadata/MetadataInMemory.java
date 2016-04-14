@@ -1031,6 +1031,11 @@ public class MetadataInMemory implements Metadata {
     public List<IUS> getIUSFrom(int laneOrSampleAccession) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        return ((IUS) MetadataInMemory.getStore().get(iusAccession, IUS.class)).getLimsKey();
+    }
 
     @Override
     public List<Experiment> getExperimentsFrom(int studyAccession) {

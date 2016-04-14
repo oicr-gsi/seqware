@@ -833,4 +833,9 @@ public class MetadataNoConnection implements Metadata {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

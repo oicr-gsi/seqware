@@ -2486,6 +2486,19 @@ public class MetadataWS implements Metadata {
         }
         return null;
     }
+    
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            sb.append("/ius/").append(iusAccession).append("/limskey");
+            JaxbObject<LimsKey> jaxb = new JaxbObject<>();
+            return (LimsKey) ll.existsObject(sb.toString(), "", jaxb, new LimsKey());
+        } catch (JAXBException ex) {
+            Log.error("JAXBException while retrieving IUSes (barcodes) from lane or sample", ex);
+        }
+        return null;
+    }
 
     @Override
     public List<Experiment> getExperimentsFrom(int studyAccession) {
@@ -2746,7 +2759,7 @@ public class MetadataWS implements Metadata {
         }
         return null;
     }
-    
+
     /*
      * public void annotateFile(int fileSWID, FileAttribute att, Boolean skip) { try { Log.debug("Annotating WorkflowRun " + fileSWID +
      * " with skip=" + skip + ", Att = " + att); File obj = ll.findFile("/" + fileSWID); if (skip != null) { // obj.setSkip(skip);

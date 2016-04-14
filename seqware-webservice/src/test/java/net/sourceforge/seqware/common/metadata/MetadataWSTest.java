@@ -37,6 +37,7 @@ import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Workflow;
@@ -50,9 +51,12 @@ import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.webservice.resources.tables.FileChildWorkflowRunsResource;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -812,5 +816,31 @@ public class MetadataWSTest {
                     r.getInputFileAccessions().contains(f1_sw_accession) || r.getInputFileAccessions().contains(f4_sw_accession));
         }
     }
+    
+    @Test
+    public void getLimsKeyFromIUS() {
+        Log.info("getLimsKeyFromIUS");
+        LimsKey limsKey = instance.getLimsKeyFrom(6212);
+        assertNotNull(limsKey);
+        assertEquals("25", limsKey.getId());
+        assertEquals("seqware", limsKey.getProvider());
+        assertEquals("1", limsKey.getVersion());
+        assertEquals(new DateTime("2015-12-31T19:00:00.000-05:00").toDateTime(DateTimeZone.UTC), limsKey.getLastModified());
+    }
+
+    @Test
+    public void getLimsKeyFromIUSWithNoLimsKey() {
+        Log.info("getLimsKeyFromMissingIUS");
+        LimsKey limsKey = instance.getLimsKeyFrom(-1);
+        assertNull(limsKey);
+    }
+
+//    @Test(expected = RuntimeException.class)
+//    public void getLimsKeyFromMissingIUS() {
+//        dbCreator.resetDatabaseWithUsers();
+//        Log.info("getLimsKeyFromMissingIUS");
+//        LimsKey limsKey = instance.getLimsKeyFrom(-1);
+//        fail("Exception should have been thrown");
+//    }
 
 }
