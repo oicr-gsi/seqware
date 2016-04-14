@@ -343,6 +343,9 @@ public class PluginRunner {
     }
 
     private void setupConfig() {
+        if (this.config != null) {
+            return;
+        }
         try {
             this.config = ConfigTools.getSettings();
         } catch (Exception e) {
@@ -350,6 +353,10 @@ public class PluginRunner {
             Log.fatal("Error reading settings file", e);
             throw new ExitException(ReturnValue.SETTINGSFILENOTFOUND);
         }
+    }
+    
+    public void setConfig(Map<String, String> config) {
+        this.config = config;
     }
 
     private void setupMetadata() {
