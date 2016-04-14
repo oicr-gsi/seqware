@@ -445,7 +445,10 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                         Log.debug("Scheduling");
                         // construct the INI and run it
                         ArrayList<String> runArgs = constructCommand();
-                        PluginRunner.main(runArgs.toArray(new String[runArgs.size()]));
+                        PluginRunner pluginRunner = new PluginRunner();
+                        pluginRunner.setConfig(config);
+                        pluginRunner.run(runArgs.toArray(new String[runArgs.size()]));
+                        
                         Log.stdout("Scheduling.");
                         do_summary();
 
