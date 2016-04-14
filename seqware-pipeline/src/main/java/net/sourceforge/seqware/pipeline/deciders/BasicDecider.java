@@ -482,19 +482,22 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         runArgs.add(workflowAccession);
         runArgs.add("--ini-files");
         runArgs.add(commaSeparateMy(iniFiles));
-        Collection<String> fileSWIDs = new ArrayList<>();
-        runArgs.add("--" + WorkflowScheduler.INPUT_FILES);
-        for (Integer fileSWID : fileSWIDsToRun) {
-            fileSWIDs.add(String.valueOf(fileSWID));
-        }
-        runArgs.add(commaSeparateMy(fileSWIDs));
-        if (!metadataWriteback) {
+        if (getMetadataWriteback()) {
+            Collection<String> fileSWIDs = new ArrayList<>();
+            runArgs.add("--" + WorkflowScheduler.INPUT_FILES);
+            for (Integer fileSWID : fileSWIDsToRun) {
+                fileSWIDs.add(String.valueOf(fileSWID));
+            }
+            runArgs.add(commaSeparateMy(fileSWIDs));
+            runArgs.add("--parent-accessions");
+            runArgs.add(commaSeparateMy(parentAccessionsToRun));
+            if (!workflowParentAccessionsToRun.isEmpty()) {
+                runArgs.add("--link-workflow-run-to-parents");
+                runArgs.add(commaSeparateMy(workflowParentAccessionsToRun));
+            }
+        } else {
             runArgs.add("--no-metadata");
         }
-        runArgs.add("--parent-accessions");
-        runArgs.add(commaSeparateMy(parentAccessionsToRun));
-        runArgs.add("--link-workflow-run-to-parents");
-        runArgs.add(commaSeparateMy(workflowParentAccessionsToRun));
         runArgs.add("--host");
         runArgs.add(host);
 
