@@ -89,6 +89,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     private Collection<String> filesToRun;
     private Collection<String> workflowParentAccessionsToRun;
     private Collection<Integer> fileSWIDsToRun;
+    private List<String> workflowRuns;
     private Set<String> studyReporterOutput;
     private ArrayList<String> iniFiles;
     private Boolean skipStuff = null;
@@ -158,6 +159,10 @@ public class BasicDecider extends Plugin implements DeciderInterface {
      */
     public ReturnValue init() {
         ReturnValue ret = new ReturnValue();
+        
+        //initialize collections
+        workflowRuns = new ArrayList<>();
+        
         if (!ProvenanceUtility.checkForValidOptions(options)) {
             println("One of the various contraints or '--all' must be specified.");
             println(this.get_syntax());
@@ -256,9 +261,8 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         ignorePreviousRuns = options.has(this.ignorePreviousRunsSpec) || options.has(this.forceRunAllSpec);
 
         // dry run mode turns off all of the submission functions and just prints to stdout
-        if (isDryRunMode == null) {
-            isDryRunMode = options.has("dry-run");
-        }
+        isDryRunMode = options.has("dry-run");
+        
         if (isDryRunMode) {
             StringWriter writer = new StringWriter();
             try {
@@ -269,23 +273,19 @@ public class BasicDecider extends Plugin implements DeciderInterface {
             }
         }
 
-        if (skipStuff == null) {
-            skipStuff = !options.has("ignore-skip-flag");
-        }
+        skipStuff = !options.has("ignore-skip-flag");
 
-        if (metadataWriteback == null) {
-            metadataWriteback = !(options.has("no-metadata") || options.has("no-meta-db"));
-        }
+        metadataWriteback = !(options.has("no-metadata") || options.has("no-meta-db"));
 
         LocalhostPair localhostPair = FileTools.getLocalhost(options);
         String localhost = localhostPair.hostname;
-        if (host == null) {
-            if (options.has("host") || options.has("ho")) {
-                host = (String) options.valueOf("host");
-            } else {
-                host = localhost;
-            }
+        
+        if (options.has("host") || options.has("ho")) {
+            host = (String) options.valueOf("host");
+        } else {
+            host = localhost;
         }
+        
         if (localhostPair.returnValue.getExitStatus() != ReturnValue.SUCCESS && host == null) {
             Log.error("Could not determine localhost: Return value " + localhostPair.returnValue.getExitStatus());
             Log.error("Please supply it on the command line with --host");
@@ -339,10 +339,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     }
     
     public List<String> getWorkflowRuns() {
-        return workflowRuns;
+        return Collections.unmodifiableList(workflowRuns);
     }
 
-    List<String> workflowRuns = new ArrayList<>();
     private ReturnValue launchWorkflows(Map<String, List<ReturnValue>> mappedFiles) {
         ReturnValue ret = new ReturnValue();
         if (mappedFiles != null) {
