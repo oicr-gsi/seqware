@@ -35,10 +35,6 @@ public class AnalysisProvenanceResourceTest extends DatabaseResourceTest {
         super("/reports/analysis-provenance");
     }
 
-//    @Test
-//    public void testSomeMethod() {
-//    }
-
     @Ignore
     @Override
     public void testDelete() {
@@ -70,7 +66,8 @@ public class AnalysisProvenanceResourceTest extends DatabaseResourceTest {
             Assert.fail(e.getMessage());
             e.printStackTrace();
         }
-        
-        Assert.assertEquals(23, list.getAnalysisProvenanceDtos().size());
+
+        //20 IUS without LimsKey + 3 files attached to workflow run + 1 workflow run without files = 24 expected records
+        Assert.assertEquals(24, list.getAnalysisProvenanceDtos().size());
     }
 }
