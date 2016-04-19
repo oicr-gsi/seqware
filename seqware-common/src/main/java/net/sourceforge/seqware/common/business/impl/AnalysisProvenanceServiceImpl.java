@@ -16,6 +16,7 @@
  */
 package net.sourceforge.seqware.common.business.impl;
 
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -57,86 +58,27 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         return buildList(iusDAO.list());
     }
 
-    public static List<AnalysisProvenanceDto> buildList(Collection<IUS> iuses) {
+    @Override
+    public List<AnalysisProvenanceDto> findForIus(IUS ius) {
+        //TODO: this will not work for cases where AP has multiple IUS
+        //return buildList(Arrays.asList(iusDAO.findByID(ius.getIusId())));
+        Integer targetIusSwid = ius.getSwAccession();
+
         List<AnalysisProvenanceDto> aps = new ArrayList<>();
-        Map<Integer, AnalysisProvenanceDtoBuilder> partialBuilders = new HashMap<>();
-
-        for (IUS ius : iuses) {
-            if (ius.getLimsKey() == null) {
-                //this ius is not for linking to LIMS
-                continue;
-            }
-
-            //get all Workflow Runs associated with the IUS
-            Set<WorkflowRun> workflowRuns = ius.getWorkflowRuns();
-            if (workflowRuns == null || workflowRuns.isEmpty()) {
-                //create an Analysis Provenance (with only IUS info) if IUS has no associated Workflow Runs
-                AnalysisProvenanceDtoBuilder ap = new AnalysisProvenanceDtoBuilder();
-                ap.addIusLimsKey(getIusLimsKey(ius));
-                aps.add(ap.build());
-            } else {
-                for (WorkflowRun workflowRun : workflowRuns) {
-                    Integer workflowRunSwid = workflowRun.getSwAccession();
-                    if (workflowRunSwid == null) {
-                        throw new RuntimeException("null workflow run swid");
-                    }
-                    AnalysisProvenanceDtoBuilder ap = partialBuilders.get(workflowRunSwid);
-                    if (ap == null) {
-                        Set<Processing> processings = workflowRun.getProcessings();
-                        if (processings == null || processings.isEmpty()) {
-                            //do nothing
-                        } else {
-                            for (Processing processing : processings) {
-                                Set<File> files = processing.getFiles();
-                                if (files == null || files.isEmpty()) {
-                                    // do nothing
-                                } else {
-                                    for (File file : files) {
-                                        Set<IUS> processingIuses = processing.getIUS();
-                                        ap = new AnalysisProvenanceDtoBuilder();
-                                        ap.setWorkflowRun(workflowRun);
-                                        ap.setWorkflow(workflowRun.getWorkflow());
-                                        ap.setProcessing(processing);
-                                        ap.setFile(file);
-
-                                        if (processingIuses == null || processingIuses.isEmpty()) {
-                                            //when the file was created, it was not linked to ius
-                                            ap.addIusLimsKey(getIusLimsKey(ius));
-                                            partialBuilders.put(workflowRunSwid, ap);
-                                        } else {
-                                            //when the file was created, it was linked to ius
-                                            for (IUS i : processingIuses) {
-                                                ap.addIusLimsKey(getIusLimsKey(i));
-                                            }
-                                            aps.add(ap.build());
-                                            //do not add to workflowRunAps, this AP is complete
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // if ap is still null, there were no processings and/or files associated with the workflow run
-                        // create an AP with only workflow run information
-                        if (ap == null) {
-                            ap = new AnalysisProvenanceDtoBuilder();
-                            ap.addIusLimsKey(getIusLimsKey(ius));
-                            ap.setWorkflowRun(workflowRun);
-                            ap.setWorkflow(workflowRun.getWorkflow());
-                            partialBuilders.put(workflowRunSwid, ap);
-                        }
-                    } else {
-                        ap.addIusLimsKey(getIusLimsKey(ius));
-                    }
-
+        for (AnalysisProvenanceDto ap : buildList(iusDAO.list())) {
+            for (IusLimsKey ilk : ap.getIusLimsKeys()) {
+                if (targetIusSwid.equals(ilk.getIusSWID())) {
+                    aps.add(ap);
+                    break;
                 }
             }
         }
 
-        for (AnalysisProvenanceDtoBuilder ap : partialBuilders.values()) {
-            aps.add(ap.build());
-        }
-
         return aps;
+    }
+
+    public static List<AnalysisProvenanceDto> buildList(Collection<IUS> iuses) {
+        return AnalysisProvenanceListBuilder.calculate(iuses);
     }
 
     private static IusLimsKeyDto getIusLimsKey(IUS ius) {
@@ -146,4 +88,108 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         return ik;
     }
 
+    public static class AnalysisProvenanceListBuilder {
+
+        private List<AnalysisProvenanceDto> aps = new ArrayList<>();
+        private Map<Integer, AnalysisProvenanceDtoBuilder> partialBuilders = new HashMap<>();
+
+        public AnalysisProvenanceListBuilder(Collection<IUS> iuses) {
+            for (IUS ius : iuses) {
+
+                //IUS is not linked to LimsKey - not a target for Analyis Provenance
+                if (ius.getLimsKey() == null) {
+                    continue;
+                }
+
+                Set<WorkflowRun> workflowRuns = ius.getWorkflowRuns();
+                if (workflowRuns == null || workflowRuns.isEmpty()) {
+                    generateOrUpdateAnalysisProvenanceFor(ius, null, null, null);
+                } else {
+                    for (WorkflowRun workflowRun : workflowRuns) {
+                        Set<Processing> processings = workflowRun.getProcessings();
+                        if (processings == null || processings.isEmpty()) {
+                            generateOrUpdateAnalysisProvenanceFor(ius, workflowRun, null, null);
+                        } else {
+                            for (Processing processing : processings) {
+                                Set<File> files = processing.getFiles();
+                                if (files == null || files.isEmpty()) {
+                                    generateOrUpdateAnalysisProvenanceFor(ius, workflowRun, processing, null);
+                                } else {
+                                    for (File file : files) {
+                                        generateOrUpdateAnalysisProvenanceFor(ius, workflowRun, processing, file);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        private void generateOrUpdateAnalysisProvenanceFor(IUS ius, WorkflowRun workflowRun, Processing processing, File file) {
+
+            if (workflowRun == null) {
+                AnalysisProvenanceDtoBuilder ap = new AnalysisProvenanceDtoBuilder();
+                ap.addIusLimsKey(getIusLimsKey(ius));
+                aps.add(ap.build());
+                return;
+            }
+
+            if (processing == null) {
+                AnalysisProvenanceDtoBuilder ap = partialBuilders.get(workflowRun.getSwAccession());
+                if (ap == null) {
+                    ap = new AnalysisProvenanceDtoBuilder();
+                    ap.addIusLimsKey(getIusLimsKey(ius));
+                    ap.setWorkflowRun(workflowRun);
+                    ap.setWorkflow(workflowRun.getWorkflow());
+                    partialBuilders.put(workflowRun.getSwAccession(), ap);
+                } else {
+                    ap.addIusLimsKey(getIusLimsKey(ius));
+                }
+                return;
+            }
+
+            if (file == null) {
+                //processing has no files...
+                //it can not be determined if the processing is a provision file out step or some other intermediary step
+                //do nothing in this case
+                return;
+            }
+
+            //handle the case where processings are directly linked to the appropriate IUS
+            Set<IUS> processingIus = processing.getIUS();
+            if (processingIus != null && !processingIus.isEmpty()) {
+                if (!processingIus.contains(ius)) {
+                    //the target IUS is not relevant to the target processing
+                    return;
+                }
+            }
+
+            AnalysisProvenanceDtoBuilder ap = partialBuilders.get(file.getSwAccession());
+            if (ap == null) {
+                ap = new AnalysisProvenanceDtoBuilder();
+                ap.addIusLimsKey(getIusLimsKey(ius));
+                ap.setWorkflowRun(workflowRun);
+                ap.setWorkflow(workflowRun.getWorkflow());
+                ap.setProcessing(processing);
+                ap.setFile(file);
+                partialBuilders.put(file.getSwAccession(), ap);
+            } else {
+                ap.addIusLimsKey(getIusLimsKey(ius));
+            }
+        }
+
+        public List<AnalysisProvenanceDto> build() {
+            for (AnalysisProvenanceDtoBuilder ap : partialBuilders.values()) {
+                aps.add(ap.build());
+            }
+            partialBuilders.clear();
+            return aps;
+        }
+
+        public static List<AnalysisProvenanceDto> calculate(Collection<IUS> iuses) {
+            return new AnalysisProvenanceListBuilder(iuses).build();
+        }
+    }
 }

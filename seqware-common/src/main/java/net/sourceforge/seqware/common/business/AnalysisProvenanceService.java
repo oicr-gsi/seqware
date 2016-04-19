@@ -20,6 +20,7 @@ import java.util.List;
 import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
 import net.sourceforge.seqware.common.dao.IUSDAO;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.model.IUS;
 
 /**
  *
@@ -32,5 +33,7 @@ public interface AnalysisProvenanceService {
     public void setIUSDAO(IUSDAO iusDAO);
 
     public List<AnalysisProvenanceDto> list();
+    
+    public List<AnalysisProvenanceDto> findForIus(IUS ius);
 
 }
