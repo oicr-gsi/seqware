@@ -526,8 +526,20 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
-    public void add_workflow_run_ancestor(int workflowRunAccession, int processingId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void add_workflow_run_ancestor(int workflowRunAccession, int processingID) {
+        Integer processingSwid = processingID;
+        Integer workflowRunSwid = workflowRunAccession;
+        Processing p = (Processing) MetadataInMemory.getStore().get(processingSwid, Processing.class);
+        WorkflowRun wr = (WorkflowRun) MetadataInMemory.getStore().get(workflowRunSwid, WorkflowRun.class);
+        p.setWorkflowRunByAncestorWorkflowRunId(wr);
+        SortedSet<Processing> processings = wr.getProcessings();
+        if (processings == null) {
+            processings = new TreeSet<>();
+        }
+        processings.add(p);
+        wr.setProcessings(processings);
+        ReturnValue ret = new ReturnValue();
+        ret.setReturnValue(processingID);
     }
 
     @Override
