@@ -92,7 +92,8 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
     public static class AnalysisProvenanceListBuilder {
 
         private List<AnalysisProvenanceDto> aps = new ArrayList<>();
-        private Map<Integer, AnalysisProvenanceDtoBuilder> partialBuilders = new HashMap<>();
+        private Map<Integer, AnalysisProvenanceDtoBuilder> buildersRelatedToWorkflowRun = new HashMap<>();
+        private Map<Integer, AnalysisProvenanceDtoBuilder> buildersRelatedToFile = new HashMap<>();
 
         public AnalysisProvenanceListBuilder(Collection<IUS> iuses) {
             for (IUS ius : iuses) {
@@ -132,7 +133,6 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                         }
                     }
                 }
-
             }
         }
 
@@ -145,25 +145,32 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                 return;
             }
 
-            if (processing == null) {
-                AnalysisProvenanceDtoBuilder ap = partialBuilders.get(workflowRun.getSwAccession());
+            if (processing == null || file == null) {
+                //no processing records or the workflow run may not have any files yet
+
+                //if the builder for workflow run is null, there are file builders - so do nothing in this case
+                if (buildersRelatedToWorkflowRun.containsKey(workflowRun.getSwAccession())
+                        && buildersRelatedToWorkflowRun.get(workflowRun.getSwAccession()) == null) {
+                    return;
+                }
+
+                //create a analysis provenance record with no processing or file information
+                AnalysisProvenanceDtoBuilder ap = buildersRelatedToWorkflowRun.get(workflowRun.getSwAccession());
                 if (ap == null) {
                     ap = new AnalysisProvenanceDtoBuilder();
                     ap.addIusLimsKey(getIusLimsKey(ius));
                     ap.setWorkflowRun(workflowRun);
                     ap.setWorkflow(workflowRun.getWorkflow());
-                    partialBuilders.put(workflowRun.getSwAccession(), ap);
+                    buildersRelatedToWorkflowRun.put(workflowRun.getSwAccession(), ap);
                 } else {
                     ap.addIusLimsKey(getIusLimsKey(ius));
                 }
                 return;
             }
 
-            if (file == null) {
-                //processing has no files...
-                //it can not be determined if the processing is a provision file out step or some other intermediary step
-                //do nothing in this case
-                return;
+            //the workflow run has files - stop any workflow run builders from being created
+            if (buildersRelatedToWorkflowRun.containsKey(workflowRun.getSwAccession())) {
+                buildersRelatedToWorkflowRun.put(workflowRun.getSwAccession(), null);
             }
 
             //handle the case where processings are directly linked to the appropriate IUS
@@ -175,7 +182,7 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                 }
             }
 
-            AnalysisProvenanceDtoBuilder ap = partialBuilders.get(file.getSwAccession());
+            AnalysisProvenanceDtoBuilder ap = buildersRelatedToFile.get(file.getSwAccession());
             if (ap == null) {
                 ap = new AnalysisProvenanceDtoBuilder();
                 ap.addIusLimsKey(getIusLimsKey(ius));
@@ -183,17 +190,28 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                 ap.setWorkflow(workflowRun.getWorkflow());
                 ap.setProcessing(processing);
                 ap.setFile(file);
-                partialBuilders.put(file.getSwAccession(), ap);
+                buildersRelatedToFile.put(file.getSwAccession(), ap);
             } else {
                 ap.addIusLimsKey(getIusLimsKey(ius));
             }
         }
 
         public List<AnalysisProvenanceDto> build() {
-            for (AnalysisProvenanceDtoBuilder ap : partialBuilders.values()) {
-                aps.add(ap.build());
+
+            for (AnalysisProvenanceDtoBuilder ap : buildersRelatedToFile.values()) {
+                if (ap != null) {
+                    aps.add(ap.build());
+                }
             }
-            partialBuilders.clear();
+            buildersRelatedToFile.clear();
+
+            for (AnalysisProvenanceDtoBuilder ap : buildersRelatedToWorkflowRun.values()) {
+                if (ap != null) {
+                    aps.add(ap.build());
+                }
+            }
+            buildersRelatedToWorkflowRun.clear();
+
             return aps;
         }
 
