@@ -20,6 +20,7 @@ import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,8 +107,16 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                     generateOrUpdateAnalysisProvenanceFor(ius, null, null, null);
                 } else {
                     for (WorkflowRun workflowRun : workflowRuns) {
-                        Set<Processing> processings = workflowRun.getProcessings();
-                        if (processings == null || processings.isEmpty()) {
+                        Set<Processing> processings = new HashSet<>();
+                        Set<Processing> primaryProcessings = workflowRun.getProcessings();
+                        Set<Processing> offspringProcessings = workflowRun.getOffspringProcessings();
+                        if (primaryProcessings != null) {
+                            processings.addAll(primaryProcessings);
+                        }
+                        if (offspringProcessings != null) {
+                            processings.addAll(offspringProcessings);
+                        }
+                        if (processings.isEmpty()) {
                             generateOrUpdateAnalysisProvenanceFor(ius, workflowRun, null, null);
                         } else {
                             for (Processing processing : processings) {

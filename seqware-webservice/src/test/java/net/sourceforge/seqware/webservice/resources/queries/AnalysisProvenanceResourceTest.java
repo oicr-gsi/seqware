@@ -67,7 +67,10 @@ public class AnalysisProvenanceResourceTest extends DatabaseResourceTest {
             e.printStackTrace();
         }
 
-        //20 IUS without LimsKey + 3 files attached to workflow run + 1 workflow run without files = 24 expected records
-        Assert.assertEquals(24, list.getAnalysisProvenanceDtos().size());
+        //+ 20 IUS without workflow runs 
+        //+ 3 files attached to workflow run
+        //+ 2 workflow runs without files
+        //= 25 expected records
+        Assert.assertEquals(25, list.getAnalysisProvenanceDtos().size());
     }
 }

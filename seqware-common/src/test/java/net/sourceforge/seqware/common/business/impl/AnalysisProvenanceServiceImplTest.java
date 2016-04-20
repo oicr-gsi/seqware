@@ -81,8 +81,11 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
 
     @Test
     public void getAllRecords() throws InterruptedException, ExecutionException {
-        //20 IUS without LimsKey + 3 files attached to workflow run + 1 workflow run without files = 24 expected records
-        assertEquals(24, aprs.list().size());
+        //+ 20 IUS without workflow runs 
+        //+ 3 files attached to workflow run
+        //+ 2 workflow runs without files
+        //= 25 expected records
+        assertEquals(25, aprs.list().size());
     }
 
     @Test
@@ -134,6 +137,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         file.setFilePath(expectedFilePath);
         file = fileService.findBySWAccession(fileService.insert(file));
         processing.getFiles().add(file);
+
+        assertEquals(26, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius).size());
         AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius));
@@ -215,6 +220,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         file.setFilePath(expectedFilePath);
         file = fileService.findBySWAccession(fileService.insert(file));
         processing.getFiles().add(file);
+
+        assertEquals(26, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius2));
@@ -320,6 +327,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         processingService.update(processing2);
         ius2.getProcessings().add(processing2);
         iusService.update(ius2);
+
+        assertEquals(27, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         AnalysisProvenanceDto ap1 = Iterables.getOnlyElement(aprs.findForIus(ius1));
