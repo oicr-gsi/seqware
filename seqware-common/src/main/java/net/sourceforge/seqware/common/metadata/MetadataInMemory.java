@@ -113,7 +113,8 @@ public class MetadataInMemory implements Metadata {
 
     @Override
     public int mapProcessingIdToAccession(int processingId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //In this implementation, SWIDs == ID
+        return processingId;
     }
 
     @Override

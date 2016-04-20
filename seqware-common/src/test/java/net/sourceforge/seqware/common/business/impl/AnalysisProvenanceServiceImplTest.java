@@ -81,8 +81,11 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
 
     @Test
     public void getAllRecords() throws InterruptedException, ExecutionException {
-        //20 IUS without LimsKey + 3 files attached to workflow run + 1 workflow run without files = 24 expected records
-        assertEquals(24, aprs.list().size());
+        //+ 20 IUS without workflow runs 
+        //+ 3 files attached to workflow run
+        //+ 2 workflow runs without files
+        //= 25 expected records
+        assertEquals(25, aprs.list().size());
     }
 
     @Test
@@ -134,6 +137,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         file.setFilePath(expectedFilePath);
         file = fileService.findBySWAccession(fileService.insert(file));
         processing.getFiles().add(file);
+
+        assertEquals(26, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius).size());
         AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius));
@@ -215,6 +220,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         file.setFilePath(expectedFilePath);
         file = fileService.findBySWAccession(fileService.insert(file));
         processing.getFiles().add(file);
+
+        assertEquals(26, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius2));
@@ -321,6 +328,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         ius2.getProcessings().add(processing2);
         iusService.update(ius2);
 
+        assertEquals(27, aprs.list().size());
+
         assertEquals(1, aprs.findForIus(ius1).size());
         AnalysisProvenanceDto ap1 = Iterables.getOnlyElement(aprs.findForIus(ius1));
         assertEquals(expectedWorkflowName, ap1.getWorkflowName());
@@ -352,5 +361,120 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedLastModified, lk2.getLastModified());
         assertEquals(expectedProvider, lk2.getProvider());
         assertEquals(expectedVersion, lk2.getVersion());
+    }
+
+    @Test
+    public void noFilesYetTest() {
+        String expectedWorkflowName = "test_workflow";
+        String expectedProcessingAlgorithm = "test_algorithm";
+        String expectedFilePath = "/tmp/file.out";
+        String expectedProvider = "seqware";
+        String expectedId = "1_1_1";
+        String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
+        DateTime expectedLastModified = DateTime.parse("2016-01-01T00:00:00Z");
+
+        //first IusLimsKey
+        LimsKey limsKey1 = new LimsKey();
+        limsKey1.setProvider(expectedProvider);
+        limsKey1.setId(expectedId);
+        limsKey1.setVersion(expectedVersion);
+        limsKey1.setLastModified(expectedLastModified);
+        limsKey1 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey1));
+        IUS ius1 = new IUS();
+        ius1.setLimsKey(limsKey1);
+        ius1 = iusService.findBySWAccession(iusService.insert(ius1));
+
+        //second IusLimsKey
+        LimsKey limsKey2 = new LimsKey();
+        limsKey2.setProvider(expectedProvider);
+        limsKey2.setId(expectedId);
+        limsKey2.setVersion(expectedVersion);
+        limsKey2.setLastModified(expectedLastModified);
+        limsKey2 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey2));
+        IUS ius2 = new IUS();
+        ius2.setLimsKey(limsKey2);
+        ius2 = iusService.findBySWAccession(iusService.insert(ius2));
+
+        Workflow workflow = new Workflow();
+        workflow.setName(expectedWorkflowName);
+        workflow = workflowService.findBySWAccession(workflowService.insert(workflow));
+
+        WorkflowRun workflowRun = new WorkflowRun();
+        workflowRun.setWorkflow(workflow);
+        workflowRun.setIus(new TreeSet<IUS>());
+        workflowRun.setProcessings(new TreeSet<Processing>());
+        workflowRun.setOffspringProcessings(new TreeSet<Processing>());
+        workflowRun = workflowRunService.findBySWAccession(workflowRunService.insert(workflowRun));
+
+        //link workflow run and ius
+        workflowRun.getIus().add(ius1);
+        workflowRun.getIus().add(ius2);
+        workflowRunService.update(workflowRun);
+        ius1.getWorkflowRuns().add(workflowRun);
+        iusService.update(ius1);
+        ius2.getWorkflowRuns().add(workflowRun);
+        iusService.update(ius2);
+
+        Processing p1 = new Processing();
+        p1.setAlgorithm("start");
+        p1.setWorkflowRun(workflowRun);
+        p1 = processingService.findBySWAccession(processingService.insert(p1));
+        workflowRun.getProcessings().add(p1);
+
+        Processing p2 = new Processing();
+        p2.setAlgorithm("pfi");
+        p2.setWorkflowRunByAncestorWorkflowRunId(workflowRun);
+        p2 = processingService.findBySWAccession(processingService.insert(p2));
+        workflowRun.getOffspringProcessings().add(p2);
+
+        Processing p3 = new Processing();
+        p3.setAlgorithm(expectedProcessingAlgorithm);
+        p3.setWorkflowRunByAncestorWorkflowRunId(workflowRun);
+        p3 = processingService.findBySWAccession(processingService.insert(p3));
+        workflowRun.getOffspringProcessings().add(p3);
+
+        //no file yet...
+        assertEquals(26, aprs.list().size());
+
+        assertEquals(1, aprs.findForIus(ius1).size());
+        assertEquals(1, aprs.findForIus(ius2).size());
+        AnalysisProvenanceDto apBeforeAddingFile = Iterables.getOnlyElement(aprs.findForIus(ius1));
+        assertEquals(expectedWorkflowName, apBeforeAddingFile.getWorkflowName());
+        assertEquals(null, apBeforeAddingFile.getProcessingAlgorithm());
+        assertEquals(null, apBeforeAddingFile.getFilePath());
+
+        assertEquals(2, apBeforeAddingFile.getIusLimsKeys().size());
+        for (IusLimsKey ilk : apBeforeAddingFile.getIusLimsKeys()) {
+            ca.on.oicr.gsi.provenance.model.LimsKey lk = ilk.getLimsKey();
+            assertEquals(expectedId, lk.getId());
+            assertEquals(expectedLastModified, lk.getLastModified());
+            assertEquals(expectedProvider, lk.getProvider());
+            assertEquals(expectedVersion, lk.getVersion());
+        }
+
+        //add a file
+        File file = new File();
+        file.setProcessings(ImmutableSortedSet.of(p3));
+        file.setFilePath(expectedFilePath);
+        file = fileService.findBySWAccession(fileService.insert(file));
+        p3.getFiles().add(file);
+
+        assertEquals(26, aprs.list().size());
+
+        assertEquals(1, aprs.findForIus(ius1).size());
+        assertEquals(1, aprs.findForIus(ius2).size());
+        AnalysisProvenanceDto apAfterAddingFile = Iterables.getOnlyElement(aprs.findForIus(ius1));
+        assertEquals(expectedWorkflowName, apAfterAddingFile.getWorkflowName());
+        assertEquals(expectedProcessingAlgorithm, apAfterAddingFile.getProcessingAlgorithm());
+        assertEquals(expectedFilePath, apAfterAddingFile.getFilePath());
+
+        assertEquals(2, apAfterAddingFile.getIusLimsKeys().size());
+        for (IusLimsKey ilk : apAfterAddingFile.getIusLimsKeys()) {
+            ca.on.oicr.gsi.provenance.model.LimsKey lk = ilk.getLimsKey();
+            assertEquals(expectedId, lk.getId());
+            assertEquals(expectedLastModified, lk.getLastModified());
+            assertEquals(expectedProvider, lk.getProvider());
+            assertEquals(expectedVersion, lk.getVersion());
+        }
     }
 }
