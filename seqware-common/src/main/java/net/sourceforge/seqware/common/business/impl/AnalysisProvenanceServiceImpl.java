@@ -145,10 +145,10 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                 return;
             }
 
+             //no processing records or the workflow run may not have any files yet
             if (processing == null || file == null) {
-                //no processing records or the workflow run may not have any files yet
 
-                //if the builder for workflow run is null, there are file builders - so do nothing in this case
+                //an explicitly set null workflow builder signals that a builder should not be created (there are file builders)
                 if (buildersRelatedToWorkflowRun.containsKey(workflowRun.getSwAccession())
                         && buildersRelatedToWorkflowRun.get(workflowRun.getSwAccession()) == null) {
                     return;
@@ -168,10 +168,8 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                 return;
             }
 
-            //the workflow run has files - stop any workflow run builders from being created
-            if (buildersRelatedToWorkflowRun.containsKey(workflowRun.getSwAccession())) {
-                buildersRelatedToWorkflowRun.put(workflowRun.getSwAccession(), null);
-            }
+            //the workflow run has files - clear any previous builders and signal that workflow run new builders should not be created
+            buildersRelatedToWorkflowRun.put(workflowRun.getSwAccession(), null);
 
             //handle the case where processings are directly linked to the appropriate IUS
             Set<IUS> processingIus = processing.getIUS();
