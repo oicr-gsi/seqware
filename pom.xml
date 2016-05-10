@@ -189,6 +189,7 @@
         <module>seqware-distribution</module>
         <module>seqware-ext-testing</module>
         <module>seqware-sanity-check</module>
+        <module>seqware-admin-tools</module>
     </modules>
 
 
