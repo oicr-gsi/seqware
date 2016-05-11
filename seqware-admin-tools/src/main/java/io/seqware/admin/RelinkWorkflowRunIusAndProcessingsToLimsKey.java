@@ -58,6 +58,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import static com.google.common.base.Preconditions.checkNotNull;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -520,7 +521,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKey {
                 password = new String(console.readPassword("Please enter Postgres DB password:\n"));
             } else {
                 //support for running from within an ide
-                InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+                InputStreamReader inputStreamReader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
                 BufferedReader reader = new BufferedReader(inputStreamReader);
                 System.out.println("Please enter Postgres DB password:");
                 password = reader.readLine();
