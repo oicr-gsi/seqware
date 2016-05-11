@@ -1282,7 +1282,7 @@
                     <xmlOutput>true</xmlOutput>
                     <threshold>High</threshold>
                     <excludeFilterFile>
-                        findbugs-exclude.xml
+                        ../findbugs-exclude.xml
                     </excludeFilterFile>
                     <skip>${findbugs.skip}</skip>
                 </configuration>
