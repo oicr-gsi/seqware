@@ -21,12 +21,10 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import java.util.HashSet;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
 import net.sourceforge.seqware.common.AbstractTestCase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-//import org.springframework.test.context.ContextConfiguration;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.FileService;
 import net.sourceforge.seqware.common.business.IUSService;
@@ -48,7 +46,6 @@ import static org.junit.Assert.*;
  *
  * @author mlaszloffy
  */
-//@ContextConfiguration("classpath:test-data-source.xml")
 public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
 
     @Autowired
@@ -80,7 +77,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
     FileService fileService;
 
     @Test
-    public void getAllRecords() throws InterruptedException, ExecutionException {
+    public void getAllRecords() {
         //+ 20 IUS without workflow runs 
         //+ 3 files attached to workflow run
         //+ 2 workflow runs without files
@@ -103,41 +100,34 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         limsKey.setId(expectedId);
         limsKey.setVersion(expectedVersion);
         limsKey.setLastModified(expectedLastModified);
-        limsKey = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey));
+        limsKeyService.insert(limsKey);
 
         IUS ius = new IUS();
         ius.setLimsKey(limsKey);
-        ius = iusService.findBySWAccession(iusService.insert(ius));
+        iusService.insert(ius);
 
         Workflow workflow = new Workflow();
         workflow.setName(expectedWorkflowName);
-        workflow = workflowService.findBySWAccession(workflowService.insert(workflow));
+        workflowService.insert(workflow);
 
         WorkflowRun workflowRun = new WorkflowRun();
         workflowRun.setWorkflow(workflow);
-        workflowRun.setIus(new TreeSet<IUS>());
+        workflowRun.setIus(ImmutableSortedSet.of(ius));
         workflowRun.setProcessings(new TreeSet<Processing>());
-        workflowRun = workflowRunService.findBySWAccession(workflowRunService.insert(workflowRun));
-
-        //link workflow run and ius
-        workflowRun.getIus().add(ius);
-        workflowRunService.update(workflowRun);
-        ius.getWorkflowRuns().add(workflowRun);
-        iusService.update(ius);
+        workflowRunService.insert(workflowRun);
 
         Processing processing = new Processing();
         processing.setAlgorithm(expectedProcessingAlgorithm);
         processing.setWorkflowRun(workflowRun);
         processing.setFiles(new HashSet<File>());
-        processing = processingService.findBySWAccession(processingService.insert(processing));
-        workflowRun.getProcessings().add(processing);
+        processingService.insert(processing);
 
         File file = new File();
         file.setProcessings(ImmutableSortedSet.of(processing));
         file.setFilePath(expectedFilePath);
-        file = fileService.findBySWAccession(fileService.insert(file));
-        processing.getFiles().add(file);
+        fileService.insert(file);
 
+        //original 25 + 1 new file
         assertEquals(26, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius).size());
@@ -173,10 +163,11 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         limsKey1.setId(expectedId);
         limsKey1.setVersion(expectedVersion);
         limsKey1.setLastModified(expectedLastModified);
-        limsKey1 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey1));
+        limsKeyService.insert(limsKey1);
+
         IUS ius1 = new IUS();
         ius1.setLimsKey(limsKey1);
-        ius1 = iusService.findBySWAccession(iusService.insert(ius1));
+        iusService.insert(ius1);
 
         //second IusLimsKey
         LimsKey limsKey2 = new LimsKey();
@@ -184,42 +175,32 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         limsKey2.setId(expectedId);
         limsKey2.setVersion(expectedVersion);
         limsKey2.setLastModified(expectedLastModified);
-        limsKey2 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey2));
+        limsKeyService.insert(limsKey2);
+
         IUS ius2 = new IUS();
         ius2.setLimsKey(limsKey2);
-        ius2 = iusService.findBySWAccession(iusService.insert(ius2));
+        iusService.insert(ius2);
 
         Workflow workflow = new Workflow();
         workflow.setName(expectedWorkflowName);
-        workflow = workflowService.findBySWAccession(workflowService.insert(workflow));
+        workflowService.insert(workflow);
 
         WorkflowRun workflowRun = new WorkflowRun();
         workflowRun.setWorkflow(workflow);
-        workflowRun.setIus(new TreeSet<IUS>());
+        workflowRun.setIus(ImmutableSortedSet.of(ius1, ius2));
         workflowRun.setProcessings(new TreeSet<Processing>());
-        workflowRun = workflowRunService.findBySWAccession(workflowRunService.insert(workflowRun));
-
-        //link workflow run and ius
-        workflowRun.getIus().add(ius1);
-        workflowRun.getIus().add(ius2);
-        workflowRunService.update(workflowRun);
-        ius1.getWorkflowRuns().add(workflowRun);
-        iusService.update(ius1);
-        ius2.getWorkflowRuns().add(workflowRun);
-        iusService.update(ius2);
+        workflowRunService.insert(workflowRun);
 
         Processing processing = new Processing();
         processing.setAlgorithm(expectedProcessingAlgorithm);
         processing.setWorkflowRun(workflowRun);
         processing.setFiles(new HashSet<File>());
-        processing = processingService.findBySWAccession(processingService.insert(processing));
-        workflowRun.getProcessings().add(processing);
+        processingService.insert(processing);
 
         File file = new File();
         file.setProcessings(ImmutableSortedSet.of(processing));
         file.setFilePath(expectedFilePath);
-        file = fileService.findBySWAccession(fileService.insert(file));
-        processing.getFiles().add(file);
+        fileService.insert(file);
 
         assertEquals(26, aprs.list().size());
 
@@ -237,6 +218,12 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
             assertEquals(expectedProvider, lk.getProvider());
             assertEquals(expectedVersion, lk.getVersion());
         }
+
+        //skip one of the IUS - all files for the workflow run should be skipped
+        ius2.setSkip(Boolean.TRUE);
+        iusService.update(ius2);
+        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
+        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
     }
 
     @Test
@@ -255,10 +242,11 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         limsKey1.setId(expectedId);
         limsKey1.setVersion(expectedVersion);
         limsKey1.setLastModified(expectedLastModified);
-        limsKey1 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey1));
+        limsKeyService.insert(limsKey1);
+
         IUS ius1 = new IUS();
         ius1.setLimsKey(limsKey1);
-        ius1 = iusService.findBySWAccession(iusService.insert(ius1));
+        iusService.insert(ius1);
 
         //second IusLimsKey
         LimsKey limsKey2 = new LimsKey();
@@ -266,67 +254,49 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         limsKey2.setId(expectedId);
         limsKey2.setVersion(expectedVersion);
         limsKey2.setLastModified(expectedLastModified);
-        limsKey2 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey2));
+        limsKeyService.insert(limsKey2);
+
         IUS ius2 = new IUS();
         ius2.setLimsKey(limsKey2);
-        ius2 = iusService.findBySWAccession(iusService.insert(ius2));
+        iusService.insert(ius2);
 
         Workflow workflow = new Workflow();
         workflow.setName(expectedWorkflowName);
-        workflow = workflowService.findBySWAccession(workflowService.insert(workflow));
+        workflowService.insert(workflow);
 
         WorkflowRun workflowRun = new WorkflowRun();
         workflowRun.setWorkflow(workflow);
-        workflowRun.setIus(new TreeSet<IUS>());
+        workflowRun.setIus(ImmutableSortedSet.of(ius1, ius2));
         workflowRun.setProcessings(new TreeSet<Processing>());
-        workflowRun = workflowRunService.findBySWAccession(workflowRunService.insert(workflowRun));
-
-        //link workflow run and ius
-        workflowRun.getIus().add(ius1);
-        workflowRun.getIus().add(ius2);
-        workflowRunService.update(workflowRun);
-        ius1.getWorkflowRuns().add(workflowRun);
-        iusService.update(ius1);
-        ius2.getWorkflowRuns().add(workflowRun);
-        iusService.update(ius2);
+        workflowRunService.insert(workflowRun);
 
         //first processing+file - linked only to IUS1
         Processing processing1 = new Processing();
         processing1.setAlgorithm(expectedProcessingAlgorithm);
         processing1.setWorkflowRun(workflowRun);
         processing1.setFiles(new HashSet<File>());
-        processing1 = processingService.findBySWAccession(processingService.insert(processing1));
-        workflowRun.getProcessings().add(processing1);
+        processingService.insert(processing1);
+        ius1.getProcessings().add(processing1);
+        iusService.update(ius1);
 
         File file1 = new File();
         file1.setProcessings(ImmutableSortedSet.of(processing1));
         file1.setFilePath(expectedFilePath);
-        file1 = fileService.findBySWAccession(fileService.insert(file1));
-        processing1.getFiles().add(file1);
-
-        processing1.getIUS().add(ius1);
-        processingService.update(processing1);
-        ius1.getProcessings().add(processing1);
-        iusService.update(ius1);
+        fileService.insert(file1);
 
         //second processing+file - linked only to IUS2
         Processing processing2 = new Processing();
         processing2.setAlgorithm(expectedProcessingAlgorithm);
         processing2.setWorkflowRun(workflowRun);
         processing2.setFiles(new HashSet<File>());
-        processing2 = processingService.findBySWAccession(processingService.insert(processing2));
-        workflowRun.getProcessings().add(processing2);
+        processingService.insert(processing2);
+        ius2.getProcessings().add(processing2);
+        iusService.update(ius2);
 
         File file2 = new File();
         file2.setProcessings(ImmutableSortedSet.of(processing2));
         file2.setFilePath(expectedFilePath);
-        file2 = fileService.findBySWAccession(fileService.insert(file2));
-        processing2.getFiles().add(file2);
-
-        processing2.getIUS().add(ius2);
-        processingService.update(processing2);
-        ius2.getProcessings().add(processing2);
-        iusService.update(ius2);
+        fileService.insert(file2);
 
         assertEquals(27, aprs.list().size());
 
@@ -361,6 +331,12 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedLastModified, lk2.getLastModified());
         assertEquals(expectedProvider, lk2.getProvider());
         assertEquals(expectedVersion, lk2.getVersion());
+
+        //skip one of the IUS - the processing is linked to IUS so only one file should be skipped
+        ius2.setSkip(Boolean.TRUE);
+        iusService.update(ius2);
+        assertEquals("false", Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
+        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
     }
 
     @Test
@@ -379,10 +355,11 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         limsKey1.setId(expectedId);
         limsKey1.setVersion(expectedVersion);
         limsKey1.setLastModified(expectedLastModified);
-        limsKey1 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey1));
+        limsKeyService.insert(limsKey1);
+
         IUS ius1 = new IUS();
         ius1.setLimsKey(limsKey1);
-        ius1 = iusService.findBySWAccession(iusService.insert(ius1));
+        iusService.insert(ius1);
 
         //second IusLimsKey
         LimsKey limsKey2 = new LimsKey();
@@ -390,58 +367,51 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         limsKey2.setId(expectedId);
         limsKey2.setVersion(expectedVersion);
         limsKey2.setLastModified(expectedLastModified);
-        limsKey2 = limsKeyService.findBySWAccession(limsKeyService.insert(limsKey2));
+        limsKeyService.insert(limsKey2);
+
         IUS ius2 = new IUS();
         ius2.setLimsKey(limsKey2);
-        ius2 = iusService.findBySWAccession(iusService.insert(ius2));
+        iusService.insert(ius2);
 
         Workflow workflow = new Workflow();
         workflow.setName(expectedWorkflowName);
-        workflow = workflowService.findBySWAccession(workflowService.insert(workflow));
+        workflowService.insert(workflow);
 
         WorkflowRun workflowRun = new WorkflowRun();
         workflowRun.setWorkflow(workflow);
-        workflowRun.setIus(new TreeSet<IUS>());
+        workflowRun.setIus(ImmutableSortedSet.of(ius1, ius2));
         workflowRun.setProcessings(new TreeSet<Processing>());
         workflowRun.setOffspringProcessings(new TreeSet<Processing>());
-        workflowRun = workflowRunService.findBySWAccession(workflowRunService.insert(workflowRun));
-
-        //link workflow run and ius
-        workflowRun.getIus().add(ius1);
-        workflowRun.getIus().add(ius2);
-        workflowRunService.update(workflowRun);
-        ius1.getWorkflowRuns().add(workflowRun);
-        iusService.update(ius1);
-        ius2.getWorkflowRuns().add(workflowRun);
-        iusService.update(ius2);
+        workflowRunService.insert(workflowRun);
 
         Processing p1 = new Processing();
         p1.setAlgorithm("start");
         p1.setWorkflowRun(workflowRun);
-        p1 = processingService.findBySWAccession(processingService.insert(p1));
-        workflowRun.getProcessings().add(p1);
+        processingService.insert(p1);
 
         Processing p2 = new Processing();
         p2.setAlgorithm("pfi");
         p2.setWorkflowRunByAncestorWorkflowRunId(workflowRun);
-        p2 = processingService.findBySWAccession(processingService.insert(p2));
-        workflowRun.getOffspringProcessings().add(p2);
-
+        processingService.insert(p2);
+        p1.setChildren(ImmutableSortedSet.of(p2));
+        processingService.update(p1);
+        
         Processing p3 = new Processing();
         p3.setAlgorithm(expectedProcessingAlgorithm);
         p3.setWorkflowRunByAncestorWorkflowRunId(workflowRun);
-        p3 = processingService.findBySWAccession(processingService.insert(p3));
-        workflowRun.getOffspringProcessings().add(p3);
+        processingService.insert(p3);
+        p2.setChildren(ImmutableSortedSet.of(p3));
+        processingService.update(p2);
 
-        //no file yet...
+        //no file yet... should have a record with workflow run info though
         assertEquals(26, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         assertEquals(1, aprs.findForIus(ius2).size());
         AnalysisProvenanceDto apBeforeAddingFile = Iterables.getOnlyElement(aprs.findForIus(ius1));
         assertEquals(expectedWorkflowName, apBeforeAddingFile.getWorkflowName());
-        assertEquals(null, apBeforeAddingFile.getProcessingAlgorithm());
-        assertEquals(null, apBeforeAddingFile.getFilePath());
+        assertNull(apBeforeAddingFile.getProcessingAlgorithm());
+        assertNull(apBeforeAddingFile.getFilePath());
 
         assertEquals(2, apBeforeAddingFile.getIusLimsKeys().size());
         for (IusLimsKey ilk : apBeforeAddingFile.getIusLimsKeys()) {
@@ -456,9 +426,9 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         File file = new File();
         file.setProcessings(ImmutableSortedSet.of(p3));
         file.setFilePath(expectedFilePath);
-        file = fileService.findBySWAccession(fileService.insert(file));
-        p3.getFiles().add(file);
+        fileService.insert(file);
 
+        //previous record should now have processing + file information
         assertEquals(26, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());

@@ -41,29 +41,30 @@ import org.joda.time.DateTime;
 @XmlRootElement
 public class AnalysisProvenanceDto implements AnalysisProvenance {
 
-    private String workflowName;
-    private String workflowVersion;
-    private Integer workflowId;
-    private Map<String, Set<String>> workflowAttributes;
-    private String workflowRunName;
-    private String workflowRunStatus;
-    private Integer workflowRunId;
-    private Map<String, Set<String>> workflowRunAttributes;
-    private Set<Integer> workflowRunInputFileIds;
-    private String processingAlgorithm;
-    private Integer processingId;
-    private String processingStatus;
-    private Map<String, Set<String>> processingAttributes;
-    private String fileMetaType;
-    private Integer fileId;
-    private String filePath;
-    private String fileMd5sum;
-    private String fileSize;
-    private String fileDescription;
-    private Map<String, Set<String>> fileAttributes;
-    private String skip;
-    private DateTime lastModified;
-    private Set<IusLimsKey> iusLimsKeys;
+    protected String workflowName;
+    protected String workflowVersion;
+    protected Integer workflowId;
+    protected Map<String, Set<String>> workflowAttributes;
+    protected String workflowRunName;
+    protected String workflowRunStatus;
+    protected Integer workflowRunId;
+    protected Map<String, Set<String>> workflowRunAttributes;
+    protected Set<Integer> workflowRunInputFileIds;
+    protected String processingAlgorithm;
+    protected Integer processingId;
+    protected String processingStatus;
+    protected Map<String, Set<String>> processingAttributes;
+    protected String fileMetaType;
+    protected Integer fileId;
+    protected String filePath;
+    protected String fileMd5sum;
+    protected String fileSize;
+    protected String fileDescription;
+    protected Map<String, Set<String>> fileAttributes;
+    protected String skip;
+    protected DateTime lastModified;
+    protected Set<IusLimsKey> iusLimsKeys;
+    protected Map<String, Set<String>> iusAttributes;
 
     @Override
     public String getWorkflowName() {
@@ -279,6 +280,16 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
 
     public void setIusLimsKeys(Set<IusLimsKey> keys) {
         this.iusLimsKeys = keys;
+    }
+
+    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @Override
+    public Map<String, Set<String>> getIusAttributes() {
+        return iusAttributes;
+    }
+
+    public void setIusAttributes(Map<String, Set<String>> iusAttributes) {
+        this.iusAttributes = iusAttributes;
     }
 
     @Override
