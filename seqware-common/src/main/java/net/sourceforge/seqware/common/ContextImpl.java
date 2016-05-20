@@ -40,6 +40,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.ContextLoader;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
+import net.sourceforge.seqware.common.business.LaneProvenanceService;
 import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.SampleProvenanceService;
 
@@ -103,6 +104,9 @@ public class ContextImpl {
     private AnalysisProvenanceService analysisProvenanceService;
     
     private SampleProvenanceService sampleProvenanceService;
+    
+    @Autowired
+    private LaneProvenanceService laneProvenanceService;
 
     private ContextImpl() {
         // appCtx = new ClassPathXmlApplicationContext("applicationContext.xml");
@@ -841,4 +845,12 @@ public class ContextImpl {
         this.sampleProvenanceService = sampleProvenanceService;
     }
 
+    public LaneProvenanceService getLaneProvenanceService() {
+        return laneProvenanceService;
+    }
+
+    public void setLaneProvenanceService(LaneProvenanceService laneProvenanceService) {
+        this.laneProvenanceService = laneProvenanceService;
+    }
+    
 }

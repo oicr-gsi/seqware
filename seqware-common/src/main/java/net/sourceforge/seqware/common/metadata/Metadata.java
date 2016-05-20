@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
@@ -1305,4 +1306,11 @@ public interface Metadata {
      * @return List of {@link net.sourceforge.seqware.common.dto.SampleProvenanceDto} objects
      */
     public List<SampleProvenanceDto> getSampleProvenance();
+    
+    /**
+     * Get all LaneProvenance objects from the SeqWare MetaDB.
+     *
+     * @return List of {@link net.sourceforge.seqware.common.dto.LaneProvenanceDto} objects
+     */
+    public List<LaneProvenanceDto> getLaneProvenance();
 }

@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import javax.sql.DataSource;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.model.Experiment;
@@ -1406,6 +1407,11 @@ public class MetadataDB implements Metadata {
 
     @Override
     public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<LaneProvenanceDto> getLaneProvenance() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
