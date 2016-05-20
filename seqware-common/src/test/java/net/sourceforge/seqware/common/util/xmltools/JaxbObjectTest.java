@@ -70,7 +70,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.model.IUS;
 import org.joda.time.DateTimeZone;
 import static org.junit.Assert.assertNotNull;
@@ -639,16 +638,16 @@ public class JaxbObjectTest {
         f.setFilePath("/tmp/out");
 
         DateTime limsLastModified = DateTime.now().toDateTime(DateTimeZone.UTC);
-        
+
         LimsKey lk1 = new LimsKey();
         lk1.setProvider("seqware");
         lk1.setId("1");
         lk1.setVersion("1");
         lk1.setLastModified(limsLastModified);
 
-        IusLimsKeyDto ik1 = new IusLimsKeyDto();
-        ik1.setIusSWID(1234);
-        ik1.setLimsKey(lk1);
+        IUS ius1 = new IUS();
+        ius1.setSwAccession(1234);
+        ius1.setLimsKey(lk1);
 
         LimsKey lk2 = new LimsKey();
         lk2.setProvider("seqware");
@@ -656,16 +655,16 @@ public class JaxbObjectTest {
         lk2.setVersion("1");
         lk2.setLastModified(limsLastModified);
 
-        IusLimsKeyDto ik2 = new IusLimsKeyDto();
-        ik2.setIusSWID(4567);
-        ik2.setLimsKey(lk2);
+        IUS ius2 = new IUS();
+        ius2.setSwAccession(4567);
+        ius2.setLimsKey(lk2);
 
         AnalysisProvenanceDtoBuilder ap = new AnalysisProvenanceDtoBuilder();
         ap.setFile(f);
         ap.setProcessing(p);
         ap.setWorkflow(w);
         ap.setWorkflowRun(wr);
-        ap.setIusLimsKeys(Sets.newHashSet((IusLimsKeyDto) ik1, ik2));
+        ap.addIuses(Sets.newHashSet(ius1, ius2));
 
         List<AnalysisProvenanceDto> apDtos = new ArrayList<>();
         apDtos.add(ap.build());
@@ -675,7 +674,7 @@ public class JaxbObjectTest {
 
         JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
         String text = jaxb.marshal(expectedAnalysisProvenanceList);
-        
+
         AnalysisProvenanceDtoList actualAnalysisProvenanceList = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), text);
         for (AnalysisProvenanceDto dto : actualAnalysisProvenanceList.getAnalysisProvenanceDtos()) {
             for (IusLimsKey ik : dto.getIusLimsKeys()) {

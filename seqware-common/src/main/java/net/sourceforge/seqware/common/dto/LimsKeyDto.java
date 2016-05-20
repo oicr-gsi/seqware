@@ -16,37 +16,58 @@
  */
 package net.sourceforge.seqware.common.dto;
 
-import ca.on.oicr.gsi.provenance.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.LimsKey;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.joda.time.DateTime;
 
 /**
  *
  * @author mlaszloffy
  */
-public class IusLimsKeyDto implements IusLimsKey {
+public class LimsKeyDto implements LimsKey {
 
-    private Integer iusSWID;
-    private LimsKeyDto limsKey;
-
-    @Override
-    public Integer getIusSWID() {
-        return iusSWID;
-    }
-
-    public void setIusSWID(Integer iusSWID) {
-        this.iusSWID = iusSWID;
-    }
+    private String provider;
+    private String id;
+    private String version;
+    private DateTime lastModified;
 
     @Override
-    public LimsKeyDto getLimsKey() {
-        return limsKey;
+    public String getProvider() {
+        return provider;
     }
 
-    public void setLimsKey(LimsKeyDto limsKey) {
-        this.limsKey = limsKey;
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    @Override
+    public DateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(DateTime lastModified) {
+        this.lastModified = lastModified;
     }
 
     @Override
@@ -65,7 +86,7 @@ public class IusLimsKeyDto implements IusLimsKey {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final IusLimsKeyDto other = (IusLimsKeyDto) obj;
+        final LimsKeyDto other = (LimsKeyDto) obj;
         return EqualsBuilder.reflectionEquals(other, this);
     }
 
@@ -73,5 +94,4 @@ public class IusLimsKeyDto implements IusLimsKey {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
-
 }

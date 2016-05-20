@@ -29,7 +29,11 @@ import java.util.Map;
 import java.util.Set;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import net.sourceforge.seqware.common.dto.LimsKeyDto;
 import net.sourceforge.seqware.common.model.FileAttribute;
+import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.IUSAttribute;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
@@ -48,7 +52,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     private Processing processing;
     private File file;
     private Boolean skip = false;
-    private Set<IusLimsKeyDto> iusLimsKeys = new HashSet<>();
+    private Set<IUS> iuses = new HashSet<>();
 
     public AnalysisProvenanceDtoBuilder setWorkflow(Workflow workflow) {
         this.workflow = workflow;
@@ -314,22 +318,46 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
+    public void addIus(IUS ius) {
+        this.iuses.add(ius);
+    }
+    
+    public void addIuses(Set<IUS> iuses) {
+        this.iuses.addAll(iuses);
+    }
+
+    @Override
+    public Map<String, Set<String>> getIusAttributes() {
+        Map<String, Set<String>> map = new HashMap<>();
+        for (IUS ius : iuses) {
+            for (IUSAttribute attr : ius.getIusAttributes()) {
+                Set<String> values = map.get(attr.getTag());
+                if (values == null) {
+                    values = new HashSet<>();
+                    map.put(attr.getTag(), values);
+                }
+                values.add(attr.getValue());
+            }
+        }
+        return Collections.unmodifiableMap(map);
+    }
+
     @Override
     public Set<IusLimsKey> getIusLimsKeys() {
-//        Set<IusLimsKey> is = new HashSet<>();
-//        for(IusLimsKeyDto dto : iusLimsKeys){
-//            is.add((IusLimsKey)dto);
-//        }
-//        return is;
-        return (Set<IusLimsKey>) (Set<?>) iusLimsKeys;
-    }
-
-    public void setIusLimsKeys(Set<IusLimsKeyDto> keys) {
-        this.iusLimsKeys = keys;
-    }
-
-    public void addIusLimsKey(IusLimsKeyDto key) {
-        this.iusLimsKeys.add(key);
+        Set<IusLimsKey> iusLimsKeys = new HashSet<>();
+        for (IUS ius : iuses) {
+            IusLimsKeyDto ilk = new IusLimsKeyDto();
+            ilk.setIusSWID(ius.getSwAccession());
+            LimsKey lk = ius.getLimsKey();
+            LimsKeyDto lkDto = new LimsKeyDto();
+            lkDto.setId(lk.getId());
+            lkDto.setVersion(lk.getVersion());
+            lkDto.setLastModified(lk.getLastModified());
+            lkDto.setProvider(lk.getProvider());
+            ilk.setLimsKey(lkDto);
+            iusLimsKeys.add(ilk);
+        }
+        return iusLimsKeys;
     }
 
     public AnalysisProvenanceDto build() {

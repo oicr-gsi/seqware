@@ -53,7 +53,6 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -201,7 +200,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         IUS ius = new IUS();
         ius.setSample(sampleService.findByID(10));
         ius.setLane(laneService.findByID(12));
-        ius = iusService.findBySWAccession(iusService.insert(ius));
+        iusService.insert(ius);
 
         WorkflowRun workflowRun = createTestWorkflowRun(expectedWorkflowName);
         createTestOutputFile(expectedProcessingAlgorithm, expectedFilePath, workflowRun);
@@ -234,12 +233,12 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         IUS ius1 = new IUS();
         ius1.setSample(sampleService.findByID(10));
         ius1.setLane(laneService.findByID(12));
-        ius1 = iusService.findBySWAccession(iusService.insert(ius1));
+        iusService.insert(ius1);
 
         IUS ius2 = new IUS();
         ius2.setSample(sampleService.findByID(11));
         ius2.setLane(laneService.findByID(12));
-        ius2 = iusService.findBySWAccession(iusService.insert(ius2));
+        iusService.insert(ius2);
 
         WorkflowRun workflowRun = createTestWorkflowRun(expectedWorkflowName);
         Processing processing1 = createTestOutputFile(expectedProcessingAlgorithm, expectedFilePath, workflowRun);
@@ -321,7 +320,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         IUS ius = new IUS();
         ius.setSample(sampleService.findByID(10));
         ius.setLane(laneService.findByID(12));
-        ius = iusService.findBySWAccession(iusService.insert(ius));
+        iusService.insert(ius);
 
         WorkflowRun workflowRun = createTestWorkflowRun(expectedWorkflowName);
         createTestOutputFile(expectedProcessingAlgorithm, expectedFilePath, workflowRun);
@@ -348,13 +347,13 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
     private WorkflowRun createTestWorkflowRun(String workflowName) {
         Workflow workflow = new Workflow();
         workflow.setName(workflowName);
-        workflow = workflowService.findBySWAccession(workflowService.insert(workflow));
+        workflowService.insert(workflow);
 
         WorkflowRun workflowRun = new WorkflowRun();
         workflowRun.setWorkflow(workflow);
         workflowRun.setIus(new TreeSet<IUS>());
         workflowRun.setProcessings(new TreeSet<Processing>());
-        workflowRun = workflowRunService.findBySWAccession(workflowRunService.insert(workflowRun));
+        workflowRunService.insert(workflowRun);
 
         return workflowRun;
     }
@@ -364,16 +363,12 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         processing.setAlgorithm(processingAlgorithm);
         processing.setWorkflowRun(workflowRun);
         processing.setFiles(new HashSet<File>());
-        processing = processingService.findBySWAccession(processingService.insert(processing));
-        workflowRun.setProcessings(ImmutableSortedSet.of(processing));
-        workflowRunService.update(workflowRun);
+        processingService.insert(processing);
 
         File file = new File();
         file.setProcessings(ImmutableSortedSet.of(processing));
         file.setFilePath(filePath);
-        file = fileService.findBySWAccession(fileService.insert(file));
-        processing.setFiles(ImmutableSortedSet.of(file));
-        processingService.update(processing);
+        fileService.insert(file);
 
         return processing;
     }

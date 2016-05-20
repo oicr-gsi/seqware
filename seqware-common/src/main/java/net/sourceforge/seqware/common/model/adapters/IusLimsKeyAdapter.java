@@ -19,7 +19,7 @@ package net.sourceforge.seqware.common.model.adapters;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
-import net.sourceforge.seqware.common.model.LimsKey;
+import net.sourceforge.seqware.common.dto.LimsKeyDto;
 import net.sourceforge.seqware.common.model.types.IusLimsKeyDtoType;
 import net.sourceforge.seqware.common.model.types.LimsKeyType;
 
@@ -36,7 +36,7 @@ public class IusLimsKeyAdapter extends XmlAdapter<IusLimsKeyDtoType, IusLimsKey>
         ik.setIusSWID(v.getIusSwid());
 
         LimsKeyType limsKeyType = v.getLimsKey();
-        LimsKey lk = new LimsKey();
+        LimsKeyDto lk = new LimsKeyDto();
         lk.setProvider(limsKeyType.getProvider());
         lk.setId(limsKeyType.getId());
         lk.setVersion(limsKeyType.getVersion());

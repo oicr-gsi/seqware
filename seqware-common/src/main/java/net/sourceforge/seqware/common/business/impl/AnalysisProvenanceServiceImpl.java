@@ -33,7 +33,7 @@ import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -41,7 +41,10 @@ import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
  */
 public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService {
 
+    @Autowired
     private AnalysisProvenanceDAO analysisProvenanceDAO;
+
+    @Autowired
     private IUSDAO iusDAO;
 
     @Override
@@ -56,7 +59,11 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
 
     @Override
     public List<AnalysisProvenanceDto> list() {
-        return buildList(iusDAO.list());
+        if (analysisProvenanceDAO != null) {
+            return analysisProvenanceDAO.list();
+        } else {
+            return buildList(iusDAO.list());
+        }
     }
 
     @Override
@@ -65,8 +72,15 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         //return buildList(Arrays.asList(iusDAO.findByID(ius.getIusId())));
         Integer targetIusSwid = ius.getSwAccession();
 
+        List<AnalysisProvenanceDto> unfilteredAps;
+        if (analysisProvenanceDAO != null) {
+            unfilteredAps = analysisProvenanceDAO.list();
+        } else {
+            unfilteredAps = buildList(iusDAO.list());
+        }
+
         List<AnalysisProvenanceDto> aps = new ArrayList<>();
-        for (AnalysisProvenanceDto ap : buildList(iusDAO.list())) {
+        for (AnalysisProvenanceDto ap : unfilteredAps) {
             for (IusLimsKey ilk : ap.getIusLimsKeys()) {
                 if (targetIusSwid.equals(ilk.getIusSWID())) {
                     aps.add(ap);
@@ -80,13 +94,6 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
 
     public static List<AnalysisProvenanceDto> buildList(Collection<IUS> iuses) {
         return AnalysisProvenanceListBuilder.calculate(iuses);
-    }
-
-    private static IusLimsKeyDto getIusLimsKey(IUS ius) {
-        IusLimsKeyDto ik = new IusLimsKeyDto();
-        ik.setIusSWID(ius.getSwAccession());
-        ik.setLimsKey(ius.getLimsKey());
-        return ik;
     }
 
     public static class AnalysisProvenanceListBuilder {
@@ -140,12 +147,12 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
 
             if (workflowRun == null) {
                 AnalysisProvenanceDtoBuilder ap = new AnalysisProvenanceDtoBuilder();
-                ap.addIusLimsKey(getIusLimsKey(ius));
+                ap.addIus(ius);
                 aps.add(ap.build());
                 return;
             }
 
-             //no processing records or the workflow run may not have any files yet
+            //no processing records or the workflow run may not have any files yet
             if (processing == null || file == null) {
 
                 //an explicitly set null workflow builder signals that a builder should not be created (there are file builders)
@@ -158,12 +165,12 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
                 AnalysisProvenanceDtoBuilder ap = buildersRelatedToWorkflowRun.get(workflowRun.getSwAccession());
                 if (ap == null) {
                     ap = new AnalysisProvenanceDtoBuilder();
-                    ap.addIusLimsKey(getIusLimsKey(ius));
+                    ap.addIus(ius);
                     ap.setWorkflowRun(workflowRun);
                     ap.setWorkflow(workflowRun.getWorkflow());
                     buildersRelatedToWorkflowRun.put(workflowRun.getSwAccession(), ap);
                 } else {
-                    ap.addIusLimsKey(getIusLimsKey(ius));
+                    ap.addIus(ius);
                 }
                 return;
             }
@@ -183,14 +190,14 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
             AnalysisProvenanceDtoBuilder ap = buildersRelatedToFile.get(file.getSwAccession());
             if (ap == null) {
                 ap = new AnalysisProvenanceDtoBuilder();
-                ap.addIusLimsKey(getIusLimsKey(ius));
+                ap.addIus(ius);
                 ap.setWorkflowRun(workflowRun);
                 ap.setWorkflow(workflowRun.getWorkflow());
                 ap.setProcessing(processing);
                 ap.setFile(file);
                 buildersRelatedToFile.put(file.getSwAccession(), ap);
             } else {
-                ap.addIusLimsKey(getIusLimsKey(ius));
+                ap.addIus(ius);
             }
         }
 
