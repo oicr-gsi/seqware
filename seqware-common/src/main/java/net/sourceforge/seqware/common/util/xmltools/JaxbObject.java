@@ -34,6 +34,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
@@ -78,6 +79,7 @@ import net.sourceforge.seqware.common.model.lists.FileList;
 import net.sourceforge.seqware.common.model.lists.IUSList;
 import net.sourceforge.seqware.common.model.lists.IntegerList;
 import net.sourceforge.seqware.common.model.lists.LaneList;
+import net.sourceforge.seqware.common.model.lists.LaneProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.LibrarySelectionList;
 import net.sourceforge.seqware.common.model.lists.LibrarySourceList;
 import net.sourceforge.seqware.common.model.lists.LibraryStrategyList;
@@ -133,6 +135,8 @@ public class JaxbObject<T> {
                         IUSAttribute.class,
                         Lane.class,
                         LaneAttribute.class,
+                        LaneProvenanceDto.class,
+                        LaneProvenanceDtoList.class,
                         LibrarySelection.class,
                         LibrarySource.class,
                         LibraryStrategy.class,

@@ -40,8 +40,10 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImpl;
+import net.sourceforge.seqware.common.business.impl.LaneProvenanceServiceImpl;
 import net.sourceforge.seqware.common.business.impl.SampleProvenanceServiceImpl;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
@@ -1150,6 +1152,11 @@ public class MetadataInMemory implements Metadata {
     @Override
     public List<SampleProvenanceDto> getSampleProvenance() {
         return SampleProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values());
+    }
+    
+    @Override
+    public List<LaneProvenanceDto> getLaneProvenance() {
+        return LaneProvenanceServiceImpl.buildList((Collection<Lane>) (Collection<?>) MetadataInMemory.getStore().column(Lane.class).values());
     }
     
     private ParentAccessionModel resolveParentAccession(Integer searchString) {

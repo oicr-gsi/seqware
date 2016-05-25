@@ -1407,6 +1407,28 @@
             </props>
         </property>
     </bean>
+    
+    <!-- LaneProvenance Service -->
+    <bean id="laneProvenanceServiceTarget" class="net.sourceforge.seqware.common.business.impl.LaneProvenanceServiceImpl">
+        <property name="laneDAO">
+            <ref local="laneDAO"/>
+        </property>
+    </bean>
+	
+    <!-- Transaction declarations LaneProvenance Service -->
+    <bean id="laneProvenanceService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref local="transactionManager"/>
+        </property>
+        <property name="target">
+            <ref local="laneProvenanceServiceTarget"/>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
 
 <bean class=
   "org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>

@@ -30,8 +30,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.xml.bind.JAXBException;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.dto.builders.AnalysisProvenanceDtoBuilder;
+import net.sourceforge.seqware.common.dto.builders.LaneProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.FileType;
@@ -71,6 +73,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.lists.LaneProvenanceDtoList;
 import org.joda.time.DateTimeZone;
 import static org.junit.Assert.assertNotNull;
 
@@ -748,5 +751,47 @@ public class JaxbObjectTest {
         assertEquals(Sets.newHashSet("Ly"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_origin"));
         assertEquals(sp.getLastModified(), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getLastModified());
         assertTrue("Sample provenance objects do not equal", EqualsBuilder.reflectionEquals(sps.get(0), sampleProvenanceSet1.getSampleProvenanceDtos().get(0)));
+    }
+
+    @Test
+    public void testLaneProvenance() throws JAXBException, SAXException {
+        DateTime createTstmp = DateTime.parse("2016-01-01T00:00:00Z");
+        DateTime updateTstmp = DateTime.parse("2016-02-01T00:00:00Z");
+        String sequencerRunName = "test_sequencer_run";
+        Integer laneNumber = 1;
+
+        SequencerRun sr = new SequencerRun();
+        sr.setCreateTimestamp(createTstmp.toDate());
+        sr.setName(sequencerRunName);
+
+        Lane l = new Lane();
+        l.setSwAccession(1);
+        l.setCreateTimestamp(createTstmp.toDate());
+        l.setUpdateTimestamp(updateTstmp.toDate());
+        l.setLaneIndex(laneNumber);
+
+        LaneProvenanceDtoBuilder lp = new LaneProvenanceDtoBuilder();
+        lp.setSequencerRun(sr);
+        lp.setLane(l);
+
+        List<LaneProvenanceDto> lps = new ArrayList<>();
+        lps.add(lp.build());
+
+        LaneProvenanceDtoList expectedLaneProvenanceDtoList = new LaneProvenanceDtoList();
+        expectedLaneProvenanceDtoList.setLaneProvenanceDtos(lps);
+
+        JaxbObject<LaneProvenanceDtoList> jaxb = new JaxbObject<>();
+        String text = jaxb.marshal(expectedLaneProvenanceDtoList);
+
+        LaneProvenanceDtoList actualLaneProvenanceDtoList = (LaneProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new LaneProvenanceDtoList(), text);
+
+        assertEquals(updateTstmp, lp.getLastModified());
+        assertEquals("48f2296813664951625e0b87d1f2e7b0b5912ad93f6fcdff8eff2576c1eed0b4", lp.getVersion());
+        assertEquals("1", lp.getLaneProvenanceId());
+        assertEquals(expectedLaneProvenanceDtoList.getLaneProvenanceDtos(), actualLaneProvenanceDtoList.getLaneProvenanceDtos());
+
+        LaneProvenanceDto actualLaneProvenanceDto = Iterables.getOnlyElement(actualLaneProvenanceDtoList.getLaneProvenanceDtos());
+        assertEquals(laneNumber.toString(), actualLaneProvenanceDto.getLaneNumber());
+        assertEquals(updateTstmp, actualLaneProvenanceDto.getLastModified());
     }
 }

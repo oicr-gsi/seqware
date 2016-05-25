@@ -44,6 +44,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBException;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.err.NotFoundException;
 import net.sourceforge.seqware.common.model.Experiment;
@@ -89,6 +90,7 @@ import net.sourceforge.seqware.common.model.lists.ExperimentSpotDesignReadSpecLi
 import net.sourceforge.seqware.common.model.lists.IUSList;
 import net.sourceforge.seqware.common.model.lists.IntegerList;
 import net.sourceforge.seqware.common.model.lists.LaneList;
+import net.sourceforge.seqware.common.model.lists.LaneProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.LibrarySelectionList;
 import net.sourceforge.seqware.common.model.lists.LibrarySourceList;
 import net.sourceforge.seqware.common.model.lists.LibraryStrategyList;
@@ -2754,6 +2756,21 @@ public class MetadataWS implements Metadata {
             JaxbObject<SampleProvenanceDtoList> jaxb = new JaxbObject<>();
             SampleProvenanceDtoList list = (SampleProvenanceDtoList) ll.findObject("/reports/sample-provenance", "", jaxb, new SampleProvenanceDtoList());
             return list.getSampleProvenanceDtos();
+        } catch (IOException | NotFoundException ex) {
+            Log.error(ex);
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<LaneProvenanceDto> getLaneProvenance() {
+        try {
+            JaxbObject<LaneProvenanceDtoList> jaxb = new JaxbObject<>();
+            LaneProvenanceDtoList list = (LaneProvenanceDtoList) ll.findObject("/reports/lane-provenance", "", jaxb, new LaneProvenanceDtoList());
+            return list.getLaneProvenanceDtos();
         } catch (IOException | NotFoundException ex) {
             Log.error(ex);
         }
