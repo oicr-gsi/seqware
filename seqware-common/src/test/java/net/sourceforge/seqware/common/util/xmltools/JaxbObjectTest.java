@@ -744,6 +744,7 @@ public class JaxbObjectTest {
         SampleProvenanceDtoList sampleProvenanceSet1 = (SampleProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new SampleProvenanceDtoList(), text);
 
         assertNotNull(sp.getLastModified());
+        assertEquals(sampleProvenanceList.getSampleProvenanceDtos(), sampleProvenanceSet1.getSampleProvenanceDtos());
         assertEquals(sp.getLastModified(), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getLastModified());
         assertEquals("test_study", Iterables.getFirst(sampleProvenanceSet1.getSampleProvenanceDtos(), new SampleProvenanceDto()).getStudyTitle());
         assertEquals(Sets.newHashSet("R", "P"), sps.get(0).getSampleAttributes().get("tissue_type"));
