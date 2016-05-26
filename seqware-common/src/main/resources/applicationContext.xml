@@ -1393,7 +1393,7 @@
     </bean>
 	
     
-    <!-- Transaction declarations AnalysisProvenance Service -->
+    <!-- Transaction declarations SampleProvenance Service -->
     <bean id="sampleProvenanceService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref local="transactionManager"/>
