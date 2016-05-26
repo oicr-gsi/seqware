@@ -735,23 +735,23 @@ public class JaxbObjectTest {
         List<SampleProvenanceDto> sps = new ArrayList<>();
         sps.add(sp.build());
 
-        SampleProvenanceDtoList sampleProvenanceList = new SampleProvenanceDtoList();
-        sampleProvenanceList.setSampleProvenanceDtos(sps);
+        SampleProvenanceDtoList expectedSampleProvenanceList = new SampleProvenanceDtoList();
+        expectedSampleProvenanceList.setSampleProvenanceDtos(sps);
 
         JaxbObject<SampleProvenanceDtoList> jaxb = new JaxbObject<>();
-        String text = jaxb.marshal(sampleProvenanceList);
+        String text = jaxb.marshal(expectedSampleProvenanceList);
 
-        SampleProvenanceDtoList sampleProvenanceSet1 = (SampleProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new SampleProvenanceDtoList(), text);
+        SampleProvenanceDtoList actualSampleProvenanceSet = (SampleProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new SampleProvenanceDtoList(), text);
 
         assertNotNull(sp.getLastModified());
-        assertEquals(sampleProvenanceList.getSampleProvenanceDtos(), sampleProvenanceSet1.getSampleProvenanceDtos());
-        assertEquals(sp.getLastModified(), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getLastModified());
-        assertEquals("test_study", Iterables.getFirst(sampleProvenanceSet1.getSampleProvenanceDtos(), new SampleProvenanceDto()).getStudyTitle());
+        assertEquals(expectedSampleProvenanceList.getSampleProvenanceDtos(), actualSampleProvenanceSet.getSampleProvenanceDtos());
+        assertEquals(sp.getLastModified(), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0).getLastModified());
+        assertEquals("test_study", Iterables.getFirst(actualSampleProvenanceSet.getSampleProvenanceDtos(), new SampleProvenanceDto()).getStudyTitle());
         assertEquals(Sets.newHashSet("R", "P"), sps.get(0).getSampleAttributes().get("tissue_type"));
-        assertEquals(Sets.newHashSet("R", "P"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_type"));
-        assertEquals(Sets.newHashSet("Ly"), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_origin"));
-        assertEquals(sp.getLastModified(), sampleProvenanceSet1.getSampleProvenanceDtos().get(0).getLastModified());
-        assertTrue("Sample provenance objects do not equal", EqualsBuilder.reflectionEquals(sps.get(0), sampleProvenanceSet1.getSampleProvenanceDtos().get(0)));
+        assertEquals(Sets.newHashSet("R", "P"), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_type"));
+        assertEquals(Sets.newHashSet("Ly"), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_origin"));
+        assertEquals(sp.getLastModified(), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0).getLastModified());
+        assertTrue("Sample provenance objects do not equal", EqualsBuilder.reflectionEquals(sps.get(0), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0)));
     }
 
     @Test
