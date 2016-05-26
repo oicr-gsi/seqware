@@ -211,7 +211,7 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
 
     @Override
     public String getSequencerRunPlatformModel() {
-        if (sequencerRun.getPlatform() != null) {
+        if (sequencerRun != null && sequencerRun.getPlatform() != null) {
             return sequencerRun.getPlatform().getName();
         } else {
             return null;

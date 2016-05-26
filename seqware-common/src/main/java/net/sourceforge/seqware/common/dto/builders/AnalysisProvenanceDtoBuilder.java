@@ -179,7 +179,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
 
     @Override
     public Set<Integer> getWorkflowRunInputFileIds() {
-        if (workflowRun == null) {
+        if (workflowRun == null || workflowRun.getInputFileAccessions() == null) {
             return Collections.EMPTY_SET;
         } else {
             return Collections.unmodifiableSet(workflowRun.getInputFileAccessions());
@@ -311,7 +311,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
             return null;
         } else if (processing.getUpdateTimestamp() != null) {
             return new DateTime(processing.getUpdateTimestamp()).toDateTime(DateTimeZone.UTC);
-        } else if (processing.getCreateTimestamp() != null){
+        } else if (processing.getCreateTimestamp() != null) {
             return new DateTime(processing.getCreateTimestamp()).toDateTime(DateTimeZone.UTC);
         } else {
             return null;
@@ -321,7 +321,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     public void addIus(IUS ius) {
         this.iuses.add(ius);
     }
-    
+
     public void addIuses(Set<IUS> iuses) {
         this.iuses.addAll(iuses);
     }
