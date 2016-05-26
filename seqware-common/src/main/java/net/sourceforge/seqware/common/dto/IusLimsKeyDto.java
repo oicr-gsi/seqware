@@ -56,17 +56,7 @@ public class IusLimsKeyDto implements IusLimsKey {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final IusLimsKeyDto other = (IusLimsKeyDto) obj;
-        return EqualsBuilder.reflectionEquals(other, this);
+        return EqualsBuilder.reflectionEquals(obj, this);
     }
 
     @Override

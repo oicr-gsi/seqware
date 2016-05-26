@@ -299,17 +299,7 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final AnalysisProvenanceDto other = (AnalysisProvenanceDto) obj;
-        return EqualsBuilder.reflectionEquals(other, this);
+        return EqualsBuilder.reflectionEquals(obj, this);
     }
 
     @Override
