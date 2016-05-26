@@ -81,7 +81,7 @@ import static org.junit.Assert.assertNotNull;
  * <p>
  * JaxbObjectTest class.
  * </p>
- * 
+ *
  * @author mtaschuk
  * @version $Id: $Id
  * @since 0.13.3
@@ -100,9 +100,9 @@ public class JaxbObjectTest {
      * <p>
      * setUpClass.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -112,9 +112,9 @@ public class JaxbObjectTest {
      * <p>
      * tearDownClass.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @AfterClass
     public static void tearDownClass() throws Exception {
@@ -140,9 +140,9 @@ public class JaxbObjectTest {
 
     /**
      * Test of marshal method, of class JaxbObject.
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testMarshal() throws Exception {
@@ -161,9 +161,9 @@ public class JaxbObjectTest {
 
     /**
      * Test of unMarshal method, of class JaxbObject.
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testUnMarshal() throws Exception {
@@ -187,9 +187,9 @@ public class JaxbObjectTest {
      * <p>
      * testSampleJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testSampleJaxb() throws Exception {
@@ -218,9 +218,9 @@ public class JaxbObjectTest {
      * <p>
      * testStudyJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testStudyJaxb() throws Exception {
@@ -249,9 +249,9 @@ public class JaxbObjectTest {
      * <p>
      * testIUSJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testIUSJaxb() throws Exception {
@@ -280,9 +280,9 @@ public class JaxbObjectTest {
      * <p>
      * testLaneJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testLaneJaxb() throws Exception {
@@ -311,9 +311,9 @@ public class JaxbObjectTest {
      * <p>
      * testExperimentJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testExperimentJaxb() throws Exception {
@@ -342,9 +342,9 @@ public class JaxbObjectTest {
      * <p>
      * testSequencerRunJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testSequencerRunJaxb() throws Exception {
@@ -373,9 +373,9 @@ public class JaxbObjectTest {
      * <p>
      * testProcessingJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testProcessingJaxb() throws Exception {
@@ -404,9 +404,9 @@ public class JaxbObjectTest {
      * <p>
      * testNullProcessingAttribute.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testNullProcessingAttribute() throws Exception {
@@ -423,9 +423,9 @@ public class JaxbObjectTest {
 
     /**
      * Test marshalling and unmarshalling of WorkflowRun object.
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testWorkflowRunJaxb() throws Exception {
@@ -474,9 +474,9 @@ public class JaxbObjectTest {
      * <p>
      * testWorkflowRunListJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testWorkflowRunListJaxb() throws Exception {
@@ -516,9 +516,9 @@ public class JaxbObjectTest {
      * <p>
      * testWorkflowListJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testWorkflowListJaxb() throws Exception {
@@ -531,7 +531,6 @@ public class JaxbObjectTest {
         // s1.setAlias("alias1");
         // SortedSet<Sample> samples = new TreeSet<Sample>();
         // r1.setSamples(samples);
-
         ArrayList<Workflow> list = new ArrayList<>();
         list.add(r1);
         list.add(r2);
@@ -556,9 +555,9 @@ public class JaxbObjectTest {
      * <p>
      * testReturnValueJaxb.
      * </p>
-     * 
+     *
      * @throws java.lang.Exception
-     *             if any.
+     *                             if any.
      */
     @Test
     public void testReturnValueJaxb() throws Exception {
