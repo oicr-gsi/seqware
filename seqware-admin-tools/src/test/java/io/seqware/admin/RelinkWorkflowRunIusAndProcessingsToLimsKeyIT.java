@@ -217,6 +217,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         //relink workflow run
         assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
         relinker.setTimestamp(DateTime.now().toDate());
+        relinker.setDoRelinking(true);
         Summary summary = relinker.run();
         assertEquals(4, summary.getWorkflowRunsAnalyzed());
         assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
@@ -261,6 +262,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         //relink workflow run
         assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
         relinker.setTimestamp(DateTime.now().toDate());
+        relinker.setDoRelinking(true);
         Summary summary = relinker.run();
         assertEquals(4, summary.getWorkflowRunsAnalyzed());
         assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
@@ -304,6 +306,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         //relink workflow run
         assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
         relinker.setTimestamp(DateTime.now().toDate());
+        relinker.setDoRelinking(true);
         Summary summary = relinker.run();
         assertEquals(4, summary.getWorkflowRunsAnalyzed());
         assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
@@ -352,6 +355,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         //relink workflow run
         assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
         relinker.setTimestamp(DateTime.now().toDate());
+        relinker.setDoRelinking(true);
         Summary summary = relinker.run();
         assertEquals(4, summary.getWorkflowRunsAnalyzed());
         assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
@@ -380,7 +384,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         //processing3 should be linked to the Lane
         IusLimsKey ilk3 = Iterables.getOnlyElement(analysisProvenanceByProcessingSwid.get(processing3.getSwAccession()).getIusLimsKeys());
         assertEquals(lane.getSwAccession().toString(), ilk3.getLimsKey().getId());
-        
+
         //ilk1 and ilk2 should be the same
         assertTrue(ilk1.equals(ilk2));
     }
@@ -417,6 +421,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         //relink workflow run
         assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
         relinker.setTimestamp(DateTime.now().toDate());
+        relinker.setDoRelinking(true);
         Summary summary = relinker.run();
         assertEquals(4, summary.getWorkflowRunsAnalyzed());
         assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
@@ -444,7 +449,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         workflowRun.setIus(ImmutableSortedSet.of(ius));
         workflowRunService.update(workflowRun);
 
-        //relink workflow run
+        //dry run relink workflow run
         assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
         RelinkWorkflowRunIusAndProcessingsToLimsKey.main(Arrays.asList(
                 "--user", settings.get(BASIC_TEST_DB_USER.getSettingKey()),
@@ -455,6 +460,71 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
                 "--timestamp", "2016-01-01T00:00:01Z"
         ).toArray(new String[0]));
         List<AnalysisProvenanceDto> dtos = getAnalysisProvenanceForWorkflowRun(workflowRun);
+        assertEquals(0, dtos.size());
+
+        //relink workflow run
+        assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
+        RelinkWorkflowRunIusAndProcessingsToLimsKey.main(Arrays.asList(
+                "--user", settings.get(BASIC_TEST_DB_USER.getSettingKey()),
+                "--password", settings.get(BASIC_TEST_DB_PASSWORD.getSettingKey()),
+                "--host", settings.get(BASIC_TEST_DB_HOST.getSettingKey()),
+                "--port", settings.get(BASIC_TEST_DB_PORT.getSettingKey()),
+                "--db-name", settings.get(BASIC_TEST_DB_NAME.getSettingKey()),
+                "--timestamp", "2016-01-01T00:00:01Z",
+                "--do-relinking"
+        ).toArray(new String[0]));
+        dtos = getAnalysisProvenanceForWorkflowRun(workflowRun);
+        assertEquals(1, dtos.size());
+        assertEquals(ius.getSwAccession().toString(), Iterables.getOnlyElement(dtos.get(0).getIusLimsKeys()).getLimsKey().getId());
+    }
+
+    @Test
+    public void dryRun() throws IOException {
+
+        String expectedWorkflowName = "test_workflow";
+        String expectedProcessingAlgorithm = "test_algorithm";
+        String expectedFilePath = "/tmp/file.out";
+
+        IUS ius = new IUS();
+        ius.setSample(sampleService.findByID(10));
+        ius.setLane(laneService.findByID(12));
+        iusService.insert(ius);
+
+        WorkflowRun workflowRun = createTestWorkflowRun(expectedWorkflowName);
+        createTestOutputFile(expectedProcessingAlgorithm, expectedFilePath, workflowRun);
+
+        //link workflow run and ius
+        workflowRun.setIus(ImmutableSortedSet.of(ius));
+        workflowRunService.update(workflowRun);
+
+        List<AnalysisProvenanceDto> dtos;
+        Summary summary;
+
+        //preconditions
+        assertEquals(0, getAnalysisProvenanceForWorkflowRun(workflowRun).size());
+
+        //dry run relink workflow run
+        relinker.setTimestamp(DateTime.now().toDate());
+        relinker.setDoRelinking(false);
+        summary = relinker.run();
+        assertEquals(4, summary.getWorkflowRunsAnalyzed());
+        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(1, summary.getWorkflowRunsToBeRelinked());
+        assertEquals(0, summary.getWorkflowRunsRelinked());
+        assertEquals(0, summary.getWorkflowRunsErrorState());
+        dtos = getAnalysisProvenanceForWorkflowRun(workflowRun);
+        assertEquals(0, dtos.size());
+
+        //relink workflow run
+        relinker.setTimestamp(DateTime.now().toDate());
+        relinker.setDoRelinking(true);
+        summary = relinker.run();
+        assertEquals(4, summary.getWorkflowRunsAnalyzed());
+        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(1, summary.getWorkflowRunsToBeRelinked());
+        assertEquals(1, summary.getWorkflowRunsRelinked());
+        assertEquals(0, summary.getWorkflowRunsErrorState());
+        dtos = getAnalysisProvenanceForWorkflowRun(workflowRun);
         assertEquals(1, dtos.size());
         assertEquals(ius.getSwAccession().toString(), Iterables.getOnlyElement(dtos.get(0).getIusLimsKeys()).getLimsKey().getId());
     }

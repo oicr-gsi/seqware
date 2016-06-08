@@ -62,8 +62,8 @@ import java.nio.charset.StandardCharsets;
 import net.sourceforge.seqware.common.business.LaneProvenanceService;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Collections;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This tool iterates over all WorkflowRuns that are linked to IUS and relinks the WorkflowRuns to a new IUS that is linked to a LimsKey.
@@ -94,6 +94,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKey {
     private List<RelinkingTask> validRelinkingTasks;
     private StatelessSession session;
     private Summary summary;
+    private boolean doRelinking = false;
 
     @Autowired
     @Qualifier("sessionFactory")
@@ -111,6 +112,10 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKey {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public void setDoRelinking(boolean doRelinking) {
+        this.doRelinking = doRelinking;
     }
 
     private void setup() {
@@ -444,7 +449,9 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKey {
             preload();
             validate();
             if (validRelinkingTasks.isEmpty()) {
-                System.out.println("Relinking skipped - there is nothing to relinking tasks");
+                System.out.println("Relinking skipped - there are no relinking tasks");
+            } else if (!doRelinking) {
+                System.out.println("Relinking skipped - dry run mode enabled");
             } else {
                 relink();
             }
@@ -788,6 +795,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKey {
     public static void main(String args[]) throws IOException, IllegalStateException, NamingException {
         OptionParser parser = new OptionParser();
         parser.accepts("help").forHelp();
+        parser.accepts("do-relinking", "Execute the relinking process (dryrun is default)");
         parser.accepts("host", "Postgres DB host name/ip").withRequiredArg().required();
         parser.accepts("port", "Portgres DB port").withRequiredArg().required();
         parser.accepts("user", "Postgres DB user").withRequiredArg().required();
@@ -800,6 +808,11 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKey {
         if (options.has("help")) {
             parser.printHelpOn(System.out);
             System.exit(0);
+        }
+
+        boolean doRelinking = false;
+        if (options.has("do-relinking")) {
+            doRelinking = true;
         }
 
         String host = options.valueOf("host").toString();
@@ -856,6 +869,7 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKey {
 
         RelinkWorkflowRunIusAndProcessingsToLimsKey relinker = ctx.getBean(RelinkWorkflowRunIusAndProcessingsToLimsKey.class);
         relinker.setTimestamp(timestamp.toDate());
+        relinker.setDoRelinking(doRelinking);
         Summary summary = relinker.run();
         System.out.println(summary.toString());
     }
