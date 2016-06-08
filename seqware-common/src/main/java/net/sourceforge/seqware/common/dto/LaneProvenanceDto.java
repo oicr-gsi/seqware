@@ -102,7 +102,7 @@ public class LaneProvenanceDto implements LaneProvenance {
         return laneProvenanceId;
     }
 
-    public void setSampleProvenanceId(String laneProvenanceId) {
+    public void setLaneProvenanceId(String laneProvenanceId) {
         this.laneProvenanceId = laneProvenanceId;
     }
 

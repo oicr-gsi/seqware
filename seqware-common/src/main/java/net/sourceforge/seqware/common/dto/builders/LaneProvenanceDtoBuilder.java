@@ -17,7 +17,6 @@
 package net.sourceforge.seqware.common.dto.builders;
 
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
-import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import ca.on.oicr.gsi.provenance.util.Versioning;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,30 +114,6 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        return EqualsBuilder.reflectionEquals(obj, this);
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString((SampleProvenance) this);
-    }
-
-    @Override
     public String getLaneProvenanceId() {
         return lane.getSwAccession().toString();
     }
@@ -166,6 +141,21 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
         } else {
             return lastModified.toDateTime(DateTimeZone.UTC);
         }
+    }
+    
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(obj, this);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString((LaneProvenance) this);
     }
 
     public LaneProvenanceDto build() {
