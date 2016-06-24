@@ -17,9 +17,11 @@
 package net.sourceforge.seqware.common.dto;
 
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
+import com.google.common.collect.Sets;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -81,8 +83,14 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
         if (attributesString == null || attributesString.isEmpty()) {
             return Collections.EMPTY_MAP;
         } else {
-
-            return Collections.EMPTY_MAP;
+            Map<String, Set<String>> attrs = new HashMap<>();
+            for (String keyValues : attributesString.split(",")) {
+                String[] tmp = keyValues.split("=");
+                String key = tmp[0];
+                Set<String> values = Sets.newHashSet(tmp[1].split("&"));
+                attrs.put(key, values);
+            }
+            return attrs;
         }
     }
 
