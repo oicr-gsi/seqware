@@ -2737,14 +2737,34 @@ public class MetadataWS implements Metadata {
      */
     @Override
     public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+        ClientResource clientResource = null;
+        Representation representation = null;
         try {
             JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
-            AnalysisProvenanceDtoList list = (AnalysisProvenanceDtoList) ll.findObject("/reports/analysis-provenance", "", jaxb, new AnalysisProvenanceDtoList());
-            return list.getAnalysisProvenanceDtos();
-        } catch (IOException | NotFoundException ex) {
+            clientResource = ll.getResource().getChild(version + "/reports/analysis-provenance" + "");
+            Log.info("getObject: " + clientResource);
+            representation = clientResource.get();
+            AnalysisProvenanceDtoList dtoList = jaxb.unMarshal(new AnalysisProvenanceDtoList(), representation.getReader());
+            return dtoList.getAnalysisProvenanceDtos();
+        } catch (JAXBException | IOException ex) {
             Log.error(ex);
+            throw Rethrow.rethrow(ex);
+        } finally {
+            if (representation != null) {
+                try {
+                    representation.exhaust();
+                } catch (IOException ex) {
+                    Log.error(ex);
+                }
+                representation.release();
+            }
+            if (clientResource != null && clientResource.getResponseEntity() != null) {
+                clientResource.getResponseEntity().release();
+            }
+            if (clientResource != null) {
+                clientResource.release();
+            }
         }
-        return null;
     }
 
     /**
@@ -3601,6 +3621,10 @@ public class MetadataWS implements Metadata {
             }
             cResource.release();
             return parent;
+        }
+
+        public ClientResource getResource() {
+            return resource;
         }
     }
 

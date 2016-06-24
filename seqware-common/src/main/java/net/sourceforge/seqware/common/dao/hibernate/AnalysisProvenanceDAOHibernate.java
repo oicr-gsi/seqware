@@ -17,7 +17,6 @@
 package net.sourceforge.seqware.common.dao.hibernate;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
@@ -46,14 +45,8 @@ public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implemen
     @Override
     public List<AnalysisProvenanceDto> list() {
         Session session = getSessionFactory().getCurrentSession();
-        List<AnalysisProvenanceSqlResultDto> results = session.createSQLQuery(analysisProvenanceAllSql)
+        List<AnalysisProvenanceDto> dtos = session.createSQLQuery(analysisProvenanceAllSql)
                 .setResultTransformer(Transformers.aliasToBean(AnalysisProvenanceSqlResultDto.class)).list();
-
-        List<AnalysisProvenanceDto> dtos = new ArrayList<>();
-        for (AnalysisProvenanceSqlResultDto dto : results) {
-            dtos.add((AnalysisProvenanceDto) dto);
-        }
-
         return dtos;
     }
 
