@@ -84,7 +84,7 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
             return Collections.EMPTY_MAP;
         } else {
             Map<String, Set<String>> attrs = new HashMap<>();
-            for (String keyValues : attributesString.split(",")) {
+            for (String keyValues : attributesString.split(";")) {
                 String[] tmp = keyValues.split("=");
                 String key = tmp[0];
                 Set<String> values = Sets.newHashSet(tmp[1].split("&"));

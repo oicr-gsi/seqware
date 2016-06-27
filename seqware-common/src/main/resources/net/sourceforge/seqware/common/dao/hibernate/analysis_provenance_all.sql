@@ -6,7 +6,7 @@ SELECT coalesce(pius.lims_ids, wrius.lims_ids)                     AS "iusLimsKe
        w.sw_accession                                              AS "workflowId",
        (SELECT array_to_string(array_agg(tag
                                          || '='
-                                         || value), ',')
+                                         || value), ';')
         FROM   workflow_attribute
         WHERE  w.workflow_id = workflow_id
         GROUP  BY workflow_id)                                     AS "workflowAttributes",
@@ -15,7 +15,7 @@ SELECT coalesce(pius.lims_ids, wrius.lims_ids)                     AS "iusLimsKe
        wr.sw_accession                                             AS "workflowRunId",
        (SELECT array_to_string(array_agg(tag
                                          || '='
-                                         || value), ',')
+                                         || value), ';')
         FROM   workflow_run_attribute
         WHERE  wr.workflow_run_id = workflow_run_id
         GROUP  BY workflow_run_id)                                 AS "workflowRunAttributes",
@@ -78,7 +78,7 @@ FROM   (SELECT CASE
                          p.status                                                processing_status,
                          (SELECT array_to_string(array_agg(tag
                                                            || '='
-                                                           || value), ',')
+                                                           || value), ';')
                           FROM   processing_attribute
                           WHERE  p.processing_id = processing_id
                           GROUP  BY processing_id)                               AS processing_attrs,
@@ -90,7 +90,7 @@ FROM   (SELECT CASE
                          f.description                                           file_description,
                          (SELECT array_to_string(array_agg(tag
                                                            || '='
-                                                           || value), ',')
+                                                           || value), ';')
                           FROM   file_attribute
                           WHERE  f.file_id = file_id
                           GROUP  BY file_id)                                     file_attrs
