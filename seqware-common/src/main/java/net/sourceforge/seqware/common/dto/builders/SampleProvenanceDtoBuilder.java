@@ -223,7 +223,7 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
         if (lane == null || lane.getLaneIndex() == null) {
             return null;
         } else {
-            return lane.getLaneIndex().toString();
+            return Integer.toString(lane.getLaneIndex() + 1);
         }
     }
 

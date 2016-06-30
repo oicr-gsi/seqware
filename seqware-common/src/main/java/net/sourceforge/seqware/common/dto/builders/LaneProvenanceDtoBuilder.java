@@ -93,7 +93,7 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
         if (lane == null || lane.getLaneIndex() == null) {
             return null;
         } else {
-            return lane.getLaneIndex().toString();
+            return Integer.toString(lane.getLaneIndex() + 1);
         }
     }
 

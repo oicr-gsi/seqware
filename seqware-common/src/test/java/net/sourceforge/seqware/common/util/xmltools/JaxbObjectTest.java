@@ -758,7 +758,7 @@ public class JaxbObjectTest {
         DateTime createTstmp = DateTime.parse("2016-01-01T00:00:00Z");
         DateTime updateTstmp = DateTime.parse("2016-02-01T00:00:00Z");
         String sequencerRunName = "test_sequencer_run";
-        Integer laneNumber = 1;
+        Integer laneIndex = 0;
 
         SequencerRun sr = new SequencerRun();
         sr.setCreateTimestamp(createTstmp.toDate());
@@ -768,7 +768,7 @@ public class JaxbObjectTest {
         l.setSwAccession(1);
         l.setCreateTimestamp(createTstmp.toDate());
         l.setUpdateTimestamp(updateTstmp.toDate());
-        l.setLaneIndex(laneNumber);
+        l.setLaneIndex(laneIndex);
 
         LaneProvenanceDtoBuilder lp = new LaneProvenanceDtoBuilder();
         lp.setSequencerRun(sr);
@@ -791,7 +791,7 @@ public class JaxbObjectTest {
         assertEquals(expectedLaneProvenanceDtoList.getLaneProvenanceDtos(), actualLaneProvenanceDtoList.getLaneProvenanceDtos());
 
         LaneProvenanceDto actualLaneProvenanceDto = Iterables.getOnlyElement(actualLaneProvenanceDtoList.getLaneProvenanceDtos());
-        assertEquals(laneNumber.toString(), actualLaneProvenanceDto.getLaneNumber());
+        assertEquals(Integer.toString(laneIndex + 1), actualLaneProvenanceDto.getLaneNumber());
         assertEquals(updateTstmp, actualLaneProvenanceDto.getLastModified());
     }
 }
