@@ -61,7 +61,7 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
     protected String fileSize;
     protected String fileDescription;
     protected Map<String, Set<String>> fileAttributes;
-    protected String skip;
+    protected Boolean skip;
     protected DateTime lastModified;
     protected Set<IusLimsKey> iusLimsKeys;
     protected Map<String, Set<String>> iusAttributes;
@@ -252,11 +252,11 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
     }
 
     @Override
-    public String getSkip() {
+    public Boolean getSkip() {
         return skip;
     }
 
-    public void setSkip(String skip) {
+    public void setSkip(Boolean skip) {
         this.skip = skip;
     }
 

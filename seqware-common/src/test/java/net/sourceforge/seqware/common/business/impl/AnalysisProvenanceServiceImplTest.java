@@ -225,8 +225,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         //skip one of the IUS - all files for the workflow run should be skipped
         ius2.setSkip(Boolean.TRUE);
         iusService.update(ius2);
-        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
-        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
+        assertEquals(true, Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
+        assertEquals(true, Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
     }
 
     @Test
@@ -338,8 +338,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         //skip one of the IUS - the processing is linked to IUS so only one file should be skipped
         ius2.setSkip(Boolean.TRUE);
         iusService.update(ius2);
-        assertEquals("false", Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
-        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
+        assertEquals(false, Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
+        assertEquals(true, Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
     }
 
     @Test

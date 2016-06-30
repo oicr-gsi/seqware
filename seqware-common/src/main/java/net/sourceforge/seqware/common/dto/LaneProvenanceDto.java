@@ -42,6 +42,7 @@ public class LaneProvenanceDto implements LaneProvenance {
     private String sequencerRunPlatformModel;
     private String laneNumber;
     private Map<String, Set<String>> laneAttributes;
+    private Boolean skip;
     private String laneProvenanceId;
     private String version;
     private DateTime lastModified;
@@ -94,6 +95,16 @@ public class LaneProvenanceDto implements LaneProvenance {
 
     public void setLaneAttributes(Map<String, Set<String>> laneAttributes) {
         this.laneAttributes = laneAttributes;
+    }
+
+    @XmlElement
+    @Override
+    public Boolean getSkip() {
+        return skip;
+    }
+
+    public void setSkip(Boolean skip) {
+        this.skip = skip;
     }
 
     @XmlElement

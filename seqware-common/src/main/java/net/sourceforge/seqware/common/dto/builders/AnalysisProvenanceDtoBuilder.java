@@ -75,12 +75,8 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     }
 
     @Override
-    public String getSkip() {
-        if (skip == null) {
-            return null;
-        } else {
-            return skip.toString();
-        }
+    public Boolean getSkip() {
+        return skip;
     }
 
     public void setSkip(Boolean skip) {

@@ -112,6 +112,17 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
         }
         return attrs;
     }
+    
+    @Override
+    public Boolean getSkip() {
+        if (lane != null && Boolean.TRUE.equals(lane.getSkip())) {
+            return true;
+        }
+        if (sequencerRun != null && Boolean.TRUE.equals(sequencerRun.getSkip())) {
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public String getLaneProvenanceId() {

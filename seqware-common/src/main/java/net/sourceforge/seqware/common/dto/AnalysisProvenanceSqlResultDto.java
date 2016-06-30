@@ -64,7 +64,7 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
     }
 
     public void setSkip(boolean skip) {
-        this.skip = Boolean.toString(skip);
+        this.skip = skip;
     }
 
     public void setLastModified(Date lastModified) {

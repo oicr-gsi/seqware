@@ -251,6 +251,32 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
             return null;
         }
     }
+    
+    @Override
+    public Boolean getSkip() {
+        if (ius != null && Boolean.TRUE.equals(ius.getSkip())) {
+            return true;
+        }
+        if (sample != null && Boolean.TRUE.equals(sample.getSkip())) {
+            return true;
+        }
+        if (lane != null && Boolean.TRUE.equals(lane.getSkip())) {
+            return true;
+        }
+        if (sequencerRun != null && Boolean.TRUE.equals(sequencerRun.getSkip())) {
+            return true;
+        }
+        //study skip is not supported
+        //experiment skip is not supported
+        if (parentSamples != null) {
+            for (Sample s : parentSamples) {
+                if (Boolean.TRUE.equals(s.getSkip())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public int hashCode() {
