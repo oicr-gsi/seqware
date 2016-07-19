@@ -21,12 +21,11 @@ import ca.on.oicr.gsi.provenance.util.Versioning;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.IUS;
@@ -57,7 +56,7 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     private Lane lane;
     private SequencerRun sequencerRun;
     private Sample sample;
-    private Collection<Sample> parentSamples;
+    private List<Sample> parentSamples;
     private Experiment experiment;
     private Study study;
 
@@ -81,7 +80,7 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
         return this;
     }
 
-    public SampleProvenanceDtoBuilder setParentSamples(Collection<Sample> parentSamples) {
+    public SampleProvenanceDtoBuilder setParentSamples(List<Sample> parentSamples) {
         this.parentSamples = parentSamples;
         return this;
     }
@@ -102,12 +101,12 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getStudyAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getStudyAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (StudyAttribute attr : study.getStudyAttributes()) {
-            Set<String> values = attrs.get(attr.getTag());
+            SortedSet<String> values = attrs.get(attr.getTag());
             if (values == null) {
-                values = new HashSet<>();
+                values = new TreeSet<>();
                 attrs.put(attr.getTag(), values);
             }
             values.add(attr.getValue());
@@ -147,14 +146,14 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getSampleAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getSampleAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         if (parentSamples != null) {
             for (Sample s : parentSamples) {
                 for (SampleAttribute attr : s.getSampleAttributes()) {
-                    Set<String> values = attrs.get(attr.getTag());
+                    SortedSet<String> values = attrs.get(attr.getTag());
                     if (values == null) {
-                        values = new HashSet<>();
+                        values = new TreeSet<>();
                         attrs.put(attr.getTag(), values);
                     }
                     values.add(attr.getValue());
@@ -163,9 +162,9 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
         }
         if (sample != null) {
             for (SampleAttribute attr : sample.getSampleAttributes()) {
-                Set<String> values = attrs.get(attr.getTag());
+                SortedSet<String> values = attrs.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     attrs.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
@@ -173,9 +172,9 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
         }
         if (ius != null) {
             for (IUSAttribute attr : ius.getIusAttributes()) {
-                Set<String> values = attrs.get(attr.getTag());
+                SortedSet<String> values = attrs.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     attrs.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
@@ -194,13 +193,13 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         if (sequencerRun != null) {
             for (SequencerRunAttribute attr : sequencerRun.getSequencerRunAttributes()) {
-                Set<String> values = attrs.get(attr.getTag());
+                SortedSet<String> values = attrs.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     attrs.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
@@ -228,13 +227,13 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getLaneAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         if (lane != null) {
             for (LaneAttribute attr : lane.getLaneAttributes()) {
-                Set<String> values = attrs.get(attr.getTag());
+                SortedSet<String> values = attrs.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     attrs.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());

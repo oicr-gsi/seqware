@@ -17,13 +17,13 @@
 package net.sourceforge.seqware.common.dto;
 
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
-import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
+import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -38,10 +38,10 @@ import org.joda.time.DateTime;
 public class LaneProvenanceDto implements LaneProvenance {
 
     private String sequencerRunName;
-    private Map<String, Set<String>> sequencerRunAttributes;
+    private SortedMap<String, SortedSet<String>> sequencerRunAttributes;
     private String sequencerRunPlatformModel;
     private String laneNumber;
-    private Map<String, Set<String>> laneAttributes;
+    private SortedMap<String, SortedSet<String>> laneAttributes;
     private Boolean skip;
     private String laneProvenanceId;
     private String version;
@@ -57,13 +57,13 @@ public class LaneProvenanceDto implements LaneProvenance {
         this.sequencerRunName = sequencerRunName;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
         return sequencerRunAttributes;
     }
 
-    public void setSequencerRunAttributes(Map<String, Set<String>> sequencerRunAttributes) {
+    public void setSequencerRunAttributes(SortedMap<String, SortedSet<String>> sequencerRunAttributes) {
         this.sequencerRunAttributes = sequencerRunAttributes;
     }
 
@@ -87,13 +87,13 @@ public class LaneProvenanceDto implements LaneProvenance {
         this.laneNumber = laneNumber;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getLaneAttributes() {
+    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
         return laneAttributes;
     }
 
-    public void setLaneAttributes(Map<String, Set<String>> laneAttributes) {
+    public void setLaneAttributes(SortedMap<String, SortedSet<String>> laneAttributes) {
         this.laneAttributes = laneAttributes;
     }
 

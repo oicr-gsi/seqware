@@ -18,10 +18,11 @@ package net.sourceforge.seqware.common.dto.builders;
 
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.util.Versioning;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.ImmutableSortedSet;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LaneAttribute;
@@ -64,17 +65,21 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         if (sequencerRun != null) {
             for (SequencerRunAttribute attr : sequencerRun.getSequencerRunAttributes()) {
-                Set<String> values = attrs.get(attr.getTag());
+                SortedSet<String> values = attrs.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     attrs.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
             }
+            if (sequencerRun.getFilePath() != null) {
+                attrs.put("run_dir", ImmutableSortedSet.of(sequencerRun.getFilePath()));
+            }
+
         }
         return attrs;
     }
@@ -98,13 +103,13 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getLaneAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         if (lane != null) {
             for (LaneAttribute attr : lane.getLaneAttributes()) {
-                Set<String> values = attrs.get(attr.getTag());
+                SortedSet<String> values = attrs.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     attrs.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
@@ -112,7 +117,7 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
         }
         return attrs;
     }
-    
+
     @Override
     public Boolean getSkip() {
         if (lane != null && Boolean.TRUE.equals(lane.getSkip())) {

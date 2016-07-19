@@ -23,10 +23,12 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.dto.LimsKeyDto;
@@ -37,6 +39,8 @@ import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.SetUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.beans.BeanUtils;
@@ -52,7 +56,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     private Processing processing;
     private File file;
     private Boolean skip = false;
-    private Set<IUS> iuses = new HashSet<>();
+    private final Set<IUS> iuses = new HashSet<>();
 
     public AnalysisProvenanceDtoBuilder setWorkflow(Workflow workflow) {
         this.workflow = workflow;
@@ -111,20 +115,20 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getWorkflowAttributes() {
+    public SortedMap<String, SortedSet<String>> getWorkflowAttributes() {
         if (workflow == null) {
-            return Collections.EMPTY_MAP;
+            return MapUtils.EMPTY_SORTED_MAP;
         } else {
-            Map<String, Set<String>> map = new HashMap<>();
+            SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (WorkflowAttribute attr : workflow.getWorkflowAttributes()) {
-                Set<String> values = map.get(attr.getTag());
+                SortedSet<String> values = map.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     map.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
             }
-            return Collections.unmodifiableMap(map);
+            return Collections.unmodifiableSortedMap(map);
         }
     }
 
@@ -156,29 +160,29 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getWorkflowRunAttributes() {
+    public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes() {
         if (workflowRun == null) {
-            return Collections.EMPTY_MAP;
+            return MapUtils.EMPTY_SORTED_MAP;
         } else {
-            Map<String, Set<String>> map = new HashMap<>();
+            SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (WorkflowRunAttribute attr : workflowRun.getWorkflowRunAttributes()) {
-                Set<String> values = map.get(attr.getTag());
+                SortedSet<String> values = map.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     map.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
             }
-            return Collections.unmodifiableMap(map);
+            return Collections.unmodifiableSortedMap(map);
         }
     }
 
     @Override
-    public Set<Integer> getWorkflowRunInputFileIds() {
+    public SortedSet<Integer> getWorkflowRunInputFileIds() {
         if (workflowRun == null || workflowRun.getInputFileAccessions() == null) {
-            return Collections.EMPTY_SET;
+            return SetUtils.EMPTY_SORTED_SET;
         } else {
-            return Collections.unmodifiableSet(workflowRun.getInputFileAccessions());
+            return Collections.unmodifiableSortedSet(new TreeSet<>(workflowRun.getInputFileAccessions()));
         }
     }
 
@@ -201,20 +205,20 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getProcessingAttributes() {
+    public SortedMap<String, SortedSet<String>> getProcessingAttributes() {
         if (processing == null) {
-            return Collections.EMPTY_MAP;
+            return MapUtils.EMPTY_SORTED_MAP;
         } else {
-            Map<String, Set<String>> map = new HashMap<>();
+            SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (ProcessingAttribute attr : processing.getProcessingAttributes()) {
-                Set<String> values = map.get(attr.getTag());
+                SortedSet<String> values = map.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     map.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
             }
-            return Collections.unmodifiableMap(map);
+            return Collections.unmodifiableSortedMap(map);
         }
     }
 
@@ -246,20 +250,20 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getFileAttributes() {
+    public SortedMap<String, SortedSet<String>> getFileAttributes() {
         if (file == null) {
-            return Collections.EMPTY_MAP;
+            return MapUtils.EMPTY_SORTED_MAP;
         } else {
-            Map<String, Set<String>> map = new HashMap<>();
+            SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (FileAttribute attr : file.getFileAttributes()) {
-                Set<String> values = map.get(attr.getTag());
+                SortedSet<String> values = map.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     map.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
             }
-            return Collections.unmodifiableMap(map);
+            return Collections.unmodifiableSortedMap(map);
         }
     }
 
@@ -323,19 +327,19 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getIusAttributes() {
-        Map<String, Set<String>> map = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getIusAttributes() {
+        SortedMap<String, SortedSet<String>> map = new TreeMap<>();
         for (IUS ius : iuses) {
             for (IUSAttribute attr : ius.getIusAttributes()) {
-                Set<String> values = map.get(attr.getTag());
+                SortedSet<String> values = map.get(attr.getTag());
                 if (values == null) {
-                    values = new HashSet<>();
+                    values = new TreeSet<>();
                     map.put(attr.getTag(), values);
                 }
                 values.add(attr.getValue());
             }
         }
-        return Collections.unmodifiableMap(map);
+        return Collections.unmodifiableSortedMap(map);
     }
 
     @Override
