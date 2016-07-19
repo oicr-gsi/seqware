@@ -67,10 +67,6 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
         this.fileAttributes = convertAttributesString(fileAttributes);
     }
 
-    public void setSkip(boolean skip) {
-        this.skip = skip;
-    }
-
     public void setLastModified(Date lastModified) {
         this.lastModified = new DateTime(lastModified);
     }
