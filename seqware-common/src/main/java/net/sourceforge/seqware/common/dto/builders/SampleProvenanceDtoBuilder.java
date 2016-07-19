@@ -358,6 +358,24 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
             return lastModified.toDateTime(DateTimeZone.UTC);
         }
     }
+    
+    @Override
+    public DateTime getCreatedDate() {
+        DateTime createdDate = null;
+        if (lane != null) {
+            createdDate = ObjectUtils.min(createdDate,
+                    lane.getCreateTimestamp() == null ? null : new DateTime(lane.getCreateTimestamp()));
+        }
+        if (sequencerRun != null) {
+            createdDate = ObjectUtils.min(createdDate,
+                    sequencerRun.getCreateTimestamp() == null ? null : new DateTime(sequencerRun.getCreateTimestamp()));
+        }
+        if (createdDate == null) {
+            return null;
+        } else {
+            return createdDate.toDateTime(DateTimeZone.UTC);
+        }
+    }
 
     public SampleProvenanceDto build() {
         SampleProvenanceDto dto = new SampleProvenanceDto();

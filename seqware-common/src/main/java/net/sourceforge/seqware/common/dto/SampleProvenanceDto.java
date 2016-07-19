@@ -55,6 +55,7 @@ public class SampleProvenanceDto implements SampleProvenance {
     private String sampleProvenanceId;
     private String version;
     private DateTime lastModified;
+    private DateTime createdDate;
 
     @XmlElement
     @Override
@@ -214,6 +215,16 @@ public class SampleProvenanceDto implements SampleProvenance {
 
     public void setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
+    }
+
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
+    @Override
+    public DateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(DateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
     @Override

@@ -46,6 +46,7 @@ public class LaneProvenanceDto implements LaneProvenance {
     private String laneProvenanceId;
     private String version;
     private DateTime lastModified;
+    private DateTime createdDate;
 
     @XmlElement
     @Override
@@ -135,6 +136,16 @@ public class LaneProvenanceDto implements LaneProvenance {
 
     public void setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
+    }
+
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
+    @Override
+    public DateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(DateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
     @Override
