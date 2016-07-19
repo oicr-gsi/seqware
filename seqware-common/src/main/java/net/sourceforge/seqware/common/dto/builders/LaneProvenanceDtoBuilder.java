@@ -135,6 +135,11 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
     }
 
     @Override
+    public String getProvenanceId() {
+        return getLaneProvenanceId();
+    }
+
+    @Override
     public String getVersion() {
         return Versioning.getSha256(this);
     }

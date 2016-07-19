@@ -120,6 +120,12 @@ public class LaneProvenanceDto implements LaneProvenance {
 
     @XmlElement
     @Override
+    public String getProvenanceId() {
+        return laneProvenanceId;
+    }
+
+    @XmlElement
+    @Override
     public String getVersion() {
         return version;
     }

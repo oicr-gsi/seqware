@@ -305,6 +305,11 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     public String getSampleProvenanceId() {
         return ius.getSwAccession().toString();
     }
+    
+    @Override
+    public String getProvenanceId() {
+        return getSampleProvenanceId();
+    }
 
     @Override
     public String getVersion() {

@@ -196,6 +196,12 @@ public class SampleProvenanceDto implements SampleProvenance {
     public void setSampleProvenanceId(String sampleProvenanceId) {
         this.sampleProvenanceId = sampleProvenanceId;
     }
+    
+    @XmlElement
+    @Override
+    public String getProvenanceId() {
+        return sampleProvenanceId;
+    }
 
     @XmlElement
     @Override
