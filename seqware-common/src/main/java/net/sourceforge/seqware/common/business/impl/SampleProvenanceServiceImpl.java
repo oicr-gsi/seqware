@@ -19,7 +19,10 @@ package net.sourceforge.seqware.common.business.impl;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import net.sourceforge.seqware.common.business.SampleProvenanceService;
 import net.sourceforge.seqware.common.dao.IUSDAO;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
@@ -61,12 +64,10 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
             sp.setStudy(sample.getExperiment().getStudy());
 
             List<Sample> parentSamples = new ArrayList<>();
-            //Sample parentSample = Iterables.getOnlyElement(sample.getParents(), null);
-            Sample parentSample = Iterables.getLast(sample.getParents(), null);
+            Sample parentSample = getOnlyOrMostRecentlyUpdatedSample(sample.getParents());
             while (parentSample != null) {
                 parentSamples.add(parentSample);
-                //parentSample = Iterables.getOnlyElement(sample.getParents(), null);
-                parentSample = Iterables.getLast(parentSample.getParents(), null);
+                parentSample = getOnlyOrMostRecentlyUpdatedSample(parentSample.getParents());
             }
             sp.setParentSamples(parentSamples);
 
@@ -79,6 +80,28 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
         }
 
         return sps;
+    }
+
+    private static final Comparator<Sample> SAMPLE_UPDATE_TSTMP_COMPARATOR = new Comparator<Sample>() {
+        @Override
+        public int compare(Sample o1, Sample o2) {
+            int dateComparisonInt = o1.getUpdateTimestamp().compareTo(o2.getUpdateTimestamp());
+            if (dateComparisonInt == 0) {
+                return o1.getSwAccession().compareTo(o2.getSwAccession());
+            } else {
+                return dateComparisonInt;
+            }
+        }
+    };
+
+    private static Sample getOnlyOrMostRecentlyUpdatedSample(Set<Sample> sampleSet) {
+        if (sampleSet == null || sampleSet.isEmpty()) {
+            return null;
+        } else if (sampleSet.size() == 1) {
+            return Iterables.getOnlyElement(sampleSet);
+        } else {
+            return Collections.max(sampleSet, SAMPLE_UPDATE_TSTMP_COMPARATOR);
+        }
     }
 
 }
