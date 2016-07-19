@@ -320,7 +320,6 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     public DateTime getLastModified() {
         DateTime lastModified = null;
         if (ius != null) {
-
             lastModified = ObjectUtils.max(lastModified,
                     ius.getCreateTimestamp() == null ? null : new DateTime(ius.getCreateTimestamp()),
                     ius.getUpdateTimestamp() == null ? null : new DateTime(ius.getUpdateTimestamp()));
