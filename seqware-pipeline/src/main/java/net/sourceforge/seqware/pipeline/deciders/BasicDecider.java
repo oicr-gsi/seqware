@@ -125,7 +125,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                 .withRequiredArg();
         this.forceRunAllSpec = parser.acceptsAll(Arrays.asList("force-run-all"),
                 "Forces the decider to run all matches regardless of whether they've been run before or not");
-        parser.acceptsAll(Arrays.asList("dry-run"), "Dry run mode. Prints the INI files to standard out and does not submit the workflow.");
+        parser.acceptsAll(Arrays.asList("dry-run", "test"), "Dry-run/test mode. Prints the INI files to standard out and does not submit the workflow.");
         parser.acceptsAll(Arrays.asList("no-meta-db", "no-metadata"), "Optional: a flag that prevents metadata writeback (which is done "
                 + "by default) by the Decider and that is subsequently "
                 + "passed to the called workflow which can use it to determine if "
@@ -260,10 +260,11 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         }
         ignorePreviousRuns = options.has(this.ignorePreviousRunsSpec) || options.has(this.forceRunAllSpec);
 
-        // dry run mode turns off all of the submission functions and just prints to stdout
-        isDryRunMode = options.has("dry-run");
-        
-        if (isDryRunMode) {
+        if (options.has("dry-run") || options.has("test") || options.has("no-metadata") || options.has("no-meta-db")) {
+            // dry run mode turns off all of the submission functions and just prints to stdout
+            isDryRunMode = true;
+            metadataWriteback = false;
+
             StringWriter writer = new StringWriter();
             try {
                 FindAllTheFiles.printHeader(writer, true);
@@ -271,11 +272,12 @@ public class BasicDecider extends Plugin implements DeciderInterface {
             } catch (IOException ex) {
                 Log.error(ex);
             }
+        } else {
+            isDryRunMode = false;
+            metadataWriteback = true;
         }
 
         skipStuff = !options.has("ignore-skip-flag");
-
-        metadataWriteback = !(options.has("no-metadata") || options.has("no-meta-db"));
 
         LocalhostPair localhostPair = FileTools.getLocalhost(options);
         String localhost = localhostPair.hostname;
