@@ -1,6 +1,7 @@
 SELECT coalesce(pius.lims_ids, wrius.lims_ids)                     AS "iusLimsKeys",
        coalesce(pius.ius_attributes, wrius.ius_attributes)         AS "iusAttributes",
-       greatest(wr.update_tstmp, pff.update_tstmp, w.update_tstmp) AS "lastModified",
+--       greatest(wr.update_tstmp, pff.update_tstmp, w.update_tstmp) AS "lastModified",
+       pff.update_tstmp                                            AS "lastModified", -- rename to createdTstmp
        w.name                                                      AS "workflowName",
        w.version                                                   AS "workflowVersion",
        w.sw_accession                                              AS "workflowId",
