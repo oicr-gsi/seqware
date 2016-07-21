@@ -33,7 +33,8 @@ import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.dto.builders.AnalysisProvenanceDtoBuilder;
-import net.sourceforge.seqware.common.dto.builders.LaneProvenanceDtoBuilder;
+import net.sourceforge.seqware.common.dto.builders.LaneProvenanceDtoFromObjects;
+import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoFromObjects;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.FileType;
@@ -45,7 +46,6 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SampleAttribute;
-import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
@@ -61,13 +61,11 @@ import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -723,7 +721,7 @@ public class JaxbObjectTest {
         i.setCreateTimestamp(new Date());
         i.setSwAccession(1111111);
 
-        SampleProvenanceDtoBuilder sp = new SampleProvenanceDtoBuilder();
+        SampleProvenanceDtoFromObjects sp = new SampleProvenanceDtoFromObjects();
         sp.setStudy(st);
         sp.setExperiment(e);
         sp.setSequencerRun(sr);
@@ -732,7 +730,7 @@ public class JaxbObjectTest {
         sp.setIus(i);
 
         List<SampleProvenanceDto> sps = new ArrayList<>();
-        sps.add(sp.build());
+        sps.add(sp);
 
         SampleProvenanceDtoList expectedSampleProvenanceList = new SampleProvenanceDtoList();
         expectedSampleProvenanceList.setSampleProvenanceDtos(sps);
@@ -750,7 +748,6 @@ public class JaxbObjectTest {
         assertEquals(Sets.newHashSet("R", "P"), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_type"));
         assertEquals(Sets.newHashSet("Ly"), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0).getSampleAttributes().get("tissue_origin"));
         assertEquals(sp.getLastModified(), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0).getLastModified());
-        assertTrue("Sample provenance objects do not equal", EqualsBuilder.reflectionEquals(sps.get(0), actualSampleProvenanceSet.getSampleProvenanceDtos().get(0)));
     }
 
     @Test
@@ -770,12 +767,12 @@ public class JaxbObjectTest {
         l.setUpdateTimestamp(updateTstmp.toDate());
         l.setLaneIndex(laneIndex);
 
-        LaneProvenanceDtoBuilder lp = new LaneProvenanceDtoBuilder();
+        LaneProvenanceDtoFromObjects lp = new LaneProvenanceDtoFromObjects();
         lp.setSequencerRun(sr);
         lp.setLane(l);
 
         List<LaneProvenanceDto> lps = new ArrayList<>();
-        lps.add(lp.build());
+        lps.add(lp);
 
         LaneProvenanceDtoList expectedLaneProvenanceDtoList = new LaneProvenanceDtoList();
         expectedLaneProvenanceDtoList.setLaneProvenanceDtos(lps);

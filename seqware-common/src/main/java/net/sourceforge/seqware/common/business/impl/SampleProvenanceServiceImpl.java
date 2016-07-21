@@ -26,7 +26,7 @@ import java.util.Set;
 import net.sourceforge.seqware.common.business.SampleProvenanceService;
 import net.sourceforge.seqware.common.dao.IUSDAO;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
-import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoBuilder;
+import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoFromObjects;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Sample;
 
@@ -49,13 +49,13 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
     }
 
     public static List<SampleProvenanceDto> buildList(Collection<IUS> iuses) {
-        List<SampleProvenanceDtoBuilder> spbs = new ArrayList<>();
+        List<SampleProvenanceDto> sps = new ArrayList<>();
         for (IUS ius : iuses) {
             Sample sample = ius.getSample();
             if (sample == null) {
                 continue;
             }
-            SampleProvenanceDtoBuilder sp = new SampleProvenanceDtoBuilder();
+            SampleProvenanceDtoFromObjects sp = new SampleProvenanceDtoFromObjects();
             sp.setIus(ius);
             sp.setLane(ius.getLane());
             sp.setSequencerRun(ius.getLane().getSequencerRun());
@@ -71,14 +71,8 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
             }
             sp.setParentSamples(parentSamples);
 
-            spbs.add(sp);
+            sps.add(sp);
         }
-
-        List<SampleProvenanceDto> sps = new ArrayList<>();
-        for (SampleProvenanceDtoBuilder spb : spbs) {
-            sps.add(spb.build());
-        }
-
         return sps;
     }
 

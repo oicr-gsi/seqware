@@ -16,7 +16,6 @@
  */
 package net.sourceforge.seqware.common.dto.builders;
 
-import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import ca.on.oicr.gsi.provenance.util.Versioning;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
@@ -39,18 +38,14 @@ import net.sourceforge.seqware.common.model.SequencerRunAttribute;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.StudyAttribute;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.beans.BeanUtils;
 
 /**
  *
  * @author mlaszloffy
  */
-public class SampleProvenanceDtoBuilder implements SampleProvenance {
+public class SampleProvenanceDtoFromObjects extends SampleProvenanceDto {
 
     private IUS ius;
     private Lane lane;
@@ -60,37 +55,37 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     private Experiment experiment;
     private Study study;
 
-    public SampleProvenanceDtoBuilder setIus(IUS ius) {
+    public SampleProvenanceDtoFromObjects setIus(IUS ius) {
         this.ius = ius;
         return this;
     }
 
-    public SampleProvenanceDtoBuilder setLane(Lane lane) {
+    public SampleProvenanceDtoFromObjects setLane(Lane lane) {
         this.lane = lane;
         return this;
     }
 
-    public SampleProvenanceDtoBuilder setSequencerRun(SequencerRun sequencerRun) {
+    public SampleProvenanceDtoFromObjects setSequencerRun(SequencerRun sequencerRun) {
         this.sequencerRun = sequencerRun;
         return this;
     }
 
-    public SampleProvenanceDtoBuilder setSample(Sample sample) {
+    public SampleProvenanceDtoFromObjects setSample(Sample sample) {
         this.sample = sample;
         return this;
     }
 
-    public SampleProvenanceDtoBuilder setParentSamples(List<Sample> parentSamples) {
+    public SampleProvenanceDtoFromObjects setParentSamples(List<Sample> parentSamples) {
         this.parentSamples = parentSamples;
         return this;
     }
 
-    public SampleProvenanceDtoBuilder setExperiment(Experiment experiment) {
+    public SampleProvenanceDtoFromObjects setExperiment(Experiment experiment) {
         this.experiment = experiment;
         return this;
     }
 
-    public SampleProvenanceDtoBuilder setStudy(Study study) {
+    public SampleProvenanceDtoFromObjects setStudy(Study study) {
         this.study = study;
         return this;
     }
@@ -250,7 +245,7 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
             return null;
         }
     }
-    
+
     @Override
     public Boolean getSkip() {
         if (ius != null && Boolean.TRUE.equals(ius.getSkip())) {
@@ -278,34 +273,10 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        return EqualsBuilder.reflectionEquals(obj, this);
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString((SampleProvenance) this);
-    }
-
-    @Override
     public String getSampleProvenanceId() {
         return ius.getSwAccession().toString();
     }
-    
+
     @Override
     public String getProvenanceId() {
         return getSampleProvenanceId();
@@ -362,7 +333,7 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
             return lastModified.toDateTime(DateTimeZone.UTC);
         }
     }
-    
+
     @Override
     public DateTime getCreatedDate() {
         DateTime createdDate = null;
@@ -381,9 +352,4 @@ public class SampleProvenanceDtoBuilder implements SampleProvenance {
         }
     }
 
-    public SampleProvenanceDto build() {
-        SampleProvenanceDto dto = new SampleProvenanceDto();
-        BeanUtils.copyProperties(this, dto);
-        return dto;
-    }
 }

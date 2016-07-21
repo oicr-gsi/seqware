@@ -156,12 +156,42 @@ public class LaneProvenanceDto implements LaneProvenance {
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        HashCodeBuilder b = new HashCodeBuilder();
+        b.append(getSequencerRunName());
+        b.append(getSequencerRunAttributes());
+        b.append(getSequencerRunPlatformModel());
+        b.append(getLaneNumber());
+        b.append(getLaneAttributes());
+        b.append(getSkip());
+        b.append(getLaneProvenanceId());
+        b.append(getProvenanceId());
+        b.append(getVersion());
+        b.append(getLastModified());
+        b.append(getCreatedDate());
+        return b.toHashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(obj, this);
+        if (obj instanceof LaneProvenanceDto) {
+            LaneProvenanceDto other = (LaneProvenanceDto) obj;
+            EqualsBuilder b = new EqualsBuilder();
+            b.append(getSequencerRunName(), other.getSequencerRunName());
+            b.append(getSequencerRunAttributes(), other.getSequencerRunAttributes());
+            b.append(getSequencerRunPlatformModel(), other.getSequencerRunPlatformModel());
+            b.append(getLaneNumber(), other.getLaneNumber());
+            b.append(getLaneAttributes(), other.getLaneAttributes());
+            b.append(getSkip(), other.getSkip());
+            b.append(getLaneProvenanceId(), other.getLaneProvenanceId());
+            b.append(getProvenanceId(), other.getProvenanceId());
+            b.append(getVersion(), other.getVersion());
+            b.append(getLastModified(), other.getLastModified());
+            b.append(getCreatedDate(), other.getCreatedDate());
+            return b.isEquals();
+        } else {
+            return false;
+        }
+
     }
 
     @Override

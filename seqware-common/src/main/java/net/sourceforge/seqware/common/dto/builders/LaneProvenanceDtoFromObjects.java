@@ -16,7 +16,6 @@
  */
 package net.sourceforge.seqware.common.dto.builders;
 
-import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.util.Versioning;
 import com.google.common.collect.ImmutableSortedSet;
 import java.util.SortedMap;
@@ -29,28 +28,24 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.beans.BeanUtils;
 
 /**
  *
  * @author mlaszloffy
  */
-public class LaneProvenanceDtoBuilder implements LaneProvenance {
+public class LaneProvenanceDtoFromObjects extends LaneProvenanceDto {
 
     private Lane lane;
     private SequencerRun sequencerRun;
 
-    public LaneProvenanceDtoBuilder setLane(Lane lane) {
+    public LaneProvenanceDtoFromObjects setLane(Lane lane) {
         this.lane = lane;
         return this;
     }
 
-    public LaneProvenanceDtoBuilder setSequencerRun(SequencerRun sequencerRun) {
+    public LaneProvenanceDtoFromObjects setSequencerRun(SequencerRun sequencerRun) {
         this.sequencerRun = sequencerRun;
         return this;
     }
@@ -182,24 +177,4 @@ public class LaneProvenanceDtoBuilder implements LaneProvenance {
         }
     }
 
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(obj, this);
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString((LaneProvenance) this);
-    }
-
-    public LaneProvenanceDto build() {
-        LaneProvenanceDto dto = new LaneProvenanceDto();
-        BeanUtils.copyProperties(this, dto);
-        return dto;
-    }
 }
