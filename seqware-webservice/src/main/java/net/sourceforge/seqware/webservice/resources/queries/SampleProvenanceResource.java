@@ -17,6 +17,8 @@
 package net.sourceforge.seqware.webservice.resources.queries;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.webservice.resources.BasicResource;
 import static net.sourceforge.seqware.webservice.resources.BasicRestlet.queryMap;
@@ -25,6 +27,7 @@ import net.sourceforge.seqware.common.business.SampleProvenanceService;
 import net.sourceforge.seqware.common.model.lists.SampleProvenanceDtoList;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
@@ -33,17 +36,34 @@ import org.w3c.dom.Document;
  */
 public class SampleProvenanceResource extends BasicResource {
 
+    private static Document document;
+    private static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
+    private final Logger log = Logger.getLogger(SampleProvenanceResource.class);
+
     @Get
     public void getXml() {
         Map<String, String[]> params = queryMap(getRequest());
 
-        SampleProvenanceService service = BeanFactory.getSampleProvenanceServiceBean();
-
-        JaxbObject<SampleProvenanceDtoList> jaxbTool = new JaxbObject<>();
-        SampleProvenanceDtoList list = new SampleProvenanceDtoList();
-        list.setSampleProvenanceDtos(service.list());
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
-        getResponse().setEntity(XmlTools.getRepresentation(line));
+        if (LOCK.writeLock().tryLock()) {
+            try {
+                log.info("Updating sample provenance");
+                SampleProvenanceService service = BeanFactory.getSampleProvenanceServiceBean();
+                JaxbObject<SampleProvenanceDtoList> jaxbTool = new JaxbObject<>();
+                SampleProvenanceDtoList list = new SampleProvenanceDtoList();
+                list.setSampleProvenanceDtos(service.list());
+                document = XmlTools.marshalToDocument(jaxbTool, list);
+                getResponse().setEntity(XmlTools.getRepresentation(document));
+            } finally {
+                LOCK.writeLock().unlock();
+            }
+        } else {
+            LOCK.readLock().lock();
+            try {
+                getResponse().setEntity(XmlTools.getRepresentation(document));
+            } finally {
+                LOCK.readLock().unlock();
+            }
+        }
     }
 
 }
