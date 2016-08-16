@@ -63,7 +63,7 @@ public class IusResourceTest extends DatabaseResourceTest {
         ius.setLane(l);
 
         try {
-            iusClient.post(ius);
+            ius = iusClient.post(ius);
         } catch (IOException | SAXException ex) {
             fail(ex.getMessage());
         }
@@ -148,9 +148,15 @@ public class IusResourceTest extends DatabaseResourceTest {
         } catch (Exception ex) {
         }
 
+        try {
+            ius = iusClient.getFromSwid(ius.getSwAccession());
+        } catch (IOException | SAXException ex) {
+            fail("Getting IUS failed: " + ex.getMessage());
+        }
+
         //orphan IUS and update
-        ius.setSample(null);
-        ius.setLane(null);
+        ius.setSample(new Sample());
+        ius.setLane(new Lane());
         try {
             ius = iusClient.put(ius);
         } catch (IOException | SAXException ex) {

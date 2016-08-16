@@ -181,7 +181,7 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         }
 
         //orphan the LimsKey
-        ius.setLimsKey(null);
+        ius.setLimsKey(new LimsKey());
         try {
             ius = iusClient.put(ius);
         } catch (IOException | SAXException ex) {

@@ -142,6 +142,8 @@ public class IusIDResource extends DatabaseIDResource {
             ius.setTag(tags);
 
             if (sample == null) {
+                //do not modify IUS samples
+            } else if (sample.getSwAccession() == null && sample.getSampleId() == null) {
                 ius.setSample(null);
             } else {
                 SampleService ss = BeanFactory.getSampleServiceBean();
@@ -154,6 +156,8 @@ public class IusIDResource extends DatabaseIDResource {
             }
 
             if (lane == null) {
+                //do not modify IUS lanes
+            } else if (lane.getSwAccession() == null && lane.getLaneId() == null) {
                 ius.setLane(null);
             } else {
                 LaneService laneService = BeanFactory.getLaneServiceBean();
@@ -166,6 +170,8 @@ public class IusIDResource extends DatabaseIDResource {
             }
 
             if (limsKey == null) {
+                //do not modify IUS lims keys
+            } else if (limsKey.getSwAccession() == null && limsKey.getLimsKeyId() == null) {
                 ius.setLimsKey(null);
             } else {
                 LimsKeyService limsKeyService = BeanFactory.getLimsKeyServiceBean();
