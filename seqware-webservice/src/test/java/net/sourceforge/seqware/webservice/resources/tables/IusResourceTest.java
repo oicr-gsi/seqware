@@ -16,6 +16,7 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
+import java.io.IOException;
 import java.util.Date;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
@@ -24,12 +25,12 @@ import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
+import net.sourceforge.seqware.webservice.resources.SeqwareResourceClient;
 import org.joda.time.DateTime;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.restlet.representation.Representation;
-import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -37,33 +38,34 @@ import org.w3c.dom.Document;
  */
 public class IusResourceTest extends DatabaseResourceTest {
 
+    private final SeqwareResourceClient<IUS> iusClient;
+    private final SeqwareResourceClient<LimsKey> limsKeyClient;
+
     public IusResourceTest() {
         super("/ius");
+
+        iusClient = new SeqwareResourceClient<>(IUS.class, "/ius");
+        limsKeyClient = new SeqwareResourceClient<>(LimsKey.class, "/limskey");
     }
 
     @Override
     public void testPost() {
         System.out.println(getRelativeURI() + " POST");
-        Representation rep = null;
-        try {
-            IUS ius = new IUS();
-            ius.setCreateTimestamp(new Date());
-            ius.setSwAccession(6213);
-            ius.setUpdateTimestamp(new Date());
-            Sample s = new Sample();
-            Lane l = new Lane();
-            l.setLaneId(1);
-            s.setSampleId(10);
-            ius.setSample(s);
-            ius.setLane(l);
+        IUS ius = new IUS();
+        ius.setCreateTimestamp(new Date());
+        ius.setSwAccession(6213);
+        ius.setUpdateTimestamp(new Date());
+        Sample s = new Sample();
+        Lane l = new Lane();
+        l.setLaneId(1);
+        s.setSampleId(10);
+        ius.setSample(s);
+        ius.setLane(l);
 
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<IUS>(), ius);
-            rep = resource.post(XmlTools.getRepresentation(doc));
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+        try {
+            iusClient.post(ius);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
         }
     }
 
@@ -74,29 +76,18 @@ public class IusResourceTest extends DatabaseResourceTest {
         lk.setLastModified(new DateTime());
         lk.setProvider("provider");
         lk.setVersion("1");
-
         try {
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<LimsKey>(), lk); //marshal to xml
-            Representation rep = ClientResourceInstance.getChild("/limskey").post(XmlTools.getRepresentation(doc)); //post
-            lk = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), rep.getText());
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            lk = limsKeyClient.post(lk);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
         }
 
         IUS ius = new IUS();
         ius.setLimsKey(lk);
         try {
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<IUS>(), ius); //object to xml
-            Representation rep = resource.post(XmlTools.getRepresentation(doc)); //post
-            ius = (IUS) XmlTools.unMarshal(new JaxbObject<IUS>(), new IUS(), rep.getText());
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            ius = iusClient.post(ius);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
         }
         assertNotNull(ius.getCreateTimestamp());
         assertNotNull(ius.getUpdateTimestamp());
@@ -114,21 +105,63 @@ public class IusResourceTest extends DatabaseResourceTest {
         assertEquals(lk, returnedLimsKey);
     }
 
-    @Test()
+    @Test
     public void testPostWithMissingLimsKey() {
         LimsKey lk = new LimsKey();
-
         IUS ius = new IUS();
         ius.setLimsKey(lk); //set LimsKey that does not exist
         try {
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<IUS>(), ius); //object to xml
-            Representation rep = resource.post(XmlTools.getRepresentation(doc)); //post
-            ius = (IUS) XmlTools.unMarshal(new JaxbObject<IUS>(), new IUS(), rep.getText());
-            rep.exhaust();
-            rep.release();
-            fail("Post should have failed - missing LimsKey");
-        } catch (Exception e) {
-            e.printStackTrace();
+            iusClient.post(ius);
+            fail("Creating IUS with LimsKey that does not exist was successful");
+        } catch (Exception ex) {
         }
     }
+
+    @Override
+    public void testDelete() {
+
+        Sample s = new Sample();
+        s.setSampleId(10);
+
+        Lane l = new Lane();
+        l.setLaneId(1);
+
+        IUS ius = new IUS();
+        ius.setSample(s);
+        ius.setLane(l);
+
+        try {
+            iusClient.delete(ius);
+            fail("Deletion of missing IUS should have failed");
+        } catch (Exception ex) {
+        }
+
+        try {
+            ius = iusClient.post(ius);
+        } catch (IOException | SAXException ex) {
+            fail("Creating IUS failed: " + ex.getMessage());
+        }
+
+        try {
+            iusClient.delete(ius);
+            fail("Deletion of IUS non-orphaned IUS was successful");
+        } catch (Exception ex) {
+        }
+
+        //orphan IUS and update
+        ius.setSample(null);
+        ius.setLane(null);
+        try {
+            ius = iusClient.put(ius);
+        } catch (IOException | SAXException ex) {
+            fail("Update of IUS failed: " + ex.getMessage());
+        }
+
+        try {
+            iusClient.delete(ius);
+        } catch (IOException ex) {
+            fail("Deletion of orphaned IUS failed: " + ex.getMessage());
+        }
+    }
+
 }

@@ -16,12 +16,16 @@
  */
 package net.sourceforge.seqware.common.business.impl;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.model.LimsKey;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.*;
 import net.sourceforge.seqware.common.business.LimsKeyService;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
+import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 
 /**
@@ -32,7 +36,9 @@ import org.joda.time.DateTime;
 public class LimsKeyServiceImplTest extends AbstractTestCase {
 
     @Autowired
-//    @Qualifier("LimsKeyService")
+    SessionFactory sessionFactory;
+
+    @Autowired
     LimsKeyService limsKeyService;
 
     public LimsKeyServiceImplTest() {
@@ -60,6 +66,36 @@ public class LimsKeyServiceImplTest extends AbstractTestCase {
 
         LimsKey keyFoundById = limsKeyService.findByID(keyFoundBySwid.getLimsKeyId());
         assertEquals(keyFoundBySwid, keyFoundById);
+    }
+
+    @Test
+    public void testOkayDelete() {
+        LimsKey limsKey = new LimsKey();
+        limsKey.setProvider("1");
+        limsKey.setId("1");
+        limsKey.setVersion("1");
+        limsKey.setLastModified(DateTime.parse("2016-01-01T00:00:00Z"));
+
+        Integer swid = limsKeyService.insert(limsKey);
+        LimsKey limsKeyFoundBySwid = limsKeyService.findBySWAccession(swid);
+        assertNotNull(limsKeyFoundBySwid);
+
+        try {
+            limsKeyService.delete(limsKeyFoundBySwid);
+        } catch (DataIntegrityException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        assertNull(limsKeyService.findBySWAccession(swid));
+    }
+
+    @Test(expected = org.hibernate.exception.ConstraintViolationException.class)
+    public void testFailDelete() {
+        LimsKey limsKey = limsKeyService.findBySWAccession(6815);
+        try {
+            limsKeyService.delete(limsKey);
+        } catch (DataIntegrityException ex) {
+        }
     }
 
 }

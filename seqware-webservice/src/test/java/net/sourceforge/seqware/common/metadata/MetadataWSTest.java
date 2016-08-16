@@ -835,12 +835,97 @@ public class MetadataWSTest {
         assertNull(limsKey);
     }
 
-//    @Test(expected = RuntimeException.class)
-//    public void getLimsKeyFromMissingIUS() {
-//        dbCreator.resetDatabaseWithUsers();
-//        Log.info("getLimsKeyFromMissingIUS");
-//        LimsKey limsKey = instance.getLimsKeyFrom(-1);
-//        fail("Exception should have been thrown");
-//    }
+    @Test
+    public void updateIUS() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", new DateTime());
+        Integer iusSwid = instance.addIUS(limsKeySwid, false);
+
+        Integer newLimsKeySwid = instance.addLimsKey("new_provider", "id", "version", new DateTime());
+        LimsKey newLimsKey = instance.getLimsKey(newLimsKeySwid);
+        IUS ius = instance.getIUS(iusSwid);
+        ius.setLimsKey(newLimsKey);
+        instance.updateIUS(ius);
+
+        assertEquals("new_provider", instance.getLimsKeyFrom(iusSwid).getProvider());
+    }
+
+    @Test
+    public void updateLimsKey() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", new DateTime());
+        LimsKey limsKey = instance.getLimsKey(limsKeySwid);
+        String expectedProvider = "new_provider";
+        String expectedId = "new_id";
+        String expectedVersion = "new_version";
+        DateTime expectedLastModified = new DateTime(DateTimeZone.UTC);
+        limsKey.setProvider(expectedProvider);
+        limsKey.setId(expectedId);
+        limsKey.setVersion(expectedVersion);
+        limsKey.setLastModified(expectedLastModified);
+        instance.updateLimsKey(limsKey);
+
+        LimsKey updatedLimsKey = instance.getLimsKey(limsKeySwid);
+        assertEquals(expectedProvider, updatedLimsKey.getProvider());
+        assertEquals(expectedId, updatedLimsKey.getId());
+        assertEquals(expectedVersion, updatedLimsKey.getVersion());
+        assertEquals(expectedLastModified, updatedLimsKey.getLastModified());
+    }
+
+    @Test
+    public void deleteOrphanIUS() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", new DateTime());
+        Integer iusSwid = instance.addIUS(limsKeySwid, false);
+
+        try {
+            instance.deleteIUS(iusSwid);
+            fail("Exception should have been returned, non-orphaned IUS");
+        } catch (Exception e) {
+        }
+
+        //orphan the IUS
+        IUS ius = instance.getIUS(iusSwid);
+        ius.setLimsKey(null);
+        instance.updateIUS(ius);
+
+        //delete orphaned IUS
+        instance.deleteIUS(iusSwid);
+
+        try {
+            instance.getIUS(iusSwid);
+            fail("Expected IUS to be deleted");
+        } catch (NotFoundException ex) {
+        }
+    }
+
+    @Test
+    public void deleteOrphanLimsKey() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", new DateTime());
+        Integer iusSwid = instance.addIUS(limsKeySwid, false);
+
+        try {
+            instance.deleteLimsKey(limsKeySwid);
+            fail("Exception should have been returned, non-orphaned LimsKey");
+        } catch (Exception e) {
+        }
+
+        //orphan the LimsKey
+        IUS ius = instance.getIUS(iusSwid);
+        ius.setLimsKey(null);
+        instance.updateIUS(ius);
+
+        //delete orphaned LimsKey
+        instance.deleteLimsKey(limsKeySwid);
+
+        try {
+            instance.getLimsKey(limsKeySwid);
+            fail("Expected LimsKey to be deleted");
+        } catch (NotFoundException ex) {
+        }
+    }
+
+    @Test
+    public void getLimsKeyFromMissingIUS() {
+        LimsKey limsKey = instance.getLimsKeyFrom(-1);
+        assertNull(limsKey);
+    }
 
 }

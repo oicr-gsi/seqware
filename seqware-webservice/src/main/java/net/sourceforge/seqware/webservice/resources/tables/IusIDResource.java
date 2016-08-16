@@ -21,17 +21,24 @@ import java.util.Set;
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.IUSService;
+import net.sourceforge.seqware.common.business.LaneService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.RegistrationService;
 import net.sourceforge.seqware.common.business.SampleService;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
+import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LimsKey;
+import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
+import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import static net.sourceforge.seqware.webservice.resources.BasicResource.testIfNull;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -121,6 +128,10 @@ public class IusIDResource extends DatabaseIDResource {
 
             // foreign keys
             Sample sample = newIUS.getSample();
+            Lane lane = newIUS.getLane();
+            LimsKey limsKey = newIUS.getLimsKey();
+            Set<WorkflowRun> workflowRuns = newIUS.getWorkflowRuns();
+            Set<Processing> processings = newIUS.getProcessings();
             Registration owner = newIUS.getOwner();
 
             Set<IUSAttribute> newAttributes = newIUS.getIusAttributes();
@@ -130,13 +141,39 @@ public class IusIDResource extends DatabaseIDResource {
             ius.setSkip(skip);
             ius.setTag(tags);
 
-            if (sample != null) {
+            if (sample == null) {
+                ius.setSample(null);
+            } else {
                 SampleService ss = BeanFactory.getSampleServiceBean();
                 Sample newSample = ss.findByID(sample.getSampleId());
                 if (newSample != null && newSample.givesPermission(registration)) {
                     ius.setSample(newSample);
                 } else if (newSample == null) {
                     Log.info("Could not be found " + sample);
+                }
+            }
+
+            if (lane == null) {
+                ius.setLane(null);
+            } else {
+                LaneService laneService = BeanFactory.getLaneServiceBean();
+                Lane newLane = laneService.findByID(lane.getLaneId());
+                if (newLane != null) {
+                    ius.setLane(newLane);
+                } else if (newLane == null) {
+                    Log.info("Could not be found " + lane);
+                }
+            }
+
+            if (limsKey == null) {
+                ius.setLimsKey(null);
+            } else {
+                LimsKeyService limsKeyService = BeanFactory.getLimsKeyServiceBean();
+                LimsKey newLimsKey = limsKeyService.findByID(limsKey.getLimsKeyId());
+                if (newLimsKey != null) {
+                    ius.setLimsKey(newLimsKey);
+                } else if (newLimsKey == null) {
+                    Log.info("Could not be found " + limsKey);
                 }
             }
 
@@ -175,4 +212,21 @@ public class IusIDResource extends DatabaseIDResource {
 
         return representation;
     }
+
+    @Override
+    public Representation delete() {
+        authenticate();
+        Representation rep = super.delete();
+
+        IUSService service = BeanFactory.getIUSServiceBean();
+        IUS ius = (IUS) testIfNull(service.findBySWAccession(getId()));
+        try {
+            service.delete(ius);
+            getResponse().setStatus(Status.SUCCESS_OK);
+        } catch (DataIntegrityException ex) {
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex);
+        }
+        return rep;
+    }
+
 }

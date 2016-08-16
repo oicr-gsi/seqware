@@ -23,6 +23,8 @@ import com.google.common.collect.Sets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.sourceforge.seqware.common.AbstractTestCase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +37,16 @@ import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
+import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import static org.junit.Assert.*;
 
@@ -78,6 +83,9 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
     @Autowired
     @Qualifier("fileService")
     FileService fileService;
+
+    @Autowired
+    SessionFactory sessionFactory;
 
     @Test
     public void getAllRecords() {
@@ -452,7 +460,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
     }
 
     @Test
-    public void attributesTest() {
+    public void attributesAndDeletionTest() {
         String expectedWorkflowName = "test_workflow";
         String expectedProcessingAlgorithm = "test_algorithm";
         String expectedFilePath = "/tmp/file.out";
@@ -464,6 +472,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         String expectedValue1 = "testValue1";
         String expectedTag2 = "testTag2";
         String expectedValue2 = "testValue2";
+        String expectedIusTag = "iusTag";
+        String expectedIusValue = "iusValue";
 
         LimsKey limsKey = new LimsKey();
         limsKey.setProvider(expectedProvider);
@@ -475,6 +485,12 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         IUS ius = new IUS();
         ius.setLimsKey(limsKey);
         iusService.insert(ius);
+
+        IUSAttribute ia = new IUSAttribute();
+        ia.setTag(expectedIusTag);
+        ia.setValue(expectedIusValue);
+        ia.setIus(ius);
+        ius.getIusAttributes().add(ia);
 
         Workflow workflow = new Workflow();
         workflow.setName(expectedWorkflowName);
@@ -508,6 +524,9 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         fa2.setFile(file);
         fileService.insert(file);
 
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+
         //original 25 + 1 new file
         assertEquals(26, aprs.list().size());
 
@@ -516,5 +535,35 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         AnalysisProvenanceDto ap = Iterables.getOnlyElement(aps);
         assertEquals(Sets.newHashSet(expectedValue1), ap.getFileAttributes().get(expectedTag1));
         assertEquals(Sets.newHashSet(expectedValue2), ap.getFileAttributes().get(expectedTag2));
+        assertEquals(Sets.newHashSet(expectedIusValue), ap.getIusAttributes().get(expectedIusTag));
+
+        //delete the ius and lims key
+        IUS iusToDelete = iusService.findBySWAccession(ius.getSwAccession());
+        Integer limsKeySwid = iusToDelete.getLimsKey().getSwAccession();
+        iusToDelete.setLimsKey(null);
+        iusToDelete.getWorkflowRuns().clear();
+        iusToDelete.getProcessings().clear();
+        iusService.update(iusToDelete);
+        try {
+            iusService.delete(iusToDelete);
+        } catch (DataIntegrityException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        LimsKey limsKeyToDelete = limsKeyService.findBySWAccession(limsKeySwid);
+        try {
+            limsKeyService.delete(limsKeyToDelete);
+        } catch (DataIntegrityException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        assertNull(iusService.findBySWAccession(ius.getSwAccession()));
+        assertNull(limsKeyService.findBySWAccession(limsKeySwid));
+        assertNotNull(workflowRunService.findBySWAccession(workflowRun.getSwAccession()));
+        assertNotNull(workflowService.findBySWAccession(workflow.getSwAccession()));
+        assertNotNull(processingService.findBySWAccession(processing.getSwAccession()));
+        assertNotNull(fileService.findBySWAccession(file.getSwAccession()));
+
+        assertEquals(25, aprs.list().size());
     }
 }
