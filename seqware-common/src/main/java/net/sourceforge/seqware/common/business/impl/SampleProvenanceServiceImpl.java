@@ -29,6 +29,7 @@ import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoFromObjects;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Sample;
+import org.springframework.beans.BeanUtils;
 
 /**
  *
@@ -49,7 +50,7 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
     }
 
     public static List<SampleProvenanceDto> buildList(Collection<IUS> iuses) {
-        List<SampleProvenanceDto> sps = new ArrayList<>();
+        List<SampleProvenanceDto> dtos = new ArrayList<>();
         for (IUS ius : iuses) {
             Sample sample = ius.getSample();
             if (sample == null) {
@@ -71,9 +72,12 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
             }
             sp.setParentSamples(parentSamples);
 
-            sps.add(sp);
+            SampleProvenanceDto dto = new SampleProvenanceDto();
+            BeanUtils.copyProperties(sp, dto);
+
+            dtos.add(dto);
         }
-        return sps;
+        return dtos;
     }
 
     private static final Comparator<Sample> SAMPLE_UPDATE_TSTMP_COMPARATOR = new Comparator<Sample>() {

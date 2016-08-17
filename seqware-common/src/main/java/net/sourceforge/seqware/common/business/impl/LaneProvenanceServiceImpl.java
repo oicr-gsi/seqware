@@ -24,6 +24,7 @@ import net.sourceforge.seqware.common.dao.LaneDAO;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.builders.LaneProvenanceDtoFromObjects;
 import net.sourceforge.seqware.common.model.Lane;
+import org.springframework.beans.BeanUtils;
 
 /**
  *
@@ -53,7 +54,10 @@ public class LaneProvenanceServiceImpl implements LaneProvenanceService {
             lp.setLane(lane);
             lp.setSequencerRun(lane.getSequencerRun());
 
-            dtos.add(lp);
+            LaneProvenanceDto dto = new LaneProvenanceDto();
+            BeanUtils.copyProperties(lp, dto);
+
+            dtos.add(dto);
         }
 
         return dtos;
