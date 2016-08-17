@@ -97,9 +97,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     private int rerunMax = 5;
     private String host = null;
 
-    private final NonOptionArgumentSpec<String> nonOptionSpec;
-    private final OptionSpecBuilder ignorePreviousRunsSpec;
-    private final OptionSpecBuilder forceRunAllSpec;
+    protected final NonOptionArgumentSpec<String> nonOptionSpec;
+    protected final OptionSpecBuilder ignorePreviousRunsSpec;
+    protected final OptionSpecBuilder forceRunAllSpec;
 
     public BasicDecider() {
         super();
