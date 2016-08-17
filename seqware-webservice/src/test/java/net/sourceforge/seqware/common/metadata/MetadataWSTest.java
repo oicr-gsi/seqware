@@ -877,13 +877,13 @@ public class MetadataWSTest {
 
         try {
             instance.deleteIUS(iusSwid);
-            fail("Exception should have been returned, non-orphaned IUS");
+            fail("Exception should have been thrown, non-orphaned IUS");
         } catch (Exception e) {
         }
 
         //orphan the IUS
         IUS ius = instance.getIUS(iusSwid);
-        ius.setLimsKey(null);
+        ius.setLimsKey(new LimsKey());
         instance.updateIUS(ius);
 
         //delete orphaned IUS
@@ -903,13 +903,13 @@ public class MetadataWSTest {
 
         try {
             instance.deleteLimsKey(limsKeySwid);
-            fail("Exception should have been returned, non-orphaned LimsKey");
+            fail("Exception should have been thrown, non-orphaned LimsKey");
         } catch (Exception e) {
         }
 
         //orphan the LimsKey
         IUS ius = instance.getIUS(iusSwid);
-        ius.setLimsKey(null);
+        ius.setLimsKey(new LimsKey());
         instance.updateIUS(ius);
 
         //delete orphaned LimsKey
