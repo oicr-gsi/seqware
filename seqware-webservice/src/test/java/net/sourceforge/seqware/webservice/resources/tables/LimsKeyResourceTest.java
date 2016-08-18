@@ -16,15 +16,15 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
+import net.sourceforge.seqware.webservice.resources.SeqwareResourceClient;
+import java.io.IOException;
+import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.LimsKey;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.restlet.representation.Representation;
-import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -33,6 +33,8 @@ import org.w3c.dom.Document;
 public class LimsKeyResourceTest extends DatabaseResourceTest {
 
     private final LimsKey testLimsKey;
+    private final SeqwareResourceClient<LimsKey> limsKeyClient;
+    private final SeqwareResourceClient<IUS> iusClient;
 
     public LimsKeyResourceTest() {
         super("/limskey");
@@ -42,26 +44,54 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         testLimsKey.setId("remoteId1");
         testLimsKey.setVersion("3053981115502a01b1115696117cf53d8824a848");
         testLimsKey.setLastModified(DateTime.parse("2016-01-01T00:00:00Z"));
+
+        limsKeyClient = new SeqwareResourceClient<>(LimsKey.class, getRelativeURI());
+        iusClient = new SeqwareResourceClient<>(IUS.class, "/ius");
     }
 
     @Override
     public void testGet() {
-        LimsKey limsKeyFromPost = post(testLimsKey);
-        LimsKey limsKeyFromGet = getFromSwid(limsKeyFromPost.getSwAccession());
+        LimsKey limsKeyFromPost = null;
+        try {
+            limsKeyFromPost = limsKeyClient.post(testLimsKey);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
+        LimsKey limsKeyFromGet = null;
+        try {
+            limsKeyFromGet = limsKeyClient.getFromSwid(limsKeyFromPost.getSwAccession());
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
         assertEquals(limsKeyFromGet, limsKeyFromPost);
     }
 
     @Test
     public void testGetWithId() {
-        LimsKey limsKeyFromPost = post(testLimsKey);
-        LimsKey limsKeyFromGet = getFromId(limsKeyFromPost.getLimsKeyId());
+        LimsKey limsKeyFromPost = null;
+        try {
+            limsKeyFromPost = limsKeyClient.post(testLimsKey);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
+        LimsKey limsKeyFromGet = null;
+        try {
+            limsKeyFromGet = limsKeyClient.getFromId(limsKeyFromPost.getLimsKeyId());
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
         assertEquals(limsKeyFromGet, limsKeyFromPost);
     }
 
     @Override
     public void testPost() {
         System.out.println(getRelativeURI() + " POST");
-        LimsKey returnedKey = post(testLimsKey);
+        LimsKey returnedKey = null;
+        try {
+            returnedKey = limsKeyClient.post(testLimsKey);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
         assertNotNull(returnedKey);
 
         //test values
@@ -77,47 +107,92 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         assertNotNull(returnedKey.getSwAccession());
     }
 
-    private LimsKey getFromSwid(Integer swid) {
-        LimsKey returnedLimsKey = null;
+    @Override
+    public void testPut() {
+        LimsKey lk = new LimsKey();
+        lk.setProvider("provider");
+        lk.setId("id");
+        lk.setVersion("version");
+        lk.setLastModified(DateTime.now());
         try {
-            Representation rep = ClientResourceInstance.getChild("/limskey/" + swid).get();
-            returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), rep.getText());
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            lk = limsKeyClient.post(lk);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
         }
-        return returnedLimsKey;
+        assertNotNull(lk);
+        Integer expectedSwid = lk.getSwAccession();
+        Integer expectedLimsKeyId = lk.getLimsKeyId();
+
+        //test update
+        String expectedProvider = "provider";
+        String expectedId = "id";
+        String expectedVersion = "version";
+        DateTime expectedLastModified = new DateTime(DateTimeZone.UTC);
+
+        lk.setProvider(expectedProvider);
+        lk.setId(expectedId);
+        lk.setVersion(expectedVersion);
+        lk.setLastModified(expectedLastModified);
+        try {
+            lk = limsKeyClient.put(lk);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
+        assertEquals(expectedProvider, lk.getProvider());
+        assertEquals(expectedId, lk.getId());
+        assertEquals(expectedVersion, lk.getVersion());
+        assertEquals(expectedLastModified, lk.getLastModified());
+        assertEquals(expectedLimsKeyId, lk.getLimsKeyId());
+        assertEquals(expectedSwid, lk.getSwAccession());
     }
 
-    private LimsKey getFromId(Integer id) {
-        LimsKey returnedLimsKey = null;
-        try {
-            Representation rep = ClientResourceInstance.getChild("/limskey?id=" + id).get();
-            returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), rep.getText());
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-        return returnedLimsKey;
-    }
+    @Override
+    public void testDelete() {
+        LimsKey lk = new LimsKey();
+        lk.setProvider("provider");
+        lk.setId("id");
+        lk.setVersion("version");
+        lk.setLastModified(DateTime.now());
 
-    private LimsKey post(LimsKey lk) {
-        LimsKey returnedLimsKey = null;
         try {
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<LimsKey>(), lk); //object to xml
-            Representation rep = resource.post(XmlTools.getRepresentation(doc)); //post
-            returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), rep.getText());
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            limsKeyClient.delete(lk);
+            fail("Deletion of missing LimsKey should have failed");
+        } catch (Exception ex) {
         }
-        return returnedLimsKey;
+
+        try {
+            lk = limsKeyClient.post(lk);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
+
+        IUS ius = new IUS();
+        ius.setLimsKey(lk);
+        try {
+            ius = iusClient.post(ius);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
+
+        try {
+            limsKeyClient.delete(lk);
+            fail("Deletion of non-orphaned LimsKey was successful");
+        } catch (Exception ex) {
+        }
+
+        //orphan the LimsKey
+        ius.setLimsKey(new LimsKey());
+        try {
+            ius = iusClient.put(ius);
+        } catch (IOException | SAXException ex) {
+            fail(ex.getMessage());
+        }
+
+        try {
+            limsKeyClient.delete(lk);
+        } catch (IOException ex) {
+            fail(ex.getMessage());
+        }
     }
 
 }

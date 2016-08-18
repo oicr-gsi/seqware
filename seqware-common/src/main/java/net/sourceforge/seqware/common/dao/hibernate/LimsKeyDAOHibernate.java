@@ -52,6 +52,7 @@ public class LimsKeyDAOHibernate extends HibernateDaoSupport implements LimsKeyD
     @Override
     public void delete(LimsKey limsKey) {
         this.getHibernateTemplate().delete(limsKey);
+        getSession().flush();
     }
 
     @Override

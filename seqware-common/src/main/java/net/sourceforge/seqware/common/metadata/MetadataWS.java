@@ -649,6 +649,60 @@ public class MetadataWS implements Metadata {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateIUS(IUS ius) {
+        String iusSwid = ius.getSwAccession().toString();
+        try {
+            ll.updateIUS("/" + iusSwid, ius);
+        } catch (IOException | JAXBException | ResourceException ex) {
+            Log.error("Error while updating IUS swid=[" + iusSwid + "] " + ex.getMessage());
+            wrapAsRuntimeException(ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateLimsKey(LimsKey limsKey) {
+        String limsKeySwid = limsKey.getSwAccession().toString();
+        try {
+            ll.updateLimsKey("/" + limsKeySwid, limsKey);
+        } catch (IOException | JAXBException | ResourceException ex) {
+            Log.error("Error while updating IUS swid=[" + limsKeySwid + "] " + ex.getMessage());
+            wrapAsRuntimeException(ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteIUS(Integer iusSwid) {
+        try {
+            ll.deleteIUS("/" + iusSwid.toString());
+        } catch (IOException | JAXBException | ResourceException ex) {
+            Log.error("Error while deleting IUS swid=[" + iusSwid + "] " + ex.getMessage());
+            wrapAsRuntimeException(ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteLimsKey(Integer limsKeySwid) {
+        try {
+            ll.deleteLimsKey("/" + limsKeySwid.toString());
+        } catch (IOException | JAXBException | ResourceException ex) {
+            Log.error("Error while deleting Lims Key swid=[" + limsKeySwid + "] " + ex.getMessage());
+            wrapAsRuntimeException(ex);
+        }
+    }
+
     @Override
     public List<Platform> getPlatforms() {
         try {
@@ -2497,7 +2551,7 @@ public class MetadataWS implements Metadata {
             JaxbObject<LimsKey> jaxb = new JaxbObject<>();
             return (LimsKey) ll.existsObject(sb.toString(), "", jaxb, new LimsKey());
         } catch (JAXBException ex) {
-            Log.error("JAXBException while retrieving IUSes (barcodes) from lane or sample", ex);
+            Log.error("JAXBException while retrieving LimsKey for IUS", ex);
         }
         return null;
     }
@@ -2737,14 +2791,34 @@ public class MetadataWS implements Metadata {
      */
     @Override
     public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+        ClientResource clientResource = null;
+        Representation representation = null;
         try {
             JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
-            AnalysisProvenanceDtoList list = (AnalysisProvenanceDtoList) ll.findObject("/reports/analysis-provenance", "", jaxb, new AnalysisProvenanceDtoList());
-            return list.getAnalysisProvenanceDtos();
-        } catch (IOException | NotFoundException ex) {
+            clientResource = ll.getResource().getChild(version + "/reports/analysis-provenance" + "");
+            Log.info("getObject: " + clientResource);
+            representation = clientResource.get();
+            AnalysisProvenanceDtoList dtoList = jaxb.unMarshal(new AnalysisProvenanceDtoList(), representation.getReader());
+            return dtoList.getAnalysisProvenanceDtos();
+        } catch (JAXBException | IOException ex) {
             Log.error(ex);
+            throw Rethrow.rethrow(ex);
+        } finally {
+            if (representation != null) {
+                try {
+                    representation.exhaust();
+                } catch (IOException ex) {
+                    Log.error(ex);
+                }
+                representation.release();
+            }
+            if (clientResource != null && clientResource.getResponseEntity() != null) {
+                clientResource.getResponseEntity().release();
+            }
+            if (clientResource != null) {
+                clientResource.release();
+            }
         }
-        return null;
     }
 
     /**
@@ -3451,6 +3525,11 @@ public class MetadataWS implements Metadata {
             updateObject("/ius", searchString, jaxb, parent);
         }
 
+        private void updateLimsKey(String searchString, LimsKey limsKey) throws IOException, JAXBException, ResourceException {
+            JaxbObject<LimsKey> jaxb = new JaxbObject<>();
+            updateObject("/limskey", searchString, jaxb, limsKey);
+        }
+
         private void updateSequencerRun(String searchString, SequencerRun parent) throws IOException, JAXBException, ResourceException {
             JaxbObject<SequencerRun> jaxb = new JaxbObject<>();
             updateObject("/sequencerruns", searchString, jaxb, parent);
@@ -3601,6 +3680,36 @@ public class MetadataWS implements Metadata {
             }
             cResource.release();
             return parent;
+        }
+
+        private void deleteIUS(String searchString) throws IOException, JAXBException, ResourceException {
+            deleteObject("/ius", searchString);
+        }
+
+        private void deleteLimsKey(String searchString) throws IOException, JAXBException, ResourceException {
+            deleteObject("/limskey", searchString);
+        }
+
+        private void deleteObject(String uri, String searchString) throws IOException, JAXBException, ResourceException {
+            Representation result = null;
+            ClientResource cResource = resource.getChild(version + uri + searchString);
+            Log.debug("deleteObject: " + cResource);
+            try {
+                cResource.delete();
+            } catch (ResourceException ex) {
+                Log.fatal("deleteObject did not complete successfully: " + cResource);
+                throw new RuntimeException(ex);
+            } finally {
+                if (result != null) {
+                    result.exhaust();
+                    result.release();
+                }
+                cResource.release();
+            }
+        }
+
+        public ClientResource getResource() {
+            return resource;
         }
     }
 

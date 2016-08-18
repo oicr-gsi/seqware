@@ -18,11 +18,17 @@ package net.sourceforge.seqware.common.dto;
 
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.SetUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -61,10 +67,6 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
         this.fileAttributes = convertAttributesString(fileAttributes);
     }
 
-    public void setSkip(boolean skip) {
-        this.skip = Boolean.toString(skip);
-    }
-
     public void setLastModified(Date lastModified) {
         this.lastModified = new DateTime(lastModified);
     }
@@ -77,20 +79,26 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
         this.iusAttributes = convertAttributesString(iusAttributes);
     }
 
-    private static Map<String, Set<String>> convertAttributesString(String attributesString) {
+    private static SortedMap<String, SortedSet<String>> convertAttributesString(String attributesString) {
         if (attributesString == null || attributesString.isEmpty()) {
-            return Collections.EMPTY_MAP;
+            return MapUtils.EMPTY_SORTED_MAP;
         } else {
-
-            return Collections.EMPTY_MAP;
+            SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
+            for (String keyValues : attributesString.split(";")) {
+                String[] tmp = keyValues.split("=");
+                String key = tmp[0];
+                SortedSet<String> values = new TreeSet<>(Arrays.asList(tmp[1].split("&")));
+                attrs.put(key, values);
+            }
+            return attrs;
         }
     }
 
-    private static Set<Integer> convertIntegerString(String integersString) {
+    private static SortedSet<Integer> convertIntegerString(String integersString) {
         if (integersString == null || integersString.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return SetUtils.EMPTY_SORTED_SET;
         } else {
-            Set<Integer> integers = new HashSet<>();
+            SortedSet<Integer> integers = new TreeSet<>();
             for (String intString : integersString.split(",")) {
                 integers.add(Integer.parseInt(intString));
             }

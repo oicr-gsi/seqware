@@ -18,16 +18,17 @@ package net.sourceforge.seqware.common.dto;
 
 import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
-import net.sourceforge.seqware.common.model.adapters.IntegerSet;
+import net.sourceforge.seqware.common.model.adapters.IntegerSortedSet;
 import net.sourceforge.seqware.common.model.adapters.IusLimsKeyAdapter;
-import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
+import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -44,27 +45,27 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
     protected String workflowName;
     protected String workflowVersion;
     protected Integer workflowId;
-    protected Map<String, Set<String>> workflowAttributes;
+    protected SortedMap<String, SortedSet<String>> workflowAttributes;
     protected String workflowRunName;
     protected String workflowRunStatus;
     protected Integer workflowRunId;
-    protected Map<String, Set<String>> workflowRunAttributes;
-    protected Set<Integer> workflowRunInputFileIds;
+    protected SortedMap<String, SortedSet<String>> workflowRunAttributes;
+    protected SortedSet<Integer> workflowRunInputFileIds;
     protected String processingAlgorithm;
     protected Integer processingId;
     protected String processingStatus;
-    protected Map<String, Set<String>> processingAttributes;
+    protected SortedMap<String, SortedSet<String>> processingAttributes;
     protected String fileMetaType;
     protected Integer fileId;
     protected String filePath;
     protected String fileMd5sum;
     protected String fileSize;
     protected String fileDescription;
-    protected Map<String, Set<String>> fileAttributes;
-    protected String skip;
+    protected SortedMap<String, SortedSet<String>> fileAttributes;
+    protected Boolean skip;
     protected DateTime lastModified;
     protected Set<IusLimsKey> iusLimsKeys;
-    protected Map<String, Set<String>> iusAttributes;
+    protected SortedMap<String, SortedSet<String>> iusAttributes;
 
     @Override
     public String getWorkflowName() {
@@ -93,13 +94,13 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.workflowId = workflowId;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getWorkflowAttributes() {
+    public SortedMap<String, SortedSet<String>> getWorkflowAttributes() {
         return workflowAttributes;
     }
 
-    public void setWorkflowAttributes(Map<String, Set<String>> workflowAttributes) {
+    public void setWorkflowAttributes(SortedMap<String, SortedSet<String>> workflowAttributes) {
         this.workflowAttributes = workflowAttributes;
     }
 
@@ -130,23 +131,23 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.workflowRunId = workflowRunId;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getWorkflowRunAttributes() {
+    public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes() {
         return workflowRunAttributes;
     }
 
-    public void setWorkflowRunAttributes(Map<String, Set<String>> workflowRunAttributes) {
+    public void setWorkflowRunAttributes(SortedMap<String, SortedSet<String>> workflowRunAttributes) {
         this.workflowRunAttributes = workflowRunAttributes;
     }
 
-    @XmlJavaTypeAdapter(IntegerSet.class)
+    @XmlJavaTypeAdapter(IntegerSortedSet.class)
     @Override
-    public Set<Integer> getWorkflowRunInputFileIds() {
+    public SortedSet<Integer> getWorkflowRunInputFileIds() {
         return workflowRunInputFileIds;
     }
 
-    public void setWorkflowRunInputFileIds(Set<Integer> workflowRunInputFileIds) {
+    public void setWorkflowRunInputFileIds(SortedSet<Integer> workflowRunInputFileIds) {
         this.workflowRunInputFileIds = workflowRunInputFileIds;
     }
 
@@ -177,13 +178,13 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.processingStatus = processingStatus;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getProcessingAttributes() {
+    public SortedMap<String, SortedSet<String>> getProcessingAttributes() {
         return processingAttributes;
     }
 
-    public void setProcessingAttributes(Map<String, Set<String>> processingAttributes) {
+    public void setProcessingAttributes(SortedMap<String, SortedSet<String>> processingAttributes) {
         this.processingAttributes = processingAttributes;
     }
 
@@ -241,22 +242,22 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.fileDescription = fileDescription;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getFileAttributes() {
+    public SortedMap<String, SortedSet<String>> getFileAttributes() {
         return fileAttributes;
     }
 
-    public void setFileAttributes(Map<String, Set<String>> fileAttributes) {
+    public void setFileAttributes(SortedMap<String, SortedSet<String>> fileAttributes) {
         this.fileAttributes = fileAttributes;
     }
 
     @Override
-    public String getSkip() {
+    public Boolean getSkip() {
         return skip;
     }
 
-    public void setSkip(String skip) {
+    public void setSkip(Boolean skip) {
         this.skip = skip;
     }
 
@@ -282,13 +283,13 @@ public class AnalysisProvenanceDto implements AnalysisProvenance {
         this.iusLimsKeys = keys;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getIusAttributes() {
+    public SortedMap<String, SortedSet<String>> getIusAttributes() {
         return iusAttributes;
     }
 
-    public void setIusAttributes(Map<String, Set<String>> iusAttributes) {
+    public void setIusAttributes(SortedMap<String, SortedSet<String>> iusAttributes) {
         this.iusAttributes = iusAttributes;
     }
 

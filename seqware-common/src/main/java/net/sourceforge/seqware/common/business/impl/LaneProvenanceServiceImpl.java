@@ -22,8 +22,9 @@ import java.util.List;
 import net.sourceforge.seqware.common.business.LaneProvenanceService;
 import net.sourceforge.seqware.common.dao.LaneDAO;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
-import net.sourceforge.seqware.common.dto.builders.LaneProvenanceDtoBuilder;
+import net.sourceforge.seqware.common.dto.builders.LaneProvenanceDtoFromObjects;
 import net.sourceforge.seqware.common.model.Lane;
+import org.springframework.beans.BeanUtils;
 
 /**
  *
@@ -44,21 +45,19 @@ public class LaneProvenanceServiceImpl implements LaneProvenanceService {
     }
 
     public static List<LaneProvenanceDto> buildList(Collection<Lane> lanes) {
-        List<LaneProvenanceDtoBuilder> dtoBuilders = new ArrayList<>();
+        List<LaneProvenanceDto> dtos = new ArrayList<>();
         for (Lane lane : lanes) {
             if (lane == null || lane.getSequencerRun() == null) {
                 continue;
             }
-            LaneProvenanceDtoBuilder lp = new LaneProvenanceDtoBuilder();
+            LaneProvenanceDtoFromObjects lp = new LaneProvenanceDtoFromObjects();
             lp.setLane(lane);
             lp.setSequencerRun(lane.getSequencerRun());
 
-            dtoBuilders.add(lp);
-        }
+            LaneProvenanceDto dto = new LaneProvenanceDto();
+            BeanUtils.copyProperties(lp, dto);
 
-        List<LaneProvenanceDto> dtos = new ArrayList<>();
-        for (LaneProvenanceDtoBuilder dtoBuilder : dtoBuilders) {
-            dtos.add(dtoBuilder.build());
+            dtos.add(dto);
         }
 
         return dtos;

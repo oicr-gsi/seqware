@@ -19,25 +19,26 @@ package net.sourceforge.seqware.common.business;
 import java.util.List;
 import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.dao.LimsKeyDAO;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 
 /**
  *
  * @author mlaszloffy
  */
 public interface LimsKeyService {
-    
+
     public void setLimsKeyDAO(LimsKeyDAO dao);
-    
+
     public Integer insert(LimsKey limsKey);
-    
+
     public void update(LimsKey limsKey);
-    
-    public void delete(LimsKey limsKey);
-    
+
+    public void delete(LimsKey limsKey) throws DataIntegrityException;
+
     public LimsKey findByID(Integer id);
-    
+
     public LimsKey findBySWAccession(Integer swAccession);
-    
+
     public List<LimsKey> list();
-    
+
 }

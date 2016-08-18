@@ -19,8 +19,12 @@ package net.sourceforge.seqware.common.business.impl;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.sourceforge.seqware.common.AbstractTestCase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +37,16 @@ import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.model.File;
+import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
+import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import static org.junit.Assert.*;
 
@@ -75,6 +83,9 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
     @Autowired
     @Qualifier("fileService")
     FileService fileService;
+
+    @Autowired
+    SessionFactory sessionFactory;
 
     @Test
     public void getAllRecords() {
@@ -222,8 +233,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         //skip one of the IUS - all files for the workflow run should be skipped
         ius2.setSkip(Boolean.TRUE);
         iusService.update(ius2);
-        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
-        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
+        assertEquals(true, Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
+        assertEquals(true, Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
     }
 
     @Test
@@ -335,8 +346,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         //skip one of the IUS - the processing is linked to IUS so only one file should be skipped
         ius2.setSkip(Boolean.TRUE);
         iusService.update(ius2);
-        assertEquals("false", Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
-        assertEquals("true", Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
+        assertEquals(false, Iterables.getOnlyElement(aprs.findForIus(ius1)).getSkip());
+        assertEquals(true, Iterables.getOnlyElement(aprs.findForIus(ius2)).getSkip());
     }
 
     @Test
@@ -395,7 +406,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         processingService.insert(p2);
         p1.setChildren(ImmutableSortedSet.of(p2));
         processingService.update(p1);
-        
+
         Processing p3 = new Processing();
         p3.setAlgorithm(expectedProcessingAlgorithm);
         p3.setWorkflowRunByAncestorWorkflowRunId(workflowRun);
@@ -446,5 +457,113 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
             assertEquals(expectedProvider, lk.getProvider());
             assertEquals(expectedVersion, lk.getVersion());
         }
+    }
+
+    @Test
+    public void attributesAndDeletionTest() {
+        String expectedWorkflowName = "test_workflow";
+        String expectedProcessingAlgorithm = "test_algorithm";
+        String expectedFilePath = "/tmp/file.out";
+        String expectedProvider = "seqware";
+        String expectedId = "1_1_1";
+        String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
+        DateTime expectedLastModified = DateTime.parse("2016-01-01T00:00:00Z");
+        String expectedTag1 = "testTag1";
+        String expectedValue1 = "testValue1";
+        String expectedTag2 = "testTag2";
+        String expectedValue2 = "testValue2";
+        String expectedIusTag = "iusTag";
+        String expectedIusValue = "iusValue";
+
+        LimsKey limsKey = new LimsKey();
+        limsKey.setProvider(expectedProvider);
+        limsKey.setId(expectedId);
+        limsKey.setVersion(expectedVersion);
+        limsKey.setLastModified(expectedLastModified);
+        limsKeyService.insert(limsKey);
+
+        IUS ius = new IUS();
+        ius.setLimsKey(limsKey);
+        iusService.insert(ius);
+
+        IUSAttribute ia = new IUSAttribute();
+        ia.setTag(expectedIusTag);
+        ia.setValue(expectedIusValue);
+        ia.setIus(ius);
+        ius.getIusAttributes().add(ia);
+
+        Workflow workflow = new Workflow();
+        workflow.setName(expectedWorkflowName);
+        workflowService.insert(workflow);
+
+        WorkflowRun workflowRun = new WorkflowRun();
+        workflowRun.setWorkflow(workflow);
+        workflowRun.setIus(ImmutableSortedSet.of(ius));
+        workflowRun.setProcessings(new TreeSet<Processing>());
+        workflowRunService.insert(workflowRun);
+
+        Processing processing = new Processing();
+        processing.setAlgorithm(expectedProcessingAlgorithm);
+        processing.setWorkflowRun(workflowRun);
+        processing.setFiles(new HashSet<File>());
+        processingService.insert(processing);
+
+        FileAttribute fa1 = new FileAttribute();
+        fa1.setTag(expectedTag1);
+        fa1.setValue(expectedValue1);
+
+        FileAttribute fa2 = new FileAttribute();
+        fa2.setTag(expectedTag2);
+        fa2.setValue(expectedValue2);
+
+        File file = new File();
+        file.setProcessings(ImmutableSortedSet.of(processing));
+        file.setFilePath(expectedFilePath);
+        file.setFileAttributes(ImmutableSortedSet.of(fa1, fa2));
+        fa1.setFile(file);
+        fa2.setFile(file);
+        fileService.insert(file);
+
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+
+        //original 25 + 1 new file
+        assertEquals(26, aprs.list().size());
+
+        List<AnalysisProvenanceDto> aps = aprs.findForIus(ius);
+        assertEquals(1, aps.size());
+        AnalysisProvenanceDto ap = Iterables.getOnlyElement(aps);
+        assertEquals(Sets.newHashSet(expectedValue1), ap.getFileAttributes().get(expectedTag1));
+        assertEquals(Sets.newHashSet(expectedValue2), ap.getFileAttributes().get(expectedTag2));
+        assertEquals(Sets.newHashSet(expectedIusValue), ap.getIusAttributes().get(expectedIusTag));
+
+        //delete the ius and lims key
+        IUS iusToDelete = iusService.findBySWAccession(ius.getSwAccession());
+        Integer limsKeySwid = iusToDelete.getLimsKey().getSwAccession();
+        iusToDelete.setLimsKey(null);
+        iusToDelete.getWorkflowRuns().clear();
+        iusToDelete.getProcessings().clear();
+        iusService.update(iusToDelete);
+        try {
+            iusService.delete(iusToDelete);
+        } catch (DataIntegrityException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        LimsKey limsKeyToDelete = limsKeyService.findBySWAccession(limsKeySwid);
+        try {
+            limsKeyService.delete(limsKeyToDelete);
+        } catch (DataIntegrityException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        assertNull(iusService.findBySWAccession(ius.getSwAccession()));
+        assertNull(limsKeyService.findBySWAccession(limsKeySwid));
+        assertNotNull(workflowRunService.findBySWAccession(workflowRun.getSwAccession()));
+        assertNotNull(workflowService.findBySWAccession(workflow.getSwAccession()));
+        assertNotNull(processingService.findBySWAccession(processing.getSwAccession()));
+        assertNotNull(fileService.findBySWAccession(file.getSwAccession()));
+
+        assertEquals(25, aprs.list().size());
     }
 }

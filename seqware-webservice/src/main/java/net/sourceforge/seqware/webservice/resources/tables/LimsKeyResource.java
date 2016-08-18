@@ -22,7 +22,6 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import net.sourceforge.seqware.webservice.resources.BasicResource;
 import static net.sourceforge.seqware.webservice.resources.BasicResource.parseClientInt;
 import static net.sourceforge.seqware.webservice.resources.BasicResource.testIfNull;
 import org.restlet.data.Status;
@@ -33,7 +32,13 @@ import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import net.sourceforge.seqware.common.business.LimsKeyService;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.model.lists.LimsKeyList;
+import net.sourceforge.seqware.webservice.resources.BasicResource;
+import org.restlet.data.MediaType;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.Delete;
+import org.restlet.resource.Put;
 
 /**
  *
@@ -75,8 +80,10 @@ public class LimsKeyResource extends BasicResource {
     }
 
     @Post("xml")
-    public void postJaxb(Representation entity) throws ResourceException {
+    @Override
+    public Representation post(Representation entity) throws ResourceException {
         authenticate();
+        Representation rep = null;
         try {
             JaxbObject<LimsKey> jo = new JaxbObject<>();
             String text = entity.getText();
@@ -97,8 +104,8 @@ public class LimsKeyResource extends BasicResource {
             LimsKey detachedLimsKey = copier.hibernate2dto(LimsKey.class, obj);
             detachedLimsKey.setLastModified(obj.getLastModified());  //hibernate dto copier does not set DateTime
 
-            Document line = XmlTools.marshalToDocument(jo, detachedLimsKey);
-            getResponse().setEntity(XmlTools.getRepresentation(line));
+            rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(jo, detachedLimsKey));
+            getResponse().setEntity(rep);
             getResponse().setLocationRef(getRequest().getRootRef() + "/limskey/" + detachedLimsKey.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);
         } catch (SecurityException e) {
@@ -111,6 +118,59 @@ public class LimsKeyResource extends BasicResource {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 
+        return rep;
+    }
+
+    @Put("xml")
+    @Override
+    public Representation put(Representation entity) {
+        authenticate();
+
+        LimsKey updatedLimsKey = null;
+        try {
+            JaxbObject<LimsKey> jo = new JaxbObject<>();
+            updatedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), entity.getText());
+        } catch (IOException | SAXException ex) {
+            throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
+        }
+
+        Integer requestSwid = parseClientInt((String) getRequestAttributes().get("limsKeyId"));
+        Integer objectSwid = updatedLimsKey.getSwAccession();
+        if (objectSwid == null || !requestSwid.equals(objectSwid)) {
+            throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Request ID does not equal object ID");
+        }
+
+        LimsKeyService service = BeanFactory.getLimsKeyServiceBean();
+        service.update(updatedLimsKey);
+
+        LimsKey newLimsKey = service.findBySWAccession(objectSwid);
+
+        Representation rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(new JaxbObject<LimsKey>(), newLimsKey));
+        getResponse().setEntity(rep);
+        getResponse().setLocationRef(getRequest().getRootRef() + "/limskey/" + newLimsKey.getSwAccession());
+        getResponse().setStatus(Status.SUCCESS_CREATED);
+
+        return rep;
+    }
+
+    @Delete
+    @Override
+    public Representation delete() {
+        authenticate();
+
+        Integer limsKeySwid = parseClientInt((String) getRequestAttributes().get("limsKeyId"));
+        Representation rep = new StringRepresentation("Deleting " + limsKeySwid);
+        rep.setMediaType(MediaType.TEXT_PLAIN);
+
+        LimsKeyService service = BeanFactory.getLimsKeyServiceBean();
+        LimsKey limsKey = (LimsKey) testIfNull(service.findBySWAccession(limsKeySwid));
+        try {
+            service.delete(limsKey);
+            getResponse().setStatus(Status.SUCCESS_OK);
+        } catch (DataIntegrityException ex) {
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex);
+        }
+        return rep;
     }
 
 }

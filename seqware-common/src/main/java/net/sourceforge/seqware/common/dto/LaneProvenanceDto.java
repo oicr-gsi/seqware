@@ -17,13 +17,13 @@
 package net.sourceforge.seqware.common.dto;
 
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
-import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
+import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -38,13 +38,15 @@ import org.joda.time.DateTime;
 public class LaneProvenanceDto implements LaneProvenance {
 
     private String sequencerRunName;
-    private Map<String, Set<String>> sequencerRunAttributes;
+    private SortedMap<String, SortedSet<String>> sequencerRunAttributes;
     private String sequencerRunPlatformModel;
     private String laneNumber;
-    private Map<String, Set<String>> laneAttributes;
+    private SortedMap<String, SortedSet<String>> laneAttributes;
+    private Boolean skip;
     private String laneProvenanceId;
     private String version;
     private DateTime lastModified;
+    private DateTime createdDate;
 
     @XmlElement
     @Override
@@ -56,13 +58,13 @@ public class LaneProvenanceDto implements LaneProvenance {
         this.sequencerRunName = sequencerRunName;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
         return sequencerRunAttributes;
     }
 
-    public void setSequencerRunAttributes(Map<String, Set<String>> sequencerRunAttributes) {
+    public void setSequencerRunAttributes(SortedMap<String, SortedSet<String>> sequencerRunAttributes) {
         this.sequencerRunAttributes = sequencerRunAttributes;
     }
 
@@ -86,14 +88,24 @@ public class LaneProvenanceDto implements LaneProvenance {
         this.laneNumber = laneNumber;
     }
 
-    @XmlJavaTypeAdapter(MapOfSetAdapter.class)
+    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
     @Override
-    public Map<String, Set<String>> getLaneAttributes() {
+    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
         return laneAttributes;
     }
 
-    public void setLaneAttributes(Map<String, Set<String>> laneAttributes) {
+    public void setLaneAttributes(SortedMap<String, SortedSet<String>> laneAttributes) {
         this.laneAttributes = laneAttributes;
+    }
+
+    @XmlElement
+    @Override
+    public Boolean getSkip() {
+        return skip;
+    }
+
+    public void setSkip(Boolean skip) {
+        this.skip = skip;
     }
 
     @XmlElement
@@ -104,6 +116,12 @@ public class LaneProvenanceDto implements LaneProvenance {
 
     public void setLaneProvenanceId(String laneProvenanceId) {
         this.laneProvenanceId = laneProvenanceId;
+    }
+
+    @XmlElement
+    @Override
+    public String getProvenanceId() {
+        return laneProvenanceId;
     }
 
     @XmlElement
@@ -126,14 +144,54 @@ public class LaneProvenanceDto implements LaneProvenance {
         this.lastModified = lastModified;
     }
 
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
+    @Override
+    public DateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(DateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        HashCodeBuilder b = new HashCodeBuilder();
+        b.append(getSequencerRunName());
+        b.append(getSequencerRunAttributes());
+        b.append(getSequencerRunPlatformModel());
+        b.append(getLaneNumber());
+        b.append(getLaneAttributes());
+        b.append(getSkip());
+        b.append(getLaneProvenanceId());
+        b.append(getProvenanceId());
+        b.append(getVersion());
+        b.append(getLastModified());
+        b.append(getCreatedDate());
+        return b.toHashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(obj, this);
+        if (obj instanceof LaneProvenanceDto) {
+            LaneProvenanceDto other = (LaneProvenanceDto) obj;
+            EqualsBuilder b = new EqualsBuilder();
+            b.append(getSequencerRunName(), other.getSequencerRunName());
+            b.append(getSequencerRunAttributes(), other.getSequencerRunAttributes());
+            b.append(getSequencerRunPlatformModel(), other.getSequencerRunPlatformModel());
+            b.append(getLaneNumber(), other.getLaneNumber());
+            b.append(getLaneAttributes(), other.getLaneAttributes());
+            b.append(getSkip(), other.getSkip());
+            b.append(getLaneProvenanceId(), other.getLaneProvenanceId());
+            b.append(getProvenanceId(), other.getProvenanceId());
+            b.append(getVersion(), other.getVersion());
+            b.append(getLastModified(), other.getLastModified());
+            b.append(getCreatedDate(), other.getCreatedDate());
+            return b.isEquals();
+        } else {
+            return false;
+        }
+
     }
 
     @Override

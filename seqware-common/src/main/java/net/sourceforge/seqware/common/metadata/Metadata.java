@@ -210,11 +210,47 @@ public interface Metadata {
     
     /**
      * Get the LimsKey from SWID/accession.
-     * 
+     *
      * @param limsKeyAccession
      * @return {@link net.sourceforge.seqware.common.model.LimsKey}
      */
     public LimsKey getLimsKey(int limsKeyAccession);
+
+    /**
+     * Replaces the persisted IUS with the provided IUS.
+     *
+     * Warning: This includes Empty or null fields.
+     *
+     * @param ius
+     */
+    public void updateIUS(IUS ius);
+
+    /**
+     * Replaces the persisted LimsKey with the provided LimsKey.
+     *
+     * Warning: This includes Empty or null fields.
+     *
+     * @param limsKey
+     */
+    public void updateLimsKey(LimsKey limsKey);
+
+    /**
+     * Deletes the orphaned IUS.
+     *
+     * Deletion of IUSes with references will result in a run time exception.
+     *
+     * @param iusAccession
+     */
+    public void deleteIUS(Integer iusAccession);
+
+    /**
+     * Deletes the orphaned IUS.
+     *
+     * Deletion of IUSes with references will result in a run time exception.
+     *
+     * @param limsKeyAcccession
+     */
+    public void deleteLimsKey(Integer limsKeyAcccession);
 
     /**
      * <p>
