@@ -1401,6 +1401,26 @@ public class MetadataDB implements Metadata {
     }
 
     @Override
+    public void updateIUS(IUS ius) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void updateLimsKey(LimsKey limsKey) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteIUS(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteLimsKey(Integer limsKeyAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public List<SampleProvenanceDto> getSampleProvenance() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

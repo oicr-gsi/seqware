@@ -324,6 +324,26 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
+    public void updateIUS(IUS ius) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void updateLimsKey(LimsKey limsKey) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteIUS(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteLimsKey(Integer limsKeyAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public List<Platform> getPlatforms() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -1046,7 +1066,7 @@ public class MetadataInMemory implements Metadata {
     public List<IUS> getIUSFrom(int laneOrSampleAccession) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
     public LimsKey getLimsKeyFrom(Integer iusAccession) {
         return ((IUS) MetadataInMemory.getStore().get(iusAccession, IUS.class)).getLimsKey();
@@ -1153,12 +1173,12 @@ public class MetadataInMemory implements Metadata {
     public List<SampleProvenanceDto> getSampleProvenance() {
         return SampleProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values());
     }
-    
+
     @Override
     public List<LaneProvenanceDto> getLaneProvenance() {
         return LaneProvenanceServiceImpl.buildList((Collection<Lane>) (Collection<?>) MetadataInMemory.getStore().column(Lane.class).values());
     }
-    
+
     private ParentAccessionModel resolveParentAccession(Integer searchString) {
         Map m = MetadataInMemory.getStore().row(searchString);
         return (ParentAccessionModel) Iterables.getOnlyElement(m.values());

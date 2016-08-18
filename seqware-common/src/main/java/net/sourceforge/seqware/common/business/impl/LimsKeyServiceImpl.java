@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.dao.LimsKeyDAO;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 
 /**
  *
@@ -59,7 +60,7 @@ public class LimsKeyServiceImpl implements LimsKeyService {
     }
 
     @Override
-    public void delete(LimsKey limsKey) {
+    public void delete(LimsKey limsKey) throws DataIntegrityException{
         dao.delete(limsKey);
     }
 

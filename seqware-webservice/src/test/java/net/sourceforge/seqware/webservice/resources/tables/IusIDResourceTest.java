@@ -53,4 +53,8 @@ public class IusIDResourceTest extends DatabaseResourceIDTest {
 
     }
 
+    @Override
+    public void testDelete() {
+    }
+
 }
