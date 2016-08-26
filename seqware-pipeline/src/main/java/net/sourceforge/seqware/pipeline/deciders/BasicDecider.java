@@ -17,6 +17,7 @@
 package net.sourceforge.seqware.pipeline.deciders;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.WorkflowRunStatus;
 import io.seqware.pipeline.plugins.WorkflowScheduler;
@@ -649,15 +650,17 @@ public class BasicDecider extends Plugin implements DeciderInterface {
             fileToRunSWIDs.add(Integer.valueOf(fileSWID));
             parentAccessionsToRun.add(file.getAttribute(Header.PROCESSING_SWID.getTitle()));
 
-            String swid = file.getAttribute(Header.IUS_SWA.getTitle());
-            if (swid == null || swid.trim().isEmpty()) {
-                swid = file.getAttribute(Header.LANE_SWA.getTitle());
+            String swidString = file.getAttribute(Header.IUS_SWA.getTitle());
+            Set<String> swids = Sets.newHashSet(swidString.split(";"));
+            if (swids == null || swids.isEmpty()) {
+                swidString = file.getAttribute(Header.LANE_SWA.getTitle());
+                swids = Sets.newHashSet(swidString.split(";"));
             }
             // seqware-2002 it is possible that both are null if the path goes through sample_processing
-            if (swid == null || swid.trim().isEmpty()) {
+            if (swids == null || swids.isEmpty()) {
                 return;
             }
-            workflowParentAccessionsToRun.add(swid);
+            workflowParentAccessionsToRun.addAll(swids);
         }
     }
 
