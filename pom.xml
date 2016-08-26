@@ -19,6 +19,7 @@
         <seqware_meta_db_password>seqware</seqware_meta_db_password>
         <seqware_meta_db_user>seqware</seqware_meta_db_user>
         <seqware_meta_db_host>localhost</seqware_meta_db_host>
+        <tomcat_maven_port>8889</tomcat_maven_port>
 
         <!-- while merging com.amazonaws.services.s3.transfer.MultipleFileUpload , I couldn't compile without setting a version here -->
         <aws-java-sdk.version>1.8.11</aws-java-sdk.version>
@@ -835,7 +836,7 @@
                     <artifactId>tomcat7-maven-plugin</artifactId>
                     <version>2.2</version>
                     <configuration>
-                        <port>8889</port>
+                        <port>${tomcat_maven_port}</port>
                         <useNaming>true</useNaming>
                     </configuration>
                     <executions>
