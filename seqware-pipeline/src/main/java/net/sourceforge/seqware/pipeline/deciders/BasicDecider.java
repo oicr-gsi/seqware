@@ -774,10 +774,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
 
             String currVal = r.getAttributes().get(groupBy);
 
-            if (currVal == null) {
-                continue;
+            if (currVal != null) {
+                currVal = handleGroupByAttribute(currVal);
             }
-            currVal = handleGroupByAttribute(currVal);
             
             List<ReturnValue> vs = map.get(currVal);
             if (vs == null) {
