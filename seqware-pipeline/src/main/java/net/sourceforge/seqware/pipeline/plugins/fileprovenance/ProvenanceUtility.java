@@ -157,8 +157,10 @@ public class ProvenanceUtility {
                         SequencerRun run = metadata.getSequencerRunByName(value);
                         swaStrings.add(String.valueOf(run.getSwAccession()));
                     }
+                } else if (filter == HumanProvenanceFilters.LANE_NAME) {
+                    //not supported by seqware
                 } else {
-                    throw new RuntimeException("No handler for filter type");
+                    throw new RuntimeException("No handler for filter type = [" + filter.toString() + "]");
                 }
                 map.put(filter.mappedParam, new ImmutableList.Builder<String>().addAll(swaStrings).build());
             }
