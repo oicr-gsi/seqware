@@ -131,6 +131,17 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>release.gsi</id>
+            <name>GSI Snapshots Maven Snapshot Repository</name>
+            <url>http://seqwaremaven.oicr.on.ca/artifactory/gsi-release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository> 
         <repository>
             <id>dependencies.seqware.sourceforge.net</id>
