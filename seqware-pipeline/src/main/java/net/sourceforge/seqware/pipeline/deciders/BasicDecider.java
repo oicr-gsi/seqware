@@ -102,6 +102,8 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     protected final OptionSpecBuilder ignorePreviousRunsSpec;
     protected final OptionSpecBuilder forceRunAllSpec;
 
+    private boolean isValidWorkflowRun;
+
     public BasicDecider() {
         super();
         parser.acceptsAll(Arrays.asList("wf-accession"), "The workflow accession of the workflow").withRequiredArg();
@@ -410,6 +412,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                         rerun = false;
                     }
 
+                    // need to reset back to valid, client/subclass may not have reset
+                    isValidWorkflowRun = true;
+
                     // if we're in dry run mode or we don't want to rerun and we don't want to force the re-processing
                     if (isDryRunMode || !rerun) {
                         //TODO: we need to simplify the logic and make it more readable
@@ -424,6 +429,12 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                             }
 
                             iniFiles.add(createIniFile(fileString, parentAccessionString));
+
+                            if (!isValidWorkflowRun) {
+                                Log.error("Not a valid workflow run - not scheduling.");
+                                continue;
+                            }
+
                             for (String line : studyReporterOutput) {
                                 Log.stdout(line);
                             }
@@ -453,6 +464,12 @@ public class BasicDecider extends Plugin implements DeciderInterface {
                         }
                         
                         iniFiles.add(createIniFile(fileString, parentAccessionString));
+
+                        if (!isValidWorkflowRun) {
+                            Log.error("Not a valid workflow run - not scheduling.");
+                            continue;
+                        }
+
                         launched++;
                         // construct the INI and run it
                         for (String line : studyReporterOutput) {
@@ -862,6 +879,30 @@ public class BasicDecider extends Plugin implements DeciderInterface {
 
     public void setParentWorkflowAccessions(Set<String> parentWorkflowAccessions) {
         this.parentWorkflowAccessions = parentWorkflowAccessions;
+    }
+
+    /**
+     * Do not use this method, use one of the following.
+     * 1) Use {@link #abortSchedulingOfCurrentWorkflowRun() } to abort scheduling of the current workflow run
+     * 2) Use {@link #setDryRunMode(java.lang.Boolean) } to enable "dry run" mode (aka, test mode, no-metadata mode)
+     *
+     * @param test
+     *
+     * @deprecated
+     */
+    @Deprecated
+    public void setTest(Boolean test) {
+        this.isDryRunMode = test;
+    }
+
+    /**
+     * Stop the current workflow run (and only the current workflow run) from being scheduled.
+     *
+     * Calling this method will stop the workflow run - and more importantly, only the current workflowr run, from being executed
+     * during {@link #launchWorkflows(java.util.Map) }.
+     */
+    public void abortSchedulingOfCurrentWorkflowRun() {
+        this.isValidWorkflowRun = false;
     }
 
     public Boolean isDryRunMode() {
