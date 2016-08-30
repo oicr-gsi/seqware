@@ -17,6 +17,8 @@
 package net.sourceforge.seqware.pipeline.deciders;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.WorkflowRunStatus;
@@ -77,7 +79,7 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = PluginInterface.class)
 public class BasicDecider extends Plugin implements DeciderInterface {
 
-    private Header header = Header.FILE_SWA;
+    private List<Header> header = Lists.newArrayList(Header.FILE_SWA);
     private Set<String> parentWorkflowAccessions = new TreeSet<>();
     private Set<String> workflowAccessionsToCheck = new TreeSet<>();
     private List<String> metaTypes = null;
@@ -200,7 +202,7 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         if (options.has("group-by")) {
             String headerString = (String) options.valueOf("group-by");
             try {
-                header = Header.valueOf(headerString);
+                header = Lists.newArrayList(Header.valueOf(headerString));
             } catch (IllegalArgumentException e) {
                 Log.fatal("IllegalArgumentException when grouping", e);
                 StringBuilder sb = new StringBuilder();
@@ -335,11 +337,12 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         if (!metadata.checkClientServerMatchingVersion()) {
             Log.warn("Client version does not match webservice version");
         }
-        String groupBy = header.getTitle();
-        Map<String, List<ReturnValue>> mappedFiles;
         List<ReturnValue> vals = createListOfRelevantFilePaths();
 
-        mappedFiles = separateFiles(vals, groupBy);
+        //get(0) is for backwards compatiblity for decider that override and expect one header
+        //BasicDecider impl of separateFiles uses the header list
+        Map<String, List<ReturnValue>> mappedFiles = separateFiles(vals, header.get(0).getTitle());
+
         return launchWorkflows(mappedFiles);
     }
     
@@ -784,29 +787,43 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         return attribute;
     }
 
-    // protected
+    /**
+     * Deprecated - use {@link #separateFiles(java.util.List, java.util.List) }
+     *
+     * @param vals
+     * @param groupBy
+     *
+     * @return map of grouped files (wrapped in ReturnValue) with the map key string being an aggregation of the "group by" values
+     *
+     * @deprecated
+     */
+    @Deprecated
     public Map<String, List<ReturnValue>> separateFiles(List<ReturnValue> vals, String groupBy) {
-        // get files from study
+        return separateFiles(vals, header);
+    }
+
+    // protected
+    public Map<String, List<ReturnValue>> separateFiles(List<ReturnValue> vals, List<Header> groupBy) {
         Map<String, List<ReturnValue>> map = new HashMap<>();
-
-        // group files according to the designated header (e.g. sample SWID)
         for (ReturnValue r : vals) {
-
-            String currVal = r.getAttributes().get(groupBy);
-
-            if (currVal != null) {
-                currVal = handleGroupByAttribute(currVal);
+            //iterate through ordered list of headers to group by
+            StringBuilder keyBuilder = new StringBuilder();
+            for (Header h : groupBy) {
+                String subKey = r.getAttributes().get(h.getTitle());
+                if (subKey != null) {
+                    subKey = handleGroupByAttribute(subKey);
+                }
+                keyBuilder.append(String.format("[%s=%s] ", h.getTitle(), subKey));
             }
-            
-            List<ReturnValue> vs = map.get(currVal);
+            String key = keyBuilder.toString();
+            List<ReturnValue> vs = map.get(key);
             if (vs == null) {
                 vs = new ArrayList<>();
             }
             vs.add(r);
-            map.put(currVal, vs);
+            map.put(key, vs);
         }
         return map;
-
     }
 
     @Override
@@ -830,31 +847,87 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     }
 
     /**
-     * use getGroupingStrategy
+     * Do not use this method - use {@link #getHeadersToGroupBy() }
      *
-     * @return
+     * @return single header string - will throw exception if multiple "group by" headers have be set
+     *
+     * @deprecated
      */
     @Deprecated
     public Header getHeader() {
-        return header;
-    }
-
-    public Header getGroupingStrategy() {
-        return this.header;
+        return Iterables.getOnlyElement(header);
     }
 
     /**
-     * use setGroupingStrategy
+     * Do not use this method - use {@link #getHeadersToGroupBy() }
+     *
+     * @return single header string - will throw exception if multiple "group by" headers have be set
+     *
+     * @deprecated
+     */
+    @Deprecated
+    public Header getGroupingStrategy() {
+        return Iterables.getOnlyElement(header);
+    }
+
+    /**
+     * Do not use this method - use {@link #setHeadersToGroupBy(java.util.List) }
      *
      * @param header
+     *
+     * @deprecated
      */
     @Deprecated
     public void setHeader(Header header) {
-        this.header = header;
+        this.header = Lists.newArrayList(header);
     }
 
+    /**
+     * Do not use this method - use {@link #setHeadersToGroupBy(java.util.List) }
+     *
+     * @param headers
+     *
+     * @deprecated
+     */
+    @Deprecated
+    public void setHeader(List<Header> headers) {
+        this.header = Lists.newArrayList(headers);
+    }
+
+    /**
+     * Do not use this method - use {@link #setHeadersToGroupBy(java.util.List) }
+     *
+     * @param strategy
+     *
+     * @deprecated
+     */
+    @Deprecated
     public void setGroupingStrategy(Header strategy) {
-        this.header = strategy;
+        this.header = Lists.newArrayList(strategy);
+    }
+
+    /**
+     * Get the ordered list of file provenance properties to group by.
+     *
+     * These "group by" values are used in {@link #separateFiles(java.util.List, java.util.List) } to partition the file set into
+     * candidate sets of files that may be used in a workflow run.
+     *
+     * @return unmodifiable list of {@link net.sourceforge.seqware.common.hibernate.FindAllTheFiles.Header}
+     */
+    public final List<Header> getHeadersToGroupBy() {
+        return Collections.unmodifiableList(header);
+    }
+
+    /**
+     * Set the file provenance properties to group by - the ordering of the list determines how to group of files.
+     *
+     * These "group by" values are used in {@link #separateFiles(java.util.List, java.util.List) } to partition the file set into
+     * candidate sets of files that may be used in a workflow run.
+     *
+     * @param headers
+     */
+    public final void setHeadersToGroupBy(List<Header> headers) {
+        this.header = Lists.newArrayList(headers);
     }
 
     public List<String> getMetaType() {
