@@ -57,6 +57,7 @@
         <maven-release-plugin.version>2.3.2</maven-release-plugin.version>
         <maven-build-helper-plugin.version>1.9.1</maven-build-helper-plugin.version>
         <powermock.version>1.5.6</powermock.version>
+        <provenance.version>1.0-rc1</provenance.version>
 
         <skipITs>true</skipITs>
         <findbugs.version>3.0.0</findbugs.version>
@@ -798,6 +799,11 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.9.3</version>
+            </dependency>
+            <dependency>
+                <groupId>ca.on.oicr.gsi</groupId>
+                <artifactId>provenance-api</artifactId>
+                <version>${provenance.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
