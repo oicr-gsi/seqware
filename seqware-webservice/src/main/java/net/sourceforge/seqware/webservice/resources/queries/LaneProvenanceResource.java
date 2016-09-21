@@ -16,16 +16,13 @@
  */
 package net.sourceforge.seqware.webservice.resources.queries;
 
-import java.util.Map;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import net.sourceforge.seqware.webservice.resources.CachedDocumentManualUpdate;
 import net.sourceforge.seqware.common.business.LaneProvenanceService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.lists.LaneProvenanceDtoList;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.BasicResource;
-import static net.sourceforge.seqware.webservice.resources.BasicRestlet.queryMap;
 import org.apache.log4j.Logger;
 import org.restlet.resource.Get;
 import org.w3c.dom.Document;
@@ -36,33 +33,29 @@ import org.w3c.dom.Document;
  */
 public class LaneProvenanceResource extends BasicResource {
 
-    private static Document document;
-    private static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
-    private final Logger log = Logger.getLogger(LaneProvenanceResource.class);
+    private static final Logger LOG = Logger.getLogger(LaneProvenanceResource.class);
+
+    private static final CachedDocumentManualUpdate CACHE = new CachedDocumentManualUpdate() {
+        @Override
+        public Document calculateDocument() {
+            LOG.info("Updating lane provenance");
+            LaneProvenanceService service = BeanFactory.getLaneProvenanceServiceBean();
+            JaxbObject<LaneProvenanceDtoList> jaxbTool = new JaxbObject<>();
+            LaneProvenanceDtoList list = new LaneProvenanceDtoList();
+            list.setLaneProvenanceDtos(service.list());
+            return XmlTools.marshalToDocument(jaxbTool, list);
+        }
+    };
 
     @Get
     public void getXml() {
-        Map<String, String[]> params = queryMap(getRequest());
-
-        if (LOCK.writeLock().tryLock()) {
-            try {
-                log.info("Updating lane provenance");
-                LaneProvenanceService service = BeanFactory.getLaneProvenanceServiceBean();
-                JaxbObject<LaneProvenanceDtoList> jaxbTool = new JaxbObject<>();
-                LaneProvenanceDtoList list = new LaneProvenanceDtoList();
-                list.setLaneProvenanceDtos(service.list());
-                document = XmlTools.marshalToDocument(jaxbTool, list);
-                getResponse().setEntity(XmlTools.getRepresentation(document));
-            } finally {
-                LOCK.writeLock().unlock();
-            }
+        CachedDocumentManualUpdate.Operation op;
+        if (getRequestAttributes().containsKey("operation")) {
+            op = CachedDocumentManualUpdate.Operation.valueOf(getRequestAttributes().get("operation").toString().toUpperCase());
         } else {
-            LOCK.readLock().lock();
-            try {
-                getResponse().setEntity(XmlTools.getRepresentation(document));
-            } finally {
-                LOCK.readLock().unlock();
-            }
+            op = CachedDocumentManualUpdate.Operation.GET;
         }
+
+        CACHE.processRequest(getResponse(), op);
     }
 }

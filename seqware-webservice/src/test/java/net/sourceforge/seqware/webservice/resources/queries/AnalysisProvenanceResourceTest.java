@@ -16,8 +16,8 @@
  */
 package net.sourceforge.seqware.webservice.resources.queries;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -28,17 +28,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 import net.sourceforge.seqware.webservice.resources.tables.DatabaseResourceTest;
 import org.junit.Assert;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Ignore;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ResourceException;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -72,63 +67,65 @@ public class AnalysisProvenanceResourceTest extends DatabaseResourceTest {
     public void testGet() {
         System.out.println(getRelativeURI() + " GET");
 
-        ExecutorService es = Executors.newFixedThreadPool(50);
-        CompletionService<List<AnalysisProvenanceDto>> cs = new ExecutorCompletionService(es);
-        List<Future<List<AnalysisProvenanceDto>>> tasks = new ArrayList<>();
+        List<Future<GetResult>> futures = new ArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(50);
+        CompletionService<GetResult> completionService = new ExecutorCompletionService(executorService);
+
+        List<Callable> callables = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            tasks.add(cs.submit(new GetTask()));
+            callables.add(new <AnalysisProvenanceDtoList>Get("/reports/analysis-provenance", new AnalysisProvenanceDtoList()));
         }
 
-        while (tasks.size() > 0) {
-            Future<List<AnalysisProvenanceDto>> completedTask = null;
+        Collections.shuffle(callables);
+        for (Callable c : callables) {
+            futures.add(completionService.submit(c));
+        }
+
+        while (futures.size() > 0) {
+
+            Future<GetResult> completedTask = null;
             try {
-                completedTask = cs.take();
+                completedTask = completionService.take();
             } catch (InterruptedException ex) {
                 fail(ex.getMessage());
             }
-
             try {
                 if (completedTask == null) {
                     fail("Null completed task");
                 } else {
-                    tasks.remove(completedTask);
-                    List<AnalysisProvenanceDto> dtos = completedTask.get();
-                    assertNotNull(dtos);
+                    futures.remove(completedTask);
+                    GetResult r = completedTask.get();
 
-                    //+ 20 IUS without workflow runs
-                    //+ 3 files attached to workflow run
-                    //+ 2 workflow runs without files
-                    //= 25 expected records
-                    Assert.assertEquals(25, dtos.size());
+                    assertNotNull(r.getStatus());
+
+                    assertNotNull(r.getRequestDate());
+                    assertNotNull(r.getResponseDate());
+                    assertTrue(r.getRequestDate().isEqual(r.getResponseDate())
+                            || r.getRequestDate().isBefore(r.getResponseDate()));
+
+                    Object data = r.getData();
+                    if (data instanceof AnalysisProvenanceDtoList) {
+                        List<AnalysisProvenanceDto> dtos = ((AnalysisProvenanceDtoList) data).getAnalysisProvenanceDtos();
+
+                        assertNotNull(r.getDataLastModificationDate());
+                        assertTrue(r.getResponseDate().isEqual(r.getDataLastModificationDate())
+                                || r.getResponseDate().isAfter(r.getDataLastModificationDate()));
+
+                        assertNotNull(dtos);
+                        //+ 20 IUS without workflow runs
+                        //+ 3 files attached to workflow run
+                        //+ 2 workflow runs without files
+                        //= 25 expected records
+                        Assert.assertEquals(25, dtos.size());
+
+                    }
                 }
             } catch (InterruptedException | ExecutionException ex) {
                 fail(ex.getMessage());
             }
         }
 
-        es.shutdown();
-    }
-
-    private class GetTask implements Callable<List<AnalysisProvenanceDto>> {
-
-        @Override
-        public List<AnalysisProvenanceDto> call() throws Exception {
-            AnalysisProvenanceDtoList list = null;
-            try {
-                Representation rep = ClientResourceInstance.getChild("/reports/analysis-provenance").get();
-                list = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), rep.getText());
-                rep.exhaust();
-                rep.release();
-            } catch (ResourceException | IOException | SAXException e) {
-                fail(e.getMessage());
-            }
-            if (list != null) {
-                return list.getAnalysisProvenanceDtos();
-            } else {
-                return null;
-            }
-        }
-
+        executorService.shutdown();
     }
 
 }
