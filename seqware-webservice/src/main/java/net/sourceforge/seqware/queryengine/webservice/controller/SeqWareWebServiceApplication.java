@@ -241,7 +241,9 @@ public class SeqWareWebServiceApplication extends WadlApplication {
 
         router.attach("/reports/analysis-provenance", AnalysisProvenanceResource.class);
         router.attach("/reports/sample-provenance", SampleProvenanceResource.class);
+        router.attach("/reports/sample-provenance/{operation}", SampleProvenanceResource.class);
         router.attach("/reports/lane-provenance", LaneProvenanceResource.class);
+        router.attach("/reports/lane-provenance/{operation}", LaneProvenanceResource.class);
 
         // the following collides with the non-variable paths.
         // router.attach("/reports/studies/{studyId}", new CycleCheckResource(getContext()));
