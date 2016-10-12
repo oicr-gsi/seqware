@@ -1,43 +1,28 @@
-SELECT coalesce(pius.lims_ids, wrius.lims_ids)                     AS "iusLimsKeys",
-       coalesce(pius.ius_attributes, wrius.ius_attributes)         AS "iusAttributes",
---       greatest(wr.update_tstmp, pff.update_tstmp, w.update_tstmp) AS "lastModified",
-       pff.update_tstmp                                            AS "lastModified", -- rename to createdTstmp
-       w.name                                                      AS "workflowName",
-       w.version                                                   AS "workflowVersion",
-       w.sw_accession                                              AS "workflowId",
-       (SELECT array_to_string(array_agg(tag
-                                         || '='
-                                         || value), ';')
-        FROM   workflow_attribute
-        WHERE  w.workflow_id = workflow_id
-        GROUP  BY workflow_id)                                     AS "workflowAttributes",
-       wr.name                                                     AS "workflowRunName",
-       wr.status                                                   AS "workflowRunStatus",
-       wr.sw_accession                                             AS "workflowRunId",
-       (SELECT array_to_string(array_agg(tag
-                                         || '='
-                                         || value), ';')
-        FROM   workflow_run_attribute
-        WHERE  wr.workflow_run_id = workflow_run_id
-        GROUP  BY workflow_run_id)                                 AS "workflowRunAttributes",
-       (SELECT array_to_string(array_agg(f.sw_accession), ',')
-        FROM   workflow_run_input_files wrif
-               left join FILE f
-                      ON wrif.file_id = f.file_id
-        WHERE  wr.workflow_run_id = wrif.workflow_run_id
-        GROUP  BY wrif.workflow_run_id)                            AS "workflowRunInputFileIds",
-       pff.processing_algorithm                                    AS "processingAlgorithm",
-       pff.processing_swid                                         AS "processingId",
-       pff.processing_status                                       AS "processingStatus",
-       pff.processing_attrs                                        AS "processingAttributes",
-       pff.file_meta_type                                          AS "fileMetaType",
-       pff.file_swid                                               AS "fileId",
-       pff.file_path                                               AS "filePath",
-       pff.file_md5sum                                             AS "fileMd5sum",
-       pff.file_size                                               AS "fileSize",
-       pff.file_description                                        AS "fileDescription",
-       pff.file_attrs                                              AS "fileAttributes",
-       coalesce(pius.skip, wrius.skip)                             AS "skip"
+ SELECT coalesce(pius.lims_ids, wrius.lims_ids)             AS "iusLimsKeys",
+       coalesce(pius.ius_attributes, wrius.ius_attributes) AS "iusAttributes",
+       --       greatest(wr.update_tstmp, pff.update_tstmp, w.update_tstmp) AS "lastModified",
+       pff.update_tstmp                                    AS "lastModified",-- rename to createdTstmp
+       w.name                                              AS "workflowName",
+       w.version                                           AS "workflowVersion",
+       w.sw_accession                                      AS "workflowId",
+       w_attrs.attrs                                       AS "workflowAttributes",
+       wr.name                                             AS "workflowRunName",
+       wr.status                                           AS "workflowRunStatus",
+       wr.sw_accession                                     AS "workflowRunId",
+       wr_attrs.attrs                                      AS "workflowRunAttributes",
+       wrifs.swids                                         AS "workflowRunInputFileIds",
+       pff.processing_algorithm                            AS "processingAlgorithm",
+       pff.processing_swid                                 AS "processingId",
+       pff.processing_status                               AS "processingStatus",
+       pff.processing_attrs                                AS "processingAttributes",
+       pff.file_meta_type                                  AS "fileMetaType",
+       pff.file_swid                                       AS "fileId",
+       pff.file_path                                       AS "filePath",
+       pff.file_md5sum                                     AS "fileMd5sum",
+       pff.file_size                                       AS "fileSize",
+       pff.file_description                                AS "fileDescription",
+       pff.file_attrs                                      AS "fileAttributes",
+       coalesce(pius.skip, wrius.skip)                     AS "skip"
 FROM   (SELECT CASE
                  WHEN array_agg(i.sw_accession) = '{NULL}' THEN NULL
                  ELSE array_to_string(array_agg(i.sw_accession
@@ -71,7 +56,8 @@ FROM   (SELECT CASE
               ON wr.workflow_run_id = wrius.workflow_run_id
        left join workflow w
               ON wr.workflow_id = w.workflow_id
-       left join (SELECT coalesce(p.workflow_run_id, p.ancestor_workflow_run_id) AS workflow_run_id,
+       left join (SELECT wr.workflow_run_id                                      workflow_run_id,
+                         w.workflow_id                                           workflow_id,
                          p.update_tstmp,
                          p.algorithm                                             processing_algorithm,
                          p.sw_accession                                          processing_swid,
@@ -99,7 +85,12 @@ FROM   (SELECT CASE
                          right outer join processing_files pf
                                        ON ( p.processing_id = pf.processing_id )
                          right outer join FILE f
-                                       ON ( pf.file_id = f.file_id )) AS pff
+                                       ON ( pf.file_id = f.file_id )
+                         left join workflow_run wr
+                                ON ( p.workflow_run_id = wr.workflow_run_id
+                                      OR p.ancestor_workflow_run_id = wr.workflow_run_id )
+                         left join workflow w
+                                ON ( wr.workflow_id = w.workflow_id )) AS pff
               ON pff.workflow_run_id = wr.workflow_run_id
        left join (SELECT pi.processing_id,
                          CASE
@@ -126,4 +117,25 @@ FROM   (SELECT CASE
                          left join ius_attribute ia
                                 ON i.ius_id = ia.ius_id
                   GROUP  BY pi.processing_id) AS pius
-              ON pff.processing_id = pius.processing_id 
+              ON pff.processing_id = pius.processing_id
+       left join (SELECT wrif.workflow_run_id,
+                         array_to_string(array_agg(f.sw_accession), ',') swids
+                  FROM   workflow_run_input_files wrif
+                         left join FILE f
+                                ON wrif.file_id = f.file_id
+                  GROUP  BY wrif.workflow_run_id) as wrifs
+              ON wr.workflow_run_id = wrifs.workflow_run_id
+       left join (SELECT workflow_run_id,
+                         array_to_string(array_agg(tag
+                                                   || '='
+                                                   || value), ';') attrs
+                  FROM   workflow_run_attribute
+                  GROUP  BY workflow_run_id) wr_attrs
+              on wrius.workflow_run_id = wr_attrs.workflow_run_id
+       left join (SELECT workflow_id,
+                         array_to_string(array_agg(tag
+                                                   || '='
+                                                   || value), ';') attrs
+                  FROM   workflow_attribute
+                  GROUP  BY workflow_id) w_attrs
+              ON w.workflow_id = w_attrs.workflow_id  
