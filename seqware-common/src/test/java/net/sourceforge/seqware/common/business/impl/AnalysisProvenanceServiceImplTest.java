@@ -16,15 +16,18 @@
  */
 package net.sourceforge.seqware.common.business.impl;
 
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sourceforge.seqware.common.AbstractTestCase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +104,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         String expectedWorkflowName = "test_workflow";
         String expectedProcessingAlgorithm = "test_algorithm";
         String expectedFilePath = "/tmp/file.out";
+        String expectedFileMetaType = "my-file/meta-type";
         String expectedProvider = "seqware";
         String expectedId = "1_1_1";
         String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
@@ -120,12 +124,14 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         Workflow workflow = new Workflow();
         workflow.setName(expectedWorkflowName);
         workflowService.insert(workflow);
+        Integer expectedWorkflowSwid = workflow.getSwAccession();
 
         WorkflowRun workflowRun = new WorkflowRun();
         workflowRun.setWorkflow(workflow);
         workflowRun.setIus(ImmutableSortedSet.of(ius));
         workflowRun.setProcessings(new TreeSet<Processing>());
         workflowRunService.insert(workflowRun);
+        Integer expectedWorkflowRunSwid = workflowRun.getSwAccession();
 
         Processing processing = new Processing();
         processing.setAlgorithm(expectedProcessingAlgorithm);
@@ -136,7 +142,9 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         File file = new File();
         file.setProcessings(ImmutableSortedSet.of(processing));
         file.setFilePath(expectedFilePath);
+        file.setMetaType(expectedFileMetaType);
         fileService.insert(file);
+        Integer expectedFileSwid = file.getSwAccession();
 
         //original 25 + 1 new file
         assertEquals(26, aprs.list().size());
@@ -156,6 +164,58 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedLastModified, lk.getLastModified());
         assertEquals(expectedProvider, lk.getProvider());
         assertEquals(expectedVersion, lk.getVersion());
+
+        Map<FileProvenanceFilter, Set<String>> filters = new HashMap<>();
+        List<AnalysisProvenanceDto> aps;
+        AnalysisProvenanceDto dto;
+
+        filters.clear();
+        filters.put(FileProvenanceFilter.workflow, ImmutableSet.of(expectedWorkflowSwid.toString()));
+        aps = aprs.list(filters);
+        assertEquals(1, aps.size());
+        dto = Iterables.getOnlyElement(aps);
+        assertEquals(expectedWorkflowName, dto.getWorkflowName());
+        assertEquals(expectedProcessingAlgorithm, dto.getProcessingAlgorithm());
+        assertEquals(expectedFilePath, dto.getFilePath());
+
+        filters.clear();
+        filters.put(FileProvenanceFilter.file, ImmutableSet.of(expectedFileSwid.toString()));
+        aps = aprs.list(filters);
+        assertEquals(1, aps.size());
+        dto = Iterables.getOnlyElement(aps);
+        assertEquals(expectedWorkflowName, dto.getWorkflowName());
+        assertEquals(expectedProcessingAlgorithm, dto.getProcessingAlgorithm());
+        assertEquals(expectedFilePath, dto.getFilePath());
+
+        filters.clear();
+        filters.put(FileProvenanceFilter.file_meta_type, ImmutableSet.of(expectedFileMetaType));
+        aps = aprs.list(filters);
+        assertEquals(1, aps.size());
+        dto = Iterables.getOnlyElement(aps);
+        assertEquals(expectedWorkflowName, dto.getWorkflowName());
+        assertEquals(expectedProcessingAlgorithm, dto.getProcessingAlgorithm());
+        assertEquals(expectedFilePath, dto.getFilePath());
+
+        filters.clear();
+        filters.put(FileProvenanceFilter.workflow_run, ImmutableSet.of(expectedWorkflowRunSwid.toString()));
+        aps = aprs.list(filters);
+        assertEquals(1, aps.size());
+        dto = Iterables.getOnlyElement(aps);
+        assertEquals(expectedWorkflowName, dto.getWorkflowName());
+        assertEquals(expectedProcessingAlgorithm, dto.getProcessingAlgorithm());
+        assertEquals(expectedFilePath, dto.getFilePath());
+
+        filters.clear();
+        filters.put(FileProvenanceFilter.workflow_run, ImmutableSet.of(expectedWorkflowRunSwid.toString()));
+        filters.put(FileProvenanceFilter.file_meta_type, ImmutableSet.of(expectedFileMetaType));
+        filters.put(FileProvenanceFilter.file, ImmutableSet.of(expectedFileSwid.toString()));
+        filters.put(FileProvenanceFilter.workflow, ImmutableSet.of(expectedWorkflowSwid.toString()));
+        aps = aprs.list(filters);
+        assertEquals(1, aps.size());
+        dto = Iterables.getOnlyElement(aps);
+        assertEquals(expectedWorkflowName, dto.getWorkflowName());
+        assertEquals(expectedProcessingAlgorithm, dto.getProcessingAlgorithm());
+        assertEquals(expectedFilePath, dto.getFilePath());
     }
 
     @Test

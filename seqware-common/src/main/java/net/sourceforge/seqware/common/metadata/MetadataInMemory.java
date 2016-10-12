@@ -16,6 +16,7 @@
  */
 package net.sourceforge.seqware.common.metadata;
 
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -28,6 +29,7 @@ import java.io.Writer;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1166,7 +1168,12 @@ public class MetadataInMemory implements Metadata {
 
     @Override
     public List<AnalysisProvenanceDto> getAnalysisProvenance() {
-        return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values());
+        return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), Collections.EMPTY_MAP);
+    }
+
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+        return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), filters);
     }
 
     @Override
@@ -1175,8 +1182,16 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
+    public void refreshSampleProvenance() {
+    }
+
+    @Override
     public List<LaneProvenanceDto> getLaneProvenance() {
         return LaneProvenanceServiceImpl.buildList((Collection<Lane>) (Collection<?>) MetadataInMemory.getStore().column(Lane.class).values());
+    }
+
+    @Override
+    public void refreshLaneProvenance() {
     }
 
     private ParentAccessionModel resolveParentAccession(Integer searchString) {

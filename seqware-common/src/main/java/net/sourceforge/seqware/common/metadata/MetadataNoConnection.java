@@ -1,5 +1,6 @@
 package net.sourceforge.seqware.common.metadata;
 
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
@@ -815,7 +816,17 @@ public class MetadataNoConnection implements Metadata {
     }
 
     @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
     public List<SampleProvenanceDto> getSampleProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public void refreshSampleProvenance() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -863,5 +874,10 @@ public class MetadataNoConnection implements Metadata {
     public List<LaneProvenanceDto> getLaneProvenance() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
+    @Override
+    public void refreshLaneProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
 }
