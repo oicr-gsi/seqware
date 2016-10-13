@@ -16,9 +16,16 @@
  */
 package net.sourceforge.seqware.webservice.resources.queries;
 
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -28,12 +35,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
+import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 import net.sourceforge.seqware.webservice.resources.tables.DatabaseResourceTest;
 import org.junit.Assert;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 import org.junit.Ignore;
+import org.junit.Test;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ClientResource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -61,6 +76,62 @@ public class AnalysisProvenanceResourceTest extends DatabaseResourceTest {
     @Override
     public void testPut() {
         // super.testPut();
+    }
+
+    @Test
+    public void testFilterGet() throws IOException, SAXException {
+        List<AnalysisProvenanceDto> dtos;
+        ClientResource cr = null;
+        Representation rep = null;
+        try {
+            cr = ClientResourceInstance.getChild("/reports/analysis-provenance?workflow=4767");
+            rep = cr.get();
+            AnalysisProvenanceDtoList dtoList = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), rep.getText());
+            dtos = dtoList.getAnalysisProvenanceDtos();
+
+        } finally {
+            if (rep != null) {
+                rep.exhaust();
+                rep.release();
+            }
+            if (cr != null) {
+                cr.release();
+            }
+        }
+        assertEquals(3, dtos.size());
+        for (AnalysisProvenanceDto dto : dtos) {
+            assertEquals("GenomicAlignmentNovoalign", dto.getWorkflowName());
+        }
+    }
+
+    @Test
+    public void testFilterPost() throws IOException, SAXException {
+        List<AnalysisProvenanceDto> dtos;
+        ClientResource cr = null;
+        Representation rep = null;
+
+        Map<FileProvenanceFilter, Set<String>> filters = new HashMap<>();
+        filters.put(FileProvenanceFilter.workflow, ImmutableSet.of("4767"));
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            cr = ClientResourceInstance.getChild("/reports/analysis-provenance");
+            rep = cr.post(mapper.writeValueAsString(filters));
+            AnalysisProvenanceDtoList dtoList = (AnalysisProvenanceDtoList) XmlTools.unMarshal(new JaxbObject<>(), new AnalysisProvenanceDtoList(), rep.getText());
+            dtos = dtoList.getAnalysisProvenanceDtos();
+        } finally {
+            if (rep != null) {
+                rep.exhaust();
+                rep.release();
+            }
+            if (cr != null) {
+                cr.release();
+            }
+        }
+        assertEquals(3, dtos.size());
+        for (AnalysisProvenanceDto dto : dtos) {
+            assertEquals("GenomicAlignmentNovoalign", dto.getWorkflowName());
+        }
     }
 
     @Override

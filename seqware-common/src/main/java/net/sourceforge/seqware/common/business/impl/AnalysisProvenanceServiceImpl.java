@@ -16,9 +16,11 @@
  */
 package net.sourceforge.seqware.common.business.impl;
 
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +64,16 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         if (analysisProvenanceDAO != null) {
             return analysisProvenanceDAO.list();
         } else {
-            return buildList(iusDAO.list());
+            return buildList(iusDAO.list(), Collections.EMPTY_MAP);
+        }
+    }
+
+    @Override
+    public List<AnalysisProvenanceDto> list(Map<FileProvenanceFilter, Set<String>> filters) {
+        if (analysisProvenanceDAO != null) {
+            return analysisProvenanceDAO.list(filters);
+        } else {
+            return buildList(iusDAO.list(), filters);
         }
     }
 
@@ -76,7 +87,7 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         if (analysisProvenanceDAO != null) {
             unfilteredAps = analysisProvenanceDAO.list();
         } else {
-            unfilteredAps = buildList(iusDAO.list());
+            unfilteredAps = buildList(iusDAO.list(), Collections.EMPTY_MAP);
         }
 
         List<AnalysisProvenanceDto> aps = new ArrayList<>();
@@ -92,8 +103,17 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         return aps;
     }
 
-    public static List<AnalysisProvenanceDto> buildList(Collection<IUS> iuses) {
-        return AnalysisProvenanceListBuilder.calculate(iuses);
+    @Override
+    public Set<FileProvenanceFilter> getSupportedFilters() {
+        if (analysisProvenanceDAO != null) {
+            return analysisProvenanceDAO.getSupportedFilters();
+        } else {
+            return Collections.EMPTY_SET;
+        }
+    }
+
+    public static List<AnalysisProvenanceDto> buildList(Collection<IUS> iuses, Map<FileProvenanceFilter, Set<String>> filters) {
+        return AnalysisProvenanceListBuilder.calculate(iuses, filters);
     }
 
     public static class AnalysisProvenanceListBuilder {
@@ -102,7 +122,7 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         private Map<Integer, AnalysisProvenanceDtoBuilder> buildersRelatedToWorkflowRun = new HashMap<>();
         private Map<Integer, AnalysisProvenanceDtoBuilder> buildersRelatedToFile = new HashMap<>();
 
-        public AnalysisProvenanceListBuilder(Collection<IUS> iuses) {
+        public AnalysisProvenanceListBuilder(Collection<IUS> iuses, Map<FileProvenanceFilter, Set<String>> filters) {
             for (IUS ius : iuses) {
 
                 //IUS is not linked to LimsKey - not a target for Analyis Provenance
@@ -220,8 +240,8 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
             return aps;
         }
 
-        public static List<AnalysisProvenanceDto> calculate(Collection<IUS> iuses) {
-            return new AnalysisProvenanceListBuilder(iuses).build();
+        public static List<AnalysisProvenanceDto> calculate(Collection<IUS> iuses, Map<FileProvenanceFilter, Set<String>> filters) {
+            return new AnalysisProvenanceListBuilder(iuses, filters).build();
         }
     }
 }

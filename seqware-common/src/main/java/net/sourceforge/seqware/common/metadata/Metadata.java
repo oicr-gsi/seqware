@@ -1,5 +1,6 @@
 package net.sourceforge.seqware.common.metadata;
 
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
@@ -1335,6 +1336,15 @@ public interface Metadata {
      * @return List of {@link net.sourceforge.seqware.common.dto.AnalysisProvenanceDto} objects
      */
     public List<AnalysisProvenanceDto> getAnalysisProvenance();
+    
+    /**
+     * Get AnalysisProvenance objects from the SeqWare MetaDB that pass the user provided filters.
+     *
+     * @param filters
+     *
+     * @return List of {@link net.sourceforge.seqware.common.dto.AnalysisProvenanceDto} objects
+     */
+    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
     /**
      * Get all SampleProvenance objects from the SeqWare MetaDB.
@@ -1342,11 +1352,23 @@ public interface Metadata {
      * @return List of {@link net.sourceforge.seqware.common.dto.SampleProvenanceDto} objects
      */
     public List<SampleProvenanceDto> getSampleProvenance();
-    
+
+    /**
+     * Refresh the SampleProvenance object cache.
+     *
+     */
+    public void refreshSampleProvenance();
+
     /**
      * Get all LaneProvenance objects from the SeqWare MetaDB.
      *
      * @return List of {@link net.sourceforge.seqware.common.dto.LaneProvenanceDto} objects
      */
     public List<LaneProvenanceDto> getLaneProvenance();
+
+    /**
+     * Refresh the LaneProvenance object cache.
+     *
+     */
+    public void refreshLaneProvenance();
 }
