@@ -1,28 +1,28 @@
- SELECT COALESCE(pius.lims_ids, wrius.lims_ids)             AS "iusLimsKeys",
-       COALESCE(pius.ius_attributes, wrius.ius_attributes) AS "iusAttributes",
+ SELECT COALESCE(pius.lims_ids, wrius.lims_ids)                        AS "iusLimsKeys",
+       COALESCE(pius.ius_attributes, wrius.ius_attributes)             AS "iusAttributes",
        --       greatest(wr.update_tstmp, pff.update_tstmp, w.update_tstmp) AS "lastModified",
-       pff.update_tstmp                                    AS "lastModified",-- rename to createdTstmp
-       w.NAME                                              AS "workflowName",
-       w.version                                           AS "workflowVersion",
-       w.sw_accession                                      AS "workflowId",
-       w_attrs.attrs                                       AS "workflowAttributes",
-       wr.NAME                                             AS "workflowRunName",
-       wr.status                                           AS "workflowRunStatus",
-       wr.sw_accession                                     AS "workflowRunId",
-       wr_attrs.attrs                                      AS "workflowRunAttributes",
-       wrifs.swids                                         AS "workflowRunInputFileIds",
-       pff.processing_algorithm                            AS "processingAlgorithm",
-       pff.processing_swid                                 AS "processingId",
-       pff.processing_status                               AS "processingStatus",
-       pff.processing_attrs                                AS "processingAttributes",
-       pff.file_meta_type                                  AS "fileMetaType",
-       pff.file_swid                                       AS "fileId",
-       pff.file_path                                       AS "filePath",
-       pff.file_md5sum                                     AS "fileMd5sum",
-       pff.file_size                                       AS "fileSize",
-       pff.file_description                                AS "fileDescription",
-       pff.file_attrs                                      AS "fileAttributes",
-       COALESCE(pius.skip, wrius.skip)                     AS "skip"
+       COALESCE(pff.update_tstmp, wr.update_tstmp, wrius.update_tstmp) AS "lastModified",-- rename to createdTstmp
+       w.NAME                                                          AS "workflowName",
+       w.version                                                       AS "workflowVersion",
+       w.sw_accession                                                  AS "workflowId",
+       w_attrs.attrs                                                   AS "workflowAttributes",
+       wr.NAME                                                         AS "workflowRunName",
+       wr.status                                                       AS "workflowRunStatus",
+       wr.sw_accession                                                 AS "workflowRunId",
+       wr_attrs.attrs                                                  AS "workflowRunAttributes",
+       wrifs.swids                                                     AS "workflowRunInputFileIds",
+       pff.processing_algorithm                                        AS "processingAlgorithm",
+       pff.processing_swid                                             AS "processingId",
+       pff.processing_status                                           AS "processingStatus",
+       pff.processing_attrs                                            AS "processingAttributes",
+       pff.file_meta_type                                              AS "fileMetaType",
+       pff.file_swid                                                   AS "fileId",
+       pff.file_path                                                   AS "filePath",
+       pff.file_md5sum                                                 AS "fileMd5sum",
+       pff.file_size                                                   AS "fileSize",
+       pff.file_description                                            AS "fileDescription",
+       pff.file_attrs                                                  AS "fileAttributes",
+       COALESCE(pius.skip, wrius.skip)                                 AS "skip"
 FROM   (SELECT CASE
                  WHEN ARRAY_AGG(i.sw_accession) = '{NULL}' THEN NULL
                  ELSE ARRAY_TO_STRING(ARRAY_AGG(i.sw_accession
@@ -34,11 +34,12 @@ FROM   (SELECT CASE
                                                 || lk.version
                                                 || ','
                                                 || lk.last_modified), ';')
-               END                                          lims_ids,
+               END                                          AS lims_ids,
                ARRAY_TO_STRING(ARRAY_AGG(ia.tag
                                          || '='
-                                         || ia.value), ';') ius_attributes,
-               iwr.workflow_run_id,
+                                         || ia.value), ';') AS ius_attributes,
+               iwr.workflow_run_id                          AS workflow_run_id,
+               Max(i.update_tstmp)                          AS update_tstmp,
                BOOL_OR(i.skip)                              AS skip
         FROM   ius i
                RIGHT OUTER JOIN lims_key lk
@@ -138,4 +139,4 @@ FROM   (SELECT CASE
                                                    || value), ';') attrs
                   FROM   workflow_attribute
                   GROUP  BY workflow_id) w_attrs
-              ON w.workflow_id = w_attrs.workflow_id  
+              ON w.workflow_id = w_attrs.workflow_id
