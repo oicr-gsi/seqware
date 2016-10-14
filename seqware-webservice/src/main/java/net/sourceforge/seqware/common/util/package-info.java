@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 SeqWare
+ * Copyright (C) 2016 SeqWare
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,24 +14,4 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.sourceforge.seqware.common.dao;
-
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
-
-/**
- *
- * @author mlaszloffy
- */
-public interface AnalysisProvenanceDAO {
-
-    public List<AnalysisProvenanceDto> list();
-
-    public List<AnalysisProvenanceDto> list(Map<FileProvenanceFilter, Set<String>> filters);
-
-    public Set<FileProvenanceFilter> getSupportedFilters();
-
-}
+package net.sourceforge.seqware.common.util;

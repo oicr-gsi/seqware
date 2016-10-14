@@ -16,12 +16,9 @@
  */
 package net.sourceforge.seqware.webservice.resources.queries;
 
-import java.util.Map;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import net.sourceforge.seqware.webservice.resources.CachedDocumentManualUpdate;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.webservice.resources.BasicResource;
-import static net.sourceforge.seqware.webservice.resources.BasicRestlet.queryMap;
 import org.restlet.resource.Get;
 import net.sourceforge.seqware.common.business.SampleProvenanceService;
 import net.sourceforge.seqware.common.model.lists.SampleProvenanceDtoList;
@@ -36,34 +33,30 @@ import org.w3c.dom.Document;
  */
 public class SampleProvenanceResource extends BasicResource {
 
-    private static Document document;
-    private static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
-    private final Logger log = Logger.getLogger(SampleProvenanceResource.class);
+    private static final Logger LOG = Logger.getLogger(SampleProvenanceResource.class);
+
+    private static final CachedDocumentManualUpdate CACHE = new CachedDocumentManualUpdate() {
+        @Override
+        public Document calculateDocument() {
+            LOG.info("Updating sample provenance");
+            SampleProvenanceService service = BeanFactory.getSampleProvenanceServiceBean();
+            JaxbObject<SampleProvenanceDtoList> jaxbTool = new JaxbObject<>();
+            SampleProvenanceDtoList list = new SampleProvenanceDtoList();
+            list.setSampleProvenanceDtos(service.list());
+            return XmlTools.marshalToDocument(jaxbTool, list);
+        }
+    };
 
     @Get
     public void getXml() {
-        Map<String, String[]> params = queryMap(getRequest());
-
-        if (LOCK.writeLock().tryLock()) {
-            try {
-                log.info("Updating sample provenance");
-                SampleProvenanceService service = BeanFactory.getSampleProvenanceServiceBean();
-                JaxbObject<SampleProvenanceDtoList> jaxbTool = new JaxbObject<>();
-                SampleProvenanceDtoList list = new SampleProvenanceDtoList();
-                list.setSampleProvenanceDtos(service.list());
-                document = XmlTools.marshalToDocument(jaxbTool, list);
-                getResponse().setEntity(XmlTools.getRepresentation(document));
-            } finally {
-                LOCK.writeLock().unlock();
-            }
+        CachedDocumentManualUpdate.Operation op;
+        if (getRequestAttributes().containsKey("operation")) {
+            op = CachedDocumentManualUpdate.Operation.valueOf(getRequestAttributes().get("operation").toString().toUpperCase());
         } else {
-            LOCK.readLock().lock();
-            try {
-                getResponse().setEntity(XmlTools.getRepresentation(document));
-            } finally {
-                LOCK.readLock().unlock();
-            }
+            op = CachedDocumentManualUpdate.Operation.GET;
         }
+
+        CACHE.processRequest(getResponse(), op);
     }
 
 }

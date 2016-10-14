@@ -16,6 +16,8 @@
  */
 package net.sourceforge.seqware.common.metadata;
 
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import io.seqware.common.model.ProcessingStatus;
@@ -31,6 +33,8 @@ import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2791,13 +2795,25 @@ public class MetadataWS implements Metadata {
      */
     @Override
     public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+        return getAnalysisProvenance(Collections.EMPTY_MAP);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         ClientResource clientResource = null;
         Representation representation = null;
         try {
+            //request
+            ObjectMapper mapper = new ObjectMapper();
+            clientResource = ll.getResource().getChild(version + "/reports/analysis-provenance");
+            Log.info("getObjectViaPost: " + clientResource);
+            representation = clientResource.post(mapper.writeValueAsString(filters));
+
+            //response
             JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
-            clientResource = ll.getResource().getChild(version + "/reports/analysis-provenance" + "");
-            Log.info("getObject: " + clientResource);
-            representation = clientResource.get();
             AnalysisProvenanceDtoList dtoList = jaxb.unMarshal(new AnalysisProvenanceDtoList(), representation.getReader());
             return dtoList.getAnalysisProvenanceDtos();
         } catch (JAXBException | IOException ex) {
@@ -2836,6 +2852,15 @@ public class MetadataWS implements Metadata {
         return null;
     }
 
+    @Override
+    public void refreshSampleProvenance() {
+        try {
+            ll.get("/reports/sample-provenance/refresh");
+        } catch (NotFoundException | IOException ex) {
+            Log.error(ex);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -2849,6 +2874,15 @@ public class MetadataWS implements Metadata {
             Log.error(ex);
         }
         return null;
+    }
+
+    @Override
+    public void refreshLaneProvenance() {
+        try {
+            ll.get("/reports/lane-provenance/refresh");
+        } catch (NotFoundException | IOException ex) {
+            Log.error(ex);
+        }
     }
 
     /*
@@ -3340,9 +3374,9 @@ public class MetadataWS implements Metadata {
             return (LibrarySource) findObject("/librarysource", searchString, jaxb, ls);
         }
 
-        public <K, V> void addQueryParams(ClientResource res, Map<?, ? extends List<?>> params) {
+        public <K, V> void addQueryParams(ClientResource res, Map<?, ? extends Collection<?>> params) {
             if (res != null && params != null) {
-                for (Map.Entry<?, ? extends List<?>> e : params.entrySet()) {
+                for (Map.Entry<?, ? extends Collection<?>> e : params.entrySet()) {
                     String name = e.getKey().toString();
                     for (Object v : e.getValue()) {
                         res.addQueryParameter(name, v.toString());
@@ -3412,6 +3446,27 @@ public class MetadataWS implements Metadata {
 
             }
             return text;
+        }
+
+        private void get(String uri) throws IOException {
+            get(uri, null);
+        }
+
+        private void get(String uri, Map<?, ? extends List<?>> params) throws IOException {
+            Representation rep = null;
+            ClientResource cr = resource.getChild(version + uri);
+            addQueryParams(cr, params);
+            try {
+                rep = cr.get();
+            } finally {
+                if (rep != null) {
+                    rep.exhaust();
+                    rep.release();
+                }
+                if (cr != null) {
+                    cr.release();
+                }
+            }
         }
 
         private List<Study> matchStudyTitle(String title) throws IOException, JAXBException {
