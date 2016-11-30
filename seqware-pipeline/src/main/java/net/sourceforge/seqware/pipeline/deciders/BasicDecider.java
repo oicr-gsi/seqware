@@ -685,10 +685,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     }
 
     protected void printFileMetadata(ReturnValue file, FileMetadata fm) {
-        String studyName = (String) options.valueOf("study-name");
         try {
             StringWriter writer = new StringWriter();
-            FindAllTheFiles.print(writer, file, studyName, true, fm);
+            FindAllTheFiles.print(writer, file, true, fm);
             studyReporterOutput.add(writer.getBuffer().toString().trim());
         } catch (IOException ex) {
             Log.error("Error printing file metadata", ex);
