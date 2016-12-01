@@ -719,7 +719,11 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         Map<String, String> iniFileMap = new TreeMap<>();
         SortedSet<WorkflowParam> wps = metadata.getWorkflowParams(workflowAccession);
         for (WorkflowParam param : wps) {
-            iniFileMap.put(param.getKey(), param.getDefaultValue());
+            if (param.getDefaultValue() == null) {
+                Log.debug("Excluding null workflow ini property [" + param.getKey() + "]");
+            } else {
+                iniFileMap.put(param.getKey(), param.getDefaultValue());
+            }
         }
 
         Map<String, String> iniParameters = modifyIniFile(commaSeparatedFilePaths, commaSeparatedParentAccessions);
