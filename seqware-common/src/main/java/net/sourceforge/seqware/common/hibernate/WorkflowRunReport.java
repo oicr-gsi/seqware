@@ -27,7 +27,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
-import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.hibernate.reports.WorkflowRunReportRow;
 import net.sourceforge.seqware.common.model.File;
@@ -56,11 +55,21 @@ public class WorkflowRunReport {
     private Date latestDate = new Date();
     private WorkflowRunStatus status = null;
 
+    private final WorkflowRunService workflowRunService;
+
+    public WorkflowRunReport() {
+        this(BeanFactory.getWorkflowRunServiceBean());
+    }
+
+    public WorkflowRunReport(WorkflowRunService workflowRunService) {
+        this.workflowRunService = workflowRunService;
+    }
+
     /**
      * Set the value of latestDate. This date must be set prior to calling other methods in order to filter collections of workflow runs.
-     * 
+     *
      * @param latestDate
-     *            new value of latestDate
+     *                   new value of latestDate
      */
     public void setLatestDate(Date latestDate) {
         this.latestDate = latestDate;
@@ -84,8 +93,7 @@ public class WorkflowRunReport {
      * @return a collection of workflow run reports
      */
     public Collection<WorkflowRunReportRow> getAllRuns() {
-        WorkflowRunService ws = BeanFactory.getWorkflowRunServiceBean();
-        List<WorkflowRun> workflowRuns = (List<WorkflowRun>) testIfNull(ws.list());
+        List<WorkflowRun> workflowRuns = (List<WorkflowRun>) testIfNull(workflowRunService.list());
         Collection<WorkflowRunReportRow> rows = runThroughWorkflowRuns(workflowRuns);
         return rows;
     }
@@ -99,8 +107,7 @@ public class WorkflowRunReport {
      *            a {@link java.lang.Integer} object.
      */
     public WorkflowRunReportRow getSingleWorkflowRun(Integer workflowRunSWID) {
-        WorkflowRunService ws = BeanFactory.getWorkflowRunServiceBean();
-        WorkflowRun workflowRun = (WorkflowRun) testIfNull(ws.findBySWAccession(workflowRunSWID));
+        WorkflowRun workflowRun = (WorkflowRun) testIfNull(workflowRunService.findBySWAccession(workflowRunSWID));
         logger.debug("Found workflow run: " + workflowRun.getSwAccession());
         return fromWorkflowRun(workflowRun);
     }
@@ -115,8 +122,7 @@ public class WorkflowRunReport {
      * @return a collection of workflow run reports
      */
     public Collection<WorkflowRunReportRow> getRunsFromWorkflow(Integer workflowSWID) {
-        WorkflowService ws = BeanFactory.getWorkflowServiceBean();
-        Workflow w = (Workflow) testIfNull(ws.findBySWAccession(workflowSWID));
+        Workflow w = (Workflow) testIfNull(workflowRunService.findBySWAccession(workflowSWID));
         Collection<WorkflowRunReportRow> rows = runThroughWorkflowRuns(w.getWorkflowRuns());
         return rows;
     }
@@ -186,7 +192,7 @@ public class WorkflowRunReport {
     protected Collection<Processing> collectProcessings(WorkflowRun wr) {
         List<Processing> processings = new ArrayList<>();
 
-        WorkflowRun newwr = BeanFactory.getWorkflowRunServiceBean().findByID(wr.getWorkflowRunId());
+        WorkflowRun newwr = workflowRunService.findByID(wr.getWorkflowRunId());
 
         logger.debug(newwr.getProcessings().size() + " Processings in direct links");
         logger.debug(newwr.getOffspringProcessings().size() + " Processings in ancestor links");
@@ -309,7 +315,9 @@ public class WorkflowRunReport {
         if (iuses != null) {
             logger.debug("iuses: " + iuses.size());
             for (IUS i : iuses) {
-                allIdentitySamples.add(i.getSample());
+                if (i.getSample() != null) {
+                    allIdentitySamples.add(i.getSample());
+                }
             }
         }
 
@@ -384,8 +392,7 @@ public class WorkflowRunReport {
     }
 
     public Collection<WorkflowRunReportRow> getRunsByStatus(WorkflowRunStatus status) {
-        WorkflowRunService ws = BeanFactory.getWorkflowRunServiceBean();
-        List<WorkflowRun> runsWithValidStatus = ws.findByCriteria("wr.status = '" + status.toString() + "'");
+        List<WorkflowRun> runsWithValidStatus = workflowRunService.findByCriteria("wr.status = '" + status.toString() + "'");
         Collection<WorkflowRunReportRow> rows = runThroughWorkflowRuns(runsWithValidStatus);
         return rows;
     }

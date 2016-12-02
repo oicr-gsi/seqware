@@ -60,7 +60,8 @@ import org.springframework.mock.jndi.SimpleNamingContextBuilder;
     net.sourceforge.seqware.common.business.impl.FileServiceImplTest.class,
     net.sourceforge.seqware.common.business.impl.WorkflowRunServiceImplTest.class,
     net.sourceforge.seqware.common.business.impl.SampleReportServiceImplTest.class,
-    net.sourceforge.seqware.database.QueryTest.class
+    net.sourceforge.seqware.database.QueryTest.class,
+    net.sourceforge.seqware.common.hibernate.WorkflowRunReportTest.class
 })
 public class HibernateTestSuite extends TestCase {
 

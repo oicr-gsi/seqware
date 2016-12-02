@@ -21,6 +21,7 @@ import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.WorkflowRun;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Contains the workflow's Processing events, the parent Processings, the input files, the output files, the identity and library samples,
@@ -245,6 +246,11 @@ public class WorkflowRunReportRow {
      */
     public void setWorkflowRunProcessings(Collection<Processing> workflowRunProcessings) {
         this.workflowRunProcessings = workflowRunProcessings;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }
