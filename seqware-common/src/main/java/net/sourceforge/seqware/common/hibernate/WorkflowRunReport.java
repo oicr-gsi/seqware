@@ -342,15 +342,19 @@ public class WorkflowRunReport {
 
         while (!queue.isEmpty()) {
             Sample sample = queue.poll();
-            for (Sample p : sample.getParents()) {
-                // add to the queue if we haven't seen it before
-                if (!seenSams.contains(p.getSwAccession())) {
-                    queue.offer(p);
-                    seenSams.add(p.getSwAccession());
-                    // only add to the library samples if it is a root node
-                    if (p.getParents() == null || p.getParents().isEmpty()) {
-                        logger.debug("Adding library sample: " + p.toString());
-                        allLibrarySamples.add(p);
+            if (sample != null) {
+                for (Sample p : sample.getParents()) {
+                    if (p != null) {
+                        // add to the queue if we haven't seen it before
+                        if (!seenSams.contains(p.getSwAccession())) {
+                            queue.offer(p);
+                            seenSams.add(p.getSwAccession());
+                            // only add to the library samples if it is a root node
+                            if (p.getParents() == null || p.getParents().isEmpty()) {
+                                logger.debug("Adding library sample: " + p.toString());
+                                allLibrarySamples.add(p);
+                            }
+                        }
                     }
                 }
             }

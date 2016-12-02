@@ -265,14 +265,16 @@ public class WorkflowRunReportResource extends BasicRestlet {
         StringBuilder sampleNames = new StringBuilder();
         StringBuilder sampleSWIDs = new StringBuilder();
         for (Sample s : samples) {
-            if (sampleNames.length() != 0) {
-                sampleNames.append(",");
+            if (s != null) {
+                if (sampleNames.length() != 0) {
+                    sampleNames.append(",");
+                }
+                if (sampleSWIDs.length() != 0) {
+                    sampleSWIDs.append(",");
+                }
+                sampleNames.append(s.getName());
+                sampleSWIDs.append(s.getSwAccession());
             }
-            if (sampleSWIDs.length() != 0) {
-                sampleSWIDs.append(",");
-            }
-            sampleNames.append(s.getName());
-            sampleSWIDs.append(s.getSwAccession());
         }
         builder.append(sampleNames.toString()).append("\t");
         builder.append(sampleSWIDs.toString()).append("\t");
