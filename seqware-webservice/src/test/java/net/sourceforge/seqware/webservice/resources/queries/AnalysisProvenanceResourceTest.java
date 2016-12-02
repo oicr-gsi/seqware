@@ -185,9 +185,9 @@ public class AnalysisProvenanceResourceTest extends DatabaseResourceTest {
                         assertNotNull(dtos);
                         //+ 20 IUS without workflow runs
                         //+ 3 files attached to workflow run
-                        //+ 2 workflow runs without files
-                        //= 25 expected records
-                        Assert.assertEquals(25, dtos.size());
+                        //+ 3 workflow runs without files
+                        //= 26 expected records
+                        Assert.assertEquals(26, dtos.size());
 
                     }
                 }
