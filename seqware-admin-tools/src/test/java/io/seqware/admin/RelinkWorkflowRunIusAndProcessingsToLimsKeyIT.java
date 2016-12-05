@@ -184,15 +184,15 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
 
     @Test
     public void defaultData() throws IOException {
-        assertEquals(25, aprs.list().size());
+        assertEquals(26, aprs.list().size());
         relinker.setTimestamp(DateTime.now().toDate());
         Summary summary = relinker.run();
-        assertEquals(3, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(4, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(0, summary.getWorkflowRunsToBeRelinked());
         assertEquals(0, summary.getWorkflowRunsRelinked());
         assertEquals(0, summary.getWorkflowRunsErrorState());
-        assertEquals(25, aprs.list().size());
+        assertEquals(26, aprs.list().size());
     }
 
     @Test
@@ -219,8 +219,8 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         relinker.setTimestamp(DateTime.now().toDate());
         relinker.setDoRelinking(true);
         Summary summary = relinker.run();
-        assertEquals(4, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(5, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(1, summary.getWorkflowRunsToBeRelinked());
         assertEquals(1, summary.getWorkflowRunsRelinked());
         assertEquals(0, summary.getWorkflowRunsErrorState());
@@ -264,8 +264,8 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         relinker.setTimestamp(DateTime.now().toDate());
         relinker.setDoRelinking(true);
         Summary summary = relinker.run();
-        assertEquals(4, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(5, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(1, summary.getWorkflowRunsToBeRelinked());
         assertEquals(1, summary.getWorkflowRunsRelinked());
         assertEquals(0, summary.getWorkflowRunsErrorState());
@@ -308,8 +308,8 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         relinker.setTimestamp(DateTime.now().toDate());
         relinker.setDoRelinking(true);
         Summary summary = relinker.run();
-        assertEquals(4, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(5, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(0, summary.getWorkflowRunsToBeRelinked());
         assertEquals(0, summary.getWorkflowRunsRelinked());
         assertEquals(1, summary.getWorkflowRunsErrorState());
@@ -357,8 +357,8 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         relinker.setTimestamp(DateTime.now().toDate());
         relinker.setDoRelinking(true);
         Summary summary = relinker.run();
-        assertEquals(4, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(5, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(1, summary.getWorkflowRunsToBeRelinked());
         assertEquals(1, summary.getWorkflowRunsRelinked());
         assertEquals(0, summary.getWorkflowRunsErrorState());
@@ -423,8 +423,8 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         relinker.setTimestamp(DateTime.now().toDate());
         relinker.setDoRelinking(true);
         Summary summary = relinker.run();
-        assertEquals(4, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(5, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(0, summary.getWorkflowRunsToBeRelinked());
         assertEquals(0, summary.getWorkflowRunsRelinked());
         assertEquals(1, summary.getWorkflowRunsErrorState());
@@ -507,8 +507,8 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         relinker.setTimestamp(DateTime.now().toDate());
         relinker.setDoRelinking(false);
         summary = relinker.run();
-        assertEquals(4, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(5, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(1, summary.getWorkflowRunsToBeRelinked());
         assertEquals(0, summary.getWorkflowRunsRelinked());
         assertEquals(0, summary.getWorkflowRunsErrorState());
@@ -519,8 +519,8 @@ public class RelinkWorkflowRunIusAndProcessingsToLimsKeyIT {
         relinker.setTimestamp(DateTime.now().toDate());
         relinker.setDoRelinking(true);
         summary = relinker.run();
-        assertEquals(4, summary.getWorkflowRunsAnalyzed());
-        assertEquals(3, summary.getWorkflowRunsAlreadyLinked());
+        assertEquals(5, summary.getWorkflowRunsAnalyzed());
+        assertEquals(4, summary.getWorkflowRunsAlreadyLinked());
         assertEquals(1, summary.getWorkflowRunsToBeRelinked());
         assertEquals(1, summary.getWorkflowRunsRelinked());
         assertEquals(0, summary.getWorkflowRunsErrorState());
