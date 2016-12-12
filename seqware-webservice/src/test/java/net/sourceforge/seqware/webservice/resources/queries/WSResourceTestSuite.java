@@ -16,6 +16,7 @@
  */
 package net.sourceforge.seqware.webservice.resources.queries;
 
+import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreatorWrapper;
 import net.sourceforge.seqware.common.util.testtools.JndiDatasourceCreator;
 import org.hibernate.SessionFactory;
@@ -25,22 +26,25 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 /**
- * 
+ *
  * @author mtaschuk
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     net.sourceforge.seqware.webservice.resources.queries.AnalysisProvenanceResourceTest.class,
     net.sourceforge.seqware.webservice.resources.queries.SampleProvenanceResourceTest.class,
-    net.sourceforge.seqware.webservice.resources.queries.LaneProvenanceResourceTest.class
+    net.sourceforge.seqware.webservice.resources.queries.LaneProvenanceResourceTest.class,
+    net.sourceforge.seqware.webservice.resources.queries.WorkflowRunReportResourceTest.class
 })
 public class WSResourceTestSuite {
 
     protected SessionFactory sessionFactory = null;
+    private static BasicTestDatabaseCreator dbCreator;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        BasicTestDatabaseCreatorWrapper.resetDatabaseWithUsers();
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
         JndiDatasourceCreator.create();
         // SeqWareWebServiceMain.main(null);
     }

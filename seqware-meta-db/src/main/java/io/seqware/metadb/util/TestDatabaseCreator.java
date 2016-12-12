@@ -263,11 +263,12 @@ public class TestDatabaseCreator {
             System.out.println("Loading schema");
             connection.createStatement().execute(getClassPathFileToString("seqware_meta_db.sql")
                     .replaceAll("OWNER TO seqware;", "OWNER TO " + connection.getMetaData().getUserName() + ";"));
-            System.out.println("Loading basic data");
-            connection.createStatement().execute(getClassPathFileToString("seqware_meta_db_data.sql"));
             if (loadTestingData) {
                 System.out.println("Loading testing data");
                 connection.createStatement().execute(getClassPathFileToString("seqware_meta_db_testdata.sql"));
+            } else {
+                System.out.println("Loading basic data");
+                connection.createStatement().execute(getClassPathFileToString("seqware_meta_db_data.sql"));
             }
         } catch (IOException e) {
             Logger logger = LoggerFactory.getLogger(TestDatabaseCreator.class);
