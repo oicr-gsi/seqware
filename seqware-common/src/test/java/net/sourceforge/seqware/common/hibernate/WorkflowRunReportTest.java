@@ -18,10 +18,10 @@ package net.sourceforge.seqware.common.hibernate;
 
 import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
+import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.hibernate.reports.WorkflowRunReportRow;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,6 +37,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 0.13.3
  */
 public class WorkflowRunReportTest extends AbstractTestCase {
+
+    @Autowired
+    private WorkflowService workflowService;
 
     @Autowired
     private WorkflowRunService workflowRunService;
@@ -96,7 +99,7 @@ public class WorkflowRunReportTest extends AbstractTestCase {
      */
     @Test
     public void testFromWorkflowRun() {
-        WorkflowRunReport instance = new WorkflowRunReport(workflowRunService);
+        WorkflowRunReport instance = new WorkflowRunReport(workflowService, workflowRunService);
         WorkflowRunReportRow r = instance.getSingleWorkflowRun(6819);
         System.out.println(r.toString());
         r.getWorkflowRun();

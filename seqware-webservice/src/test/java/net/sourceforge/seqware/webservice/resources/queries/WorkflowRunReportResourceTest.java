@@ -20,6 +20,7 @@ import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 import net.sourceforge.seqware.webservice.resources.tables.DatabaseResourceTest;
 import org.junit.Assert;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
@@ -52,6 +53,20 @@ public class WorkflowRunReportResourceTest extends DatabaseResourceTest {
     public void testGet() {
         try {
             ClientResource cr = ClientResourceInstance.getChild("/reports/workflowruns/6819");
+            Representation rep = cr.get();
+            String result = rep.getText();
+            System.out.println(result);
+            rep.exhaust();
+            rep.release();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetFromWorkflowSwid() {
+        try {
+            ClientResource cr = ClientResourceInstance.getChild("/reports/workflow/6595/runs");
             Representation rep = cr.get();
             String result = rep.getText();
             System.out.println(result);

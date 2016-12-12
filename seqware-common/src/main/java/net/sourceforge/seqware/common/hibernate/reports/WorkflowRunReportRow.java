@@ -17,6 +17,7 @@
 package net.sourceforge.seqware.common.hibernate.reports;
 
 import java.util.Collection;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Sample;
@@ -39,6 +40,7 @@ public class WorkflowRunReportRow {
     private Collection<Processing> parentProcessings;
     private Collection<Sample> identitySamples;
     private Collection<Sample> librarySamples;
+    private Collection<IusLimsKeyDto> iusLimsKeyDtos;
     private String timeTaken;
 
     /**
@@ -246,6 +248,14 @@ public class WorkflowRunReportRow {
      */
     public void setWorkflowRunProcessings(Collection<Processing> workflowRunProcessings) {
         this.workflowRunProcessings = workflowRunProcessings;
+    }
+
+    public Collection<IusLimsKeyDto> getIusLimsKeyDtos() {
+        return iusLimsKeyDtos;
+    }
+
+    public void setIusLimsKeys(Collection<IusLimsKeyDto> iusLimsKeyDtos) {
+        this.iusLimsKeyDtos = iusLimsKeyDtos;
     }
 
     @Override

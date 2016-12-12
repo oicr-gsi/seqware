@@ -27,10 +27,14 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
+import net.sourceforge.seqware.common.business.WorkflowService;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import net.sourceforge.seqware.common.dto.LimsKeyDto;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.hibernate.reports.WorkflowRunReportRow;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.Workflow;
@@ -55,13 +59,15 @@ public class WorkflowRunReport {
     private Date latestDate = new Date();
     private WorkflowRunStatus status = null;
 
+    private final WorkflowService workflowService;
     private final WorkflowRunService workflowRunService;
 
     public WorkflowRunReport() {
-        this(BeanFactory.getWorkflowRunServiceBean());
+        this(BeanFactory.getWorkflowServiceBean(), BeanFactory.getWorkflowRunServiceBean());
     }
 
-    public WorkflowRunReport(WorkflowRunService workflowRunService) {
+    public WorkflowRunReport(WorkflowService workflowService, WorkflowRunService workflowRunService) {
+        this.workflowService = workflowService;
         this.workflowRunService = workflowRunService;
     }
 
@@ -122,7 +128,7 @@ public class WorkflowRunReport {
      * @return a collection of workflow run reports
      */
     public Collection<WorkflowRunReportRow> getRunsFromWorkflow(Integer workflowSWID) {
-        Workflow w = (Workflow) testIfNull(workflowRunService.findBySWAccession(workflowSWID));
+        Workflow w = (Workflow) testIfNull(workflowService.findBySWAccession(workflowSWID));
         Collection<WorkflowRunReportRow> rows = runThroughWorkflowRuns(w.getWorkflowRuns());
         return rows;
     }
@@ -173,6 +179,8 @@ public class WorkflowRunReport {
         }
         Collection<Sample> librarySamples = findLibrarySamples(identitySamples);
 
+        Collection<IusLimsKeyDto> iusLimsKeyDtos = findIusLimsKeyDtos(workflowRun);
+
         String timeSpent = calculateTotalTime(processings);
 
         WorkflowRunReportRow wrrr = new WorkflowRunReportRow();
@@ -184,6 +192,7 @@ public class WorkflowRunReport {
         wrrr.setLibrarySamples(librarySamples);
         wrrr.setParentProcessings(allParentProcessings);
         wrrr.setWorkflowRunProcessings(allParentProcessings);
+        wrrr.setIusLimsKeys(iusLimsKeyDtos);
         wrrr.setTimeTaken(timeSpent);
 
         return wrrr;
@@ -369,6 +378,25 @@ public class WorkflowRunReport {
         }
         logger.debug("Number of library samples: " + allLibrarySamples.size());
         return allLibrarySamples;
+    }
+
+    private Collection<IusLimsKeyDto> findIusLimsKeyDtos(WorkflowRun wr) {
+        Set<IusLimsKeyDto> iusLimsKeyDtos = new HashSet<>();
+        for (IUS ius : wr.getIus()) {
+            LimsKey lk = ius.getLimsKey();
+            if (lk != null) {
+                IusLimsKeyDto ilk = new IusLimsKeyDto();
+                ilk.setIusSWID(ius.getSwAccession());
+                LimsKeyDto lkDto = new LimsKeyDto();
+                lkDto.setId(lk.getId());
+                lkDto.setVersion(lk.getVersion());
+                lkDto.setLastModified(lk.getLastModified());
+                lkDto.setProvider(lk.getProvider());
+                ilk.setLimsKey(lkDto);
+                iusLimsKeyDtos.add(ilk);
+            }
+        }
+        return iusLimsKeyDtos;
     }
 
     /**
