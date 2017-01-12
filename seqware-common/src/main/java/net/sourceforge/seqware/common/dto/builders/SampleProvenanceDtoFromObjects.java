@@ -18,6 +18,7 @@ package net.sourceforge.seqware.common.dto.builders;
 
 import ca.on.oicr.gsi.provenance.util.Versioning;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,8 +144,14 @@ public class SampleProvenanceDtoFromObjects extends SampleProvenanceDto {
     @Override
     public SortedMap<String, SortedSet<String>> getSampleAttributes() {
         SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
+        String organism = null;
+
         if (parentSamples != null) {
             for (Sample s : parentSamples) {
+                if (s.getOrganism() != null) {
+                    organism = s.getOrganism().getName();
+                }
+
                 for (SampleAttribute attr : s.getSampleAttributes()) {
                     SortedSet<String> values = attrs.get(attr.getTag());
                     if (values == null) {
@@ -155,7 +162,12 @@ public class SampleProvenanceDtoFromObjects extends SampleProvenanceDto {
                 }
             }
         }
+
         if (sample != null) {
+            if (sample.getOrganism() != null) {
+                organism = sample.getOrganism().getName();
+            }
+
             for (SampleAttribute attr : sample.getSampleAttributes()) {
                 SortedSet<String> values = attrs.get(attr.getTag());
                 if (values == null) {
@@ -165,6 +177,11 @@ public class SampleProvenanceDtoFromObjects extends SampleProvenanceDto {
                 values.add(attr.getValue());
             }
         }
+
+        if (organism != null) {
+            attrs.put("geo_organism", ImmutableSortedSet.of(organism));
+        }
+
         if (ius != null) {
             for (IUSAttribute attr : ius.getIusAttributes()) {
                 SortedSet<String> values = attrs.get(attr.getTag());
