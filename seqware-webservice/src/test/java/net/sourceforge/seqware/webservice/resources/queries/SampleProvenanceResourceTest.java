@@ -73,6 +73,13 @@ public class SampleProvenanceResourceTest extends DatabaseResourceTest {
     public void testGet() {
         System.out.println(getRelativeURI() + " GET");
 
+        try {
+            //ensure sample provenance is cached incase "invalidate" is called first (below)
+            new <SampleProvenanceDtoList>Get("/reports/sample-provenance", new SampleProvenanceDtoList()).call();
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }
+
         List<Future<GetResult>> futures = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(50);
         CompletionService<GetResult> completionService = new ExecutorCompletionService(executorService);

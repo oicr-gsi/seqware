@@ -64,6 +64,13 @@ public class LaneProvenanceResourceTest extends DatabaseResourceTest {
     public void testGet() {
         System.out.println(getRelativeURI() + " GET");
 
+        try {
+            //ensure lane provenance is cached incase "invalidate" is called first (below)
+            new <LaneProvenanceDtoList>Get("/reports/lane-provenance", new LaneProvenanceDtoList()).call();
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }
+
         List<Future<GetResult>> futures = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(50);
         CompletionService<GetResult> completionService = new ExecutorCompletionService(executorService);
