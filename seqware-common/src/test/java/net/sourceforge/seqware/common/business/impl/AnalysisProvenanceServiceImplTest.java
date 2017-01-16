@@ -90,13 +90,15 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
     @Autowired
     SessionFactory sessionFactory;
 
+    private final int baseExpectedCount = 26;
+
     @Test
     public void getAllRecords() {
         //+ 20 IUS without workflow runs 
         //+ 3 files attached to workflow run
-        //+ 2 workflow runs without files
+        //+ 3 workflow runs without files
         //= 25 expected records
-        assertEquals(25, aprs.list().size());
+        assertEquals(baseExpectedCount, aprs.list().size());
     }
 
     @Test
@@ -146,8 +148,8 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         fileService.insert(file);
         Integer expectedFileSwid = file.getSwAccession();
 
-        //original 25 + 1 new file
-        assertEquals(26, aprs.list().size());
+        //original + 1 new file
+        assertEquals(baseExpectedCount + 1, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius).size());
         AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius));
@@ -273,7 +275,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         file.setFilePath(expectedFilePath);
         fileService.insert(file);
 
-        assertEquals(26, aprs.list().size());
+        assertEquals(baseExpectedCount + 1, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius2));
@@ -369,7 +371,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         file2.setFilePath(expectedFilePath);
         fileService.insert(file2);
 
-        assertEquals(27, aprs.list().size());
+        assertEquals(baseExpectedCount + 2, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         AnalysisProvenanceDto ap1 = Iterables.getOnlyElement(aprs.findForIus(ius1));
@@ -475,7 +477,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         processingService.update(p2);
 
         //no file yet... should have a record with workflow run info though
-        assertEquals(26, aprs.list().size());
+        assertEquals(baseExpectedCount + 1, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         assertEquals(1, aprs.findForIus(ius2).size());
@@ -500,7 +502,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         fileService.insert(file);
 
         //previous record should now have processing + file information
-        assertEquals(26, aprs.list().size());
+        assertEquals(baseExpectedCount + 1, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
         assertEquals(1, aprs.findForIus(ius2).size());
@@ -588,7 +590,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         sessionFactory.getCurrentSession().clear();
 
         //original 25 + 1 new file
-        assertEquals(26, aprs.list().size());
+        assertEquals(baseExpectedCount + 1, aprs.list().size());
 
         List<AnalysisProvenanceDto> aps = aprs.findForIus(ius);
         assertEquals(1, aps.size());
@@ -624,6 +626,6 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertNotNull(processingService.findBySWAccession(processing.getSwAccession()));
         assertNotNull(fileService.findBySWAccession(file.getSwAccession()));
 
-        assertEquals(25, aprs.list().size());
+        assertEquals(baseExpectedCount, aprs.list().size());
     }
 }

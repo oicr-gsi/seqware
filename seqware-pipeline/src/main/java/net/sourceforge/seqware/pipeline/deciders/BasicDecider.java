@@ -685,10 +685,9 @@ public class BasicDecider extends Plugin implements DeciderInterface {
     }
 
     protected void printFileMetadata(ReturnValue file, FileMetadata fm) {
-        String studyName = (String) options.valueOf("study-name");
         try {
             StringWriter writer = new StringWriter();
-            FindAllTheFiles.print(writer, file, studyName, true, fm);
+            FindAllTheFiles.print(writer, file, true, fm);
             studyReporterOutput.add(writer.getBuffer().toString().trim());
         } catch (IOException ex) {
             Log.error("Error printing file metadata", ex);
@@ -720,7 +719,11 @@ public class BasicDecider extends Plugin implements DeciderInterface {
         Map<String, String> iniFileMap = new TreeMap<>();
         SortedSet<WorkflowParam> wps = metadata.getWorkflowParams(workflowAccession);
         for (WorkflowParam param : wps) {
-            iniFileMap.put(param.getKey(), param.getDefaultValue());
+            if (param.getDefaultValue() == null) {
+                Log.debug("Excluding null workflow ini property [" + param.getKey() + "]");
+            } else {
+                iniFileMap.put(param.getKey(), param.getDefaultValue());
+            }
         }
 
         Map<String, String> iniParameters = modifyIniFile(commaSeparatedFilePaths, commaSeparatedParentAccessions);

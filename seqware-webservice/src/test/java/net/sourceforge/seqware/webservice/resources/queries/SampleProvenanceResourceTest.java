@@ -27,12 +27,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
-import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.lists.LaneProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.SampleProvenanceDtoList;
 import net.sourceforge.seqware.webservice.resources.tables.DatabaseResourceTest;
-import org.apache.commons.lang3.tuple.Pair;
-import org.joda.time.DateTime;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.Ignore;
@@ -75,6 +72,13 @@ public class SampleProvenanceResourceTest extends DatabaseResourceTest {
     @Override
     public void testGet() {
         System.out.println(getRelativeURI() + " GET");
+
+        try {
+            //ensure sample provenance is cached incase "invalidate" is called first (below)
+            new <SampleProvenanceDtoList>Get("/reports/sample-provenance", new SampleProvenanceDtoList()).call();
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }
 
         List<Future<GetResult>> futures = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(50);
