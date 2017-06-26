@@ -79,6 +79,7 @@ public enum SqwKeys {
     BASIC_TEST_DB_USER(null, Categories.TESTING, false,"Used to designate a database username for integration tests","seqware"),
     BASIC_TEST_DB_PASSWORD(null, Categories.TESTING, false,"Used to designate a database password for integration tests","seqware"),
     EXTENDED_TEST_DB_HOST(null, Categories.TESTING, false,"Used to designate a database for extended integration tests","localhost"),
+    EXTENDED_TEST_DB_PORT(null, Categories.TESTING, false,"Used to designate a database port for extended integration tests","5432"),
     EXTENDED_TEST_DB_NAME(null, Categories.TESTING, false,"Used to designate a database name for extended integration tests","seqware_meta_db"),
     EXTENDED_TEST_DB_USER(null, Categories.TESTING, false,"Used to designate a database username for extended integration tests","seqware"),
     EXTENDED_TEST_DB_PASSWORD(null, Categories.TESTING, false,"Used to designate a database password for extended integration tests","seqware")

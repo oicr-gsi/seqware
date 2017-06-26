@@ -104,6 +104,30 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-servlet</artifactId>
+            <version>1.11.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>1.11.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>3.3.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+            <version>3.1.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>6.0</version>
@@ -132,7 +156,7 @@
             <plugin>
                 <groupId>org.glassfish.embedded</groupId>
                 <artifactId>maven-embedded-glassfish-plugin</artifactId>
-                <version>3.1.2.2</version>
+                <version>4.1.1</version>
                 <configuration>
                     <contextRoot>seqware-admin-webservice</contextRoot>
                     <name>seqware-admin-webservice</name>
