@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
-        <version>1.1.1-gsi</version>
+        <version>1.1.2-gsi-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
