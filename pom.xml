@@ -854,6 +854,7 @@
                     <version>2.2</version>
                     <configuration>
                         <port>${tomcat_maven_port}</port>
+                        <httpsPort>0</httpsPort>
                         <useNaming>true</useNaming>
                     </configuration>
                     <executions>
