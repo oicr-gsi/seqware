@@ -31,7 +31,6 @@ import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
@@ -121,7 +120,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
         }
         try {
             SequencerRunService srs = BeanFactory.getSequencerRunServiceBean();
-            SequencerRunWizardDTO sequencerRun = (SequencerRunWizardDTO) testIfNull(srs.findByID(newSequencerRun.getSequencerRunId()));
+            SequencerRun sequencerRun = (SequencerRun) testIfNull(srs.findByID(newSequencerRun.getSequencerRunId()));
             sequencerRun.givesPermission(registration);
 
             // simple types
