@@ -33,7 +33,7 @@ import org.junit.Test;
  * 
  * @author dyuen
  */
-public class DeleteDBET {
+public class DeletionDBIT {
     private final ExtendedTestDatabaseCreator dbCreator = new ExtendedTestDatabaseCreator();
 
     @BeforeClass
@@ -68,7 +68,7 @@ public class DeleteDBET {
         ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
         // double check that the workflow run has actually been deleted
         Object[] runQuery = dbCreator.runQuery(new ArrayHandler(), "SELECT * FROM workflow_run WHERE sw_accession=6698");
-        Assert.assertTrue("workflow run not deleted", runQuery == null);
+        Assert.assertTrue("workflow run not deleted", runQuery.length == 0);
         // reset database when testing successful deletes
         ExtendedTestDatabaseCreator.resetDatabaseWithUsers();
     }
@@ -85,7 +85,7 @@ public class DeleteDBET {
         // double check that the workflow run has actually been deleted
         Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
                 "SELECT * FROM workflow_run WHERE sw_accession=6683 OR sw_accession = 6684");
-        Assert.assertTrue("workflow run not deleted", runQuery == null);
+        Assert.assertTrue("workflow run not deleted", runQuery.length == 0);
         // reset database when testing successful deletes
         ExtendedTestDatabaseCreator.resetDatabaseWithUsers();
     }
@@ -104,11 +104,11 @@ public class DeleteDBET {
                 .runQuery(
                         new ArrayHandler(),
                         "SELECT * FROM workflow_run WHERE sw_accession=872 OR sw_accession = 882 OR sw_accession = 5657 OR sw_accession = 6683 OR sw_accession = 6684");
-        Assert.assertTrue("workflow runs not deleted", runQuery == null);
+        Assert.assertTrue("workflow runs not deleted", runQuery.length == 0);
         runQuery = dbCreator
                 .runQuery(new ArrayHandler(),
                         "SELECT * FROM file WHERE sw_accession=881 OR sw_accession = 1963 OR sw_accession = 1978 OR sw_accession = 2139 OR sw_accession = 2160");
-        Assert.assertTrue("files not deleted", runQuery == null);
+        Assert.assertTrue("files not deleted", runQuery.length == 0);
         // reset database when testing successful deletes
         ExtendedTestDatabaseCreator.resetDatabaseWithUsers();
     }
@@ -136,7 +136,7 @@ public class DeleteDBET {
 
     @Test
     public void testFailureDueToTooMuchContentInKeyFile() throws IOException {
-        String path = DeleteDBET.class.getResource("tooBig.keyFile").getPath();
+        String path = DeletionDBIT.class.getResource("tooBig.keyFile").getPath();
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.deletion.DeletionDB " + "-- --r 2862 --k " + path;
         ITUtility.runSeqWareJar(listCommand, ReturnValue.INVALIDPARAMETERS, null);
         // double-check that content was not deleted
@@ -146,7 +146,7 @@ public class DeleteDBET {
 
     @Test
     public void testFailureDueToTooLittleContentInKeyFile() throws IOException {
-        String path = DeleteDBET.class.getResource("tooBig.keyFile").getPath();
+        String path = DeletionDBIT.class.getResource("tooBig.keyFile").getPath();
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.deletion.DeletionDB " + "-- --r 2862 --k " + path;
         ITUtility.runSeqWareJar(listCommand, ReturnValue.INVALIDPARAMETERS, null);
         // double-check that content was not deleted
@@ -167,7 +167,7 @@ public class DeleteDBET {
         // double check that the workflow run has actually been deleted
         Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
                 "SELECT * FROM workflow_run WHERE sw_accession=872 OR sw_accession = 882 OR sw_accession = 5657");
-        Assert.assertTrue("workflow runs not deleted", runQuery == null);
+        Assert.assertTrue("workflow runs not deleted", runQuery.length == 0);
         runQuery = dbCreator.runQuery(new ArrayHandler(), "SELECT * FROM workflow_run WHERE sw_accession=862");
         Assert.assertTrue("parent workflow run was deleted", runQuery != null && runQuery.length > 0);
         // reset database when testing successful deletes
@@ -187,7 +187,7 @@ public class DeleteDBET {
         ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
         // double check that the workflow run has actually been deleted
         Object[] runQuery = dbCreator.runQuery(new ArrayHandler(), "SELECT * FROM workflow_run WHERE sw_accession=6691");
-        Assert.assertTrue("workflow run not deleted", runQuery == null);
+        Assert.assertTrue("workflow run not deleted", runQuery.length == 0);
         // reset database when testing successful deletes
         ExtendedTestDatabaseCreator.resetDatabaseWithUsers();
     }
