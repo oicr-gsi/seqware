@@ -290,6 +290,14 @@ public class MetadataNoConnection implements Metadata {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
+        return null;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void add_workflow_run_ancestor(int workflowRunAccession, int processingId) {

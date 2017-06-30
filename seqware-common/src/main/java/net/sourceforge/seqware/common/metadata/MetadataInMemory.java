@@ -583,6 +583,11 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
+    public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
+        return (WorkflowRun) MetadataInMemory.getStore().get(workflowRunAccession, WorkflowRun.class);
+    }
+
+    @Override
     public List<WorkflowRun> getWorkflowRunsAssociatedWithInputFiles(List<Integer> fileAccessions) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
