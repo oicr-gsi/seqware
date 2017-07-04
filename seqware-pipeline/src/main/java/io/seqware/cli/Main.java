@@ -25,6 +25,9 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.model.Annotatable;
@@ -42,6 +45,7 @@ import net.sourceforge.seqware.pipeline.runner.PluginRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 
 /*
  * TODO:
@@ -830,6 +834,58 @@ public class Main {
         }
     }
 
+    private static void createIusLimsKey(List<String> args) {
+        OptionParser parser = new OptionParser();
+        OptionSpec<String> providerOpt = parser.accepts("provider").withRequiredArg().required();
+        OptionSpec<String> idOpt = parser.accepts("id").withRequiredArg().required();
+        OptionSpec<String> versionOpt = parser.accepts("version").withRequiredArg().required();
+        OptionSpec<String> lastModifiedOpt = parser.accepts("last-modified").withRequiredArg().required();
+        OptionSpec<Void> helpOpt = parser.accepts("help").forHelp();
+
+        //parse args
+        OptionSet options = parser.parse(args.toArray(new String[0]));
+
+        if (options.has(helpOpt)) {
+            out("");
+            out("Usage: seqware create ius-lims-key [--help]");
+            out("       seqware create ius-lims-key <fields>");
+            out("");
+            out("Required fields:");
+            out("  --provider <val>");
+            out("  --id <val>");
+            out("  --version <val>");
+            out("  --last-modified <val>");
+            out("");
+        } else {
+            //get option values
+            String provider = options.valueOf(providerOpt);
+            String id = options.valueOf(idOpt);
+            String version = options.valueOf(versionOpt);
+            DateTime lastModified = DateTime.parse(options.valueOf(lastModifiedOpt));
+
+            //get metadata connection to seqware
+            Metadata metadata = MetadataFactory.get(ConfigTools.getSettings());
+
+            if (metadata == null) {
+                throw new RuntimeException("Unable to connect to SeqWare");
+            }
+
+            //create LimsKey
+            Integer limsKeySwid = metadata.addLimsKey(provider, id, version, lastModified);
+            if (limsKeySwid == null) {
+                throw new RuntimeException("LimsKey SWID is null");
+            }
+            out("Created LimsKey[%s,%s,%s,%s] with SWID: %s", provider, id, version, lastModified.toString(), limsKeySwid.toString());
+
+            //create IUS
+            Integer iusSwid = metadata.addIUS(limsKeySwid, false);
+            if (iusSwid == null) {
+                throw new RuntimeException("IUS SWID is null");
+            }
+            out("Created IUS[limsKeySwid=%s] with SWID: %s", limsKeySwid.toString(), iusSwid.toString());
+        }
+    }
+
     private static void createLane(List<String> args) {
         if (isHelp(args, true)) {
             out("");
@@ -980,6 +1036,7 @@ public class Main {
             out("  experiment");
             out("  file");
             out("  ius");
+            out("  ius-lims-key");
             out("  lane");
             out("  sample");
             out("  sequencer-run");
@@ -995,7 +1052,10 @@ public class Main {
                 break;
             case "ius":
                 createIus(args);
-                break;
+                    break;
+            case "ius-lims-key":
+                createIusLimsKey(args);
+                    break;
             case "lane":
                 createLane(args);
                 break;
