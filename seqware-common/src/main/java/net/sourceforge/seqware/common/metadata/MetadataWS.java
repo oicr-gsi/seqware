@@ -1257,6 +1257,20 @@ public class MetadataWS implements Metadata {
         return wr;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
+        WorkflowRun wr = null;
+        try {
+            wr = ll.findWorkflowRun("/" + workflowRunAccession + "?show=ius");
+        } catch (Exception e) {
+            Log.info("Could not find workflow run by accession", e);
+        }
+        return wr;
+    }
+
     @Override
     public List<WorkflowRun> getWorkflowRunsByStatusCmd(String statusCmd) {
         List<WorkflowRun> wrs = Lists.newArrayList();
