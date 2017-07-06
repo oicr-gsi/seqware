@@ -25,6 +25,7 @@ import net.sourceforge.seqware.pipeline.plugins.ExtendedPluginTest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -58,17 +59,21 @@ public class WorkflowReschedulerTest extends ExtendedPluginTest {
         runRescheduleTest(6819); //GATK WR with a lot of missing info
     }
 
+    // The following two tests are skipped due to the following reason:
     // WRs in submitted status can not be rescheduled - the webservice errors out when parsing the ini of submitted WRs
     // Rescheduling submitted workflow runs doesn't really make sense though
-//    @Test
-//    public void testRechedule3() {
-//        runRescheduleTest(6683); //WR in submitted status
-//    }
-//
-//    @Test
-//    public void testRechedule4() {
-//        runRescheduleTest(6684); //WR in submitted status
-//    }
+    @Ignore
+    @Test
+    public void testRechedule3() {
+        runRescheduleTest(6683); //WR in submitted status
+    }
+
+    @Ignore
+    @Test
+    public void testRechedule4() {
+        runRescheduleTest(6684); //WR in submitted status
+    }
+
     @Test
     public void testRechedule5() {
         runRescheduleTest(863); //WR with no IUS links
