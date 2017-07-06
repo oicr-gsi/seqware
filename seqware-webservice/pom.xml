@@ -683,7 +683,6 @@
                         <configuration>
                             <contextFile>target/seqware-webservice-${project.version}/META-INF/context.xml</contextFile>
                             <useNaming>true</useNaming>
-                            <httpsPort>0</httpsPort>
                         </configuration>
                     </plugin>
                 </plugins>

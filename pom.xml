@@ -854,8 +854,10 @@
                     <version>2.2</version>
                     <configuration>
                         <port>${tomcat_maven_port}</port>
-                        <httpsPort>0</httpsPort>
                         <useNaming>true</useNaming>
+
+                        <!-- disable tomcat-embedded https, tests use http -->
+                        <httpsPort>0</httpsPort>
                     </configuration>
                     <executions>
                         <execution>
