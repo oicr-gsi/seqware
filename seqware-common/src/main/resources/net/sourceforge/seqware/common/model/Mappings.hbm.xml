@@ -1670,7 +1670,7 @@
             </generator>
         </id>
 
-        <many-to-one name="sequencerRunWizardDTO" class="SequencerRunWizardDTO" fetch="select">
+        <many-to-one name="sequencerRun" class="SequencerRun" fetch="select">
             <column name="sample_id" not-null="true" />
         </many-to-one>
 

@@ -85,7 +85,7 @@
     <artifactId>seqware</artifactId>
     <packaging>pom</packaging>
     <groupId>com.github.seqware</groupId>
-    <version>1.1.1-gsi</version>
+    <version>1.1.2-gsi</version>
 
     <repositories>
         <repository>
@@ -193,7 +193,6 @@
         <module>seqware-common</module>
         <module>seqware-pipeline</module>
         <module>seqware-admin-webservice</module>
-        <module>seqware-ext-admin-testing</module>
         <module>seqware-webservice</module>
         <module>seqware-portal</module>
         <module>seqware-archetypes/seqware-archetype-decider</module>
@@ -201,6 +200,7 @@
         <module>seqware-archetypes/seqware-archetype-module</module>
         <module>seqware-distribution</module>
         <module>seqware-ext-testing</module>
+        <module>seqware-ext-admin-testing</module>
         <module>seqware-sanity-check</module>
         <module>seqware-admin-tools</module>
     </modules>
@@ -855,6 +855,9 @@
                     <configuration>
                         <port>${tomcat_maven_port}</port>
                         <useNaming>true</useNaming>
+
+                        <!-- disable tomcat-embedded https, tests use http -->
+                        <httpsPort>0</httpsPort>
                     </configuration>
                     <executions>
                         <execution>
@@ -1122,6 +1125,25 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>toolchain</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <toolchains>
+                        <jdk>
+                            <version>1.7</version>
+                        </jdk>
+                    </toolchains>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>

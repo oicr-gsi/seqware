@@ -8,11 +8,11 @@ import java.io.Serializable;
  * @author boconnor
  * @version $Id: $Id
  */
-public class SequencerRunAttribute extends Attribute<SequencerRunWizardDTO, SequencerRunAttribute> implements Serializable {
+public class SequencerRunAttribute extends Attribute<SequencerRun, SequencerRunAttribute> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer sequencerRunAttributeId;
-    private SequencerRunWizardDTO sequencerRun;
+    private SequencerRun sequencerRun;
     private String tag;
     private String value;
     private String units;
@@ -33,9 +33,9 @@ public class SequencerRunAttribute extends Attribute<SequencerRunWizardDTO, Sequ
      * @param sequencerRunAttributeId
      *            a int.
      * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
+     *            a {@link net.sourceforge.seqware.common.model.SequencerRun} object.
      */
-    public SequencerRunAttribute(int sequencerRunAttributeId, SequencerRunWizardDTO sequencerRun) {
+    public SequencerRunAttribute(int sequencerRunAttributeId, SequencerRun sequencerRun) {
         this.sequencerRunAttributeId = sequencerRunAttributeId;
         this.sequencerRun = sequencerRun;
     }
@@ -48,7 +48,7 @@ public class SequencerRunAttribute extends Attribute<SequencerRunWizardDTO, Sequ
      * @param sequencerRunAttributeId
      *            a int.
      * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
+     *            a {@link net.sourceforge.seqware.common.model.SequencerRun} object.
      * @param tag
      *            a {@link java.lang.String} object.
      * @param value
@@ -56,7 +56,7 @@ public class SequencerRunAttribute extends Attribute<SequencerRunWizardDTO, Sequ
      * @param units
      *            a {@link java.lang.String} object.
      */
-    public SequencerRunAttribute(int sequencerRunAttributeId, SequencerRunWizardDTO sequencerRun, String tag, String value, String units) {
+    public SequencerRunAttribute(int sequencerRunAttributeId, SequencerRun sequencerRun, String tag, String value, String units) {
         this.sequencerRunAttributeId = sequencerRunAttributeId;
         this.sequencerRun = sequencerRun;
         this.tag = tag;
@@ -89,24 +89,24 @@ public class SequencerRunAttribute extends Attribute<SequencerRunWizardDTO, Sequ
 
     /**
      * <p>
-     * getSequencerRunWizardDTO.
+     * getSequencerRun.
      * </p>
      *
-     * @return a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
+     * @return a {@link net.sourceforge.seqware.common.model.SequencerRun} object.
      */
-    public SequencerRunWizardDTO getSequencerRunWizardDTO() {
+    public SequencerRun getSequencerRun() {
         return this.sequencerRun;
     }
 
     /**
      * <p>
-     * setSequencerRunWizardDTO.
+     * setSequencerRun.
      * </p>
      *
      * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
+     *            a {@link net.sourceforge.seqware.common.model.SequencerRun} object.
      */
-    public void setSequencerRunWizardDTO(SequencerRunWizardDTO sequencerRun) {
+    public void setSequencerRun(SequencerRun sequencerRun) {
         this.sequencerRun = sequencerRun;
     }
 
@@ -204,8 +204,8 @@ public class SequencerRunAttribute extends Attribute<SequencerRunWizardDTO, Sequ
     }
 
     @Override
-    public void setAttributeParent(SequencerRunWizardDTO parent) {
-        this.setSequencerRunWizardDTO(parent);
+    public void setAttributeParent(SequencerRun parent) {
+        this.setSequencerRun(parent);
     }
 
 }

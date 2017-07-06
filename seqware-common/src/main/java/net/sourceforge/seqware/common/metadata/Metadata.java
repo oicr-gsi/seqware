@@ -530,6 +530,18 @@ public interface Metadata {
     WorkflowRun getWorkflowRun(int workflowRunAccession);
 
     /**
+     * <p>
+     * getWorkflowRun and linked IUSes.
+     * </p>
+     *
+     * @param workflowRunAccession
+     *                             a int.
+     *
+     * @return a {@link net.sourceforge.seqware.common.model.WorkflowRun} object.
+     */
+    WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession);
+
+    /**
      * Get workflow run by status cmd (oozie job id in oozie).
      *
      * @param statusCmd

@@ -768,6 +768,14 @@ public class MetadataDB implements Metadata {
      * {@inheritDoc}
      */
     @Override
+    public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void add_workflow_run_ancestor(int workflowRunAccession, int processingId) {
         int workflowRunId = 0;
         try {
