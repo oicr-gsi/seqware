@@ -834,7 +834,14 @@ public class Main {
         }
     }
 
-    private static void createIusLimsKey(List<String> args) {
+    /**
+     * Create an IUS + LimsKey from provided args list
+     *
+     * @param args A list of command line args to be parsed
+     *
+     * @return IUS SWID
+     */
+    public static Integer createIusLimsKey(List<String> args) {
         OptionParser parser = new OptionParser();
         OptionSpec<String> providerOpt = parser.accepts("provider").withRequiredArg().required();
         OptionSpec<String> idOpt = parser.accepts("id").withRequiredArg().required();
@@ -856,6 +863,7 @@ public class Main {
             out("  --version <val>");
             out("  --last-modified <val>");
             out("");
+            return null;
         } else {
             //get option values
             String provider = options.valueOf(providerOpt);
@@ -883,6 +891,8 @@ public class Main {
                 throw new RuntimeException("IUS SWID is null");
             }
             out("Created IUS[limsKeySwid=%s] with SWID: %s", limsKeySwid.toString(), iusSwid.toString());
+
+            return iusSwid;
         }
     }
 

@@ -20,7 +20,12 @@ import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import net.sourceforge.seqware.common.metadata.MetadataFactory;
+import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+import org.joda.time.DateTime;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,16 +49,36 @@ public class CreateIusLimsKeyTest {
 
     @Test
     public void createTest() {
+        String id = "1";
+        String provider = "seqware";
+        String version = "426e0b848d77d7b3d778187d006056ee406221ca567ce2844ca403dc834ff8f1";
+        String lastModified = "2017-01-01T01:01:01Z";
+
+        Integer iusSwid = io.seqware.cli.Main.createIusLimsKey(Arrays.asList("--id", id, "--provider", provider, "--version", version,
+                "--last-modified", lastModified));
+        IUS ius = MetadataFactory.getInMemory().getIUS(iusSwid);
+        assertNotNull(ius);
+        assertNotNull(ius.getLimsKey());
+
+        LimsKey lk = ius.getLimsKey();
+        assertEquals(lk.getId(), id);
+        assertEquals(lk.getProvider(), provider);
+        assertEquals(lk.getVersion(), version);
+        assertEquals(lk.getLastModified(), DateTime.parse(lastModified));
+    }
+
+    @Test
+    public void createCliTest() {
         run("--id", "1", "--provider", "seqware", "--version", "426e0b848d77d7b3d778187d006056ee406221ca567ce2844ca403dc834ff8f1", "--last-modified", "2017-01-01T01:01:01Z");
     }
 
     @Test(expected = RuntimeException.class)
-    public void malformedDateTest() {
+    public void malformedDateCliTest() {
         run("--id", "1", "--provider", "seqware", "--version", "426e0b848d77d7b3d778187d006056ee406221ca567ce2844ca403dc834ff8f1", "--last-modified", "2017-01-01 ???");
     }
 
     @Test(expected = RuntimeException.class)
-    public void misingArgs() {
+    public void missingCliArgs() {
         run("--id", "1", "--provider", "seqware", "--version", "426e0b848d77d7b3d778187d006056ee406221ca567ce2844ca403dc834ff8f1");
     }
 
@@ -64,4 +89,5 @@ public class CreateIusLimsKeyTest {
         args2.addAll(Arrays.asList(args));
         io.seqware.cli.Main.main(args2.toArray(new String[0]));
     }
+
 }
